@@ -33,7 +33,16 @@ FRONT_END_DIR_OBJS := $(patsubst $(FRONT_END_DIR)/%.c, $(BUILD_DIR)/%.o, $(FRONT
 # FRONT_END_DIR_OBJS will be like:
 # build/Absyn.o build/Buffer.o ...
 
-OBJS := $(FRONT_END_DIR_OBJS)
+UTILS_DIR := $(SRC_DIR)/utils
+UTILS_DIR_H_FILES := $(wildcard $(UTILS_DIR)/*.h)
+UTILS_DIR_CC_FILES := $(wildcard $(UTILS_DIR)/*.c)
+UTILS_DIR_OBJS := $(patsubst $(UTILS_DIR)/%.c, $(BUILD_DIR)/%.o, $(UTILS_DIR_CC_FILES))
+
+HEADERS := $(FRONT_END_DIR_H_FILES) $(UTILS_DIR_H_FILES)
+
+OBJS := $(FRONT_END_DIR_OBJS) $(UTILS_DIR_OBJS)
+
+CC_INCLUDES := -I$(FRONT_END_DIR) -I$(UTILS_DIR)
 
 .PHONY : clean all
 
@@ -49,27 +58,27 @@ run_parser_test: TestJavalette
 	./$(BUILD_DIR)/TestJavalette test/parser/test_1.jl
 
 # generate the object files
-$(BUILD_DIR)/%.o: $(FRONT_END_DIR)/%.c $(FRONT_END_DIR_H_FILES)
+$(BUILD_DIR)/%.o: $(FRONT_END_DIR)/%.c $(HEADERS) 
 # special c flag for Lexer.o
 	if [ $* = "Lexer" ]; then \
-		$(CC) $(CCFLAGS) -Wno-sign-conversion -c $< -o $@; \
+		$(CC) $(CCFLAGS) -Wno-sign-conversion $(CC_INCLUDES) -c $< -o $@;\
 	else \
-		$(CC) $(CCFLAGS) -c $< -o $@; \
+		$(CC) $(CCFLAGS) $(CC_INCLUDES) -c $< -o $@; \
 	fi
-
+	
 # test .o files
 # test: $(OBJS)
 # 	@echo $(OBJS)
 
 TestJavalette: $(OBJS)
 	@echo "Linking TestJavalette..."
-	$(CC) $(OBJS) $(SRC_DIR)/Test.c -I$(FRONT_END_DIR) -o $(BUILD_DIR)/TestJavalette
+	$(CC) $(OBJS) $(SRC_DIR)/Test.c $(CC_INCLUDES) -o $(BUILD_DIR)/TestJavalette
 
 # this target is used to generate the jlc executable, 
 # output to the root directory directly.
 jlc: $(OBJS) 
 	@echo "Building jlc..."
-	$(CC) $(OBJS) $(SRC_DIR)/jlc.c -I$(FRONT_END_DIR) -o jlc
+	$(CC) $(OBJS) $(SRC_DIR)/jlc.c $(CC_INCLUDES) -o jlc
 
 # remove this target, because we just need to generate it once,
 # thus, we generate it manually.

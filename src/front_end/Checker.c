@@ -13,6 +13,9 @@
 
 #include "Checker.h"
 
+#include "util.h"
+
+
 void visitProg(Prog p)
 {
   switch(p->kind)
@@ -278,11 +281,20 @@ void visitExpr(Expr p)
     visitExpr(p->u.not_.expr_);
     break;
   case is_EMul:
+    /* Debug print */
+    printf("[DEBUG] EMul\n");
+    printf("[DEBUG] \texpr_1: enum_value (%d), str(%s)\n", 
+      p->u.emul_.expr_1->kind, EXPR_ENUM_TO_STRING(p->u.emul_.expr_1->kind));
+
+    printf("[DEBUG] \tmulop_: %d\n", p->u.emul_.mulop_->kind);
+    printf("[DEBUG] \texpr_2: enum_value (%d), str(%s)\n", 
+      p->u.emul_.expr_2->kind, EXPR_ENUM_TO_STRING(p->u.emul_.expr_2->kind));
+
     /* Code for EMul Goes Here */
- 
     visitExpr(p->u.emul_.expr_1);
     visitMulOp(p->u.emul_.mulop_);
     visitExpr(p->u.emul_.expr_2);
+
     if(p->u.emul_.expr_1->kind == p->u.emul_.expr_2->kind) break;
     else {
       fprintf(stderr, "Error: type cant match\n");
