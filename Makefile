@@ -37,11 +37,13 @@ OBJS := $(FRONT_END_DIR_OBJS)
 
 .PHONY : clean all
 
+all: TestJavalette jlc
+
 clean:
 	mkdir -p $(BUILD_DIR)
 	rm -rf $(BUILD_DIR)/*
+	rm jlc
 
-all: TestJavalette
 
 run_parser_test: TestJavalette
 	./$(BUILD_DIR)/TestJavalette test/parser/test_1.jl
@@ -61,8 +63,13 @@ $(BUILD_DIR)/%.o: $(FRONT_END_DIR)/%.c $(FRONT_END_DIR_H_FILES)
 
 TestJavalette: $(OBJS)
 	@echo "Linking TestJavalette..."
-	$(CC) $(OBJS) -o $(BUILD_DIR)/TestJavalette
+	$(CC) $(OBJS) $(SRC_DIR)/Test.c -I$(FRONT_END_DIR) -o $(BUILD_DIR)/TestJavalette
 
+# this target is used to generate the jlc executable, 
+# output to the root directory directly.
+jlc: $(OBJS) 
+	@echo "Building jlc..."
+	$(CC) $(OBJS) $(SRC_DIR)/jlc.c -I$(FRONT_END_DIR) -o jlc
 
 # remove this target, because we just need to generate it once,
 # thus, we generate it manually.
