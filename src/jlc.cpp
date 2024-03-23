@@ -1,13 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <string>
+#include <iostream>
+#include "Parser.H"
+#include "Printer.H"
+#include "Absyn.H"
+#include "ParserError.H"
+#include "JLCChecker.H"
 
-#include "Parser.h"
-#include "Printer.h"
-#include "Absyn.h"
-#include "Checker.h"
-
-void usage(void) {
+void usage() {
   printf("usage: Call with one of the following argument combinations:\n");
   printf("\t--help\t\tDisplay this help message.\n");
   printf("\t(no arguments)\tParse stdin verbosely.\n");
@@ -18,7 +18,6 @@ void usage(void) {
 int main(int argc, char ** argv)
 {
   FILE *input;
-  Prog parse_tree;
   int quiet = 0;
   char *filename = NULL;
 
@@ -41,21 +40,29 @@ int main(int argc, char ** argv)
       usage();
       exit(1);
     }
-  }
-  else input = stdin;
-  /* The default entry point is used. For other options see Parser.h */
+  } else input = stdin;
+  /* The default entry point is used. For other options see Parser.H */
+  Prog *parse_tree = NULL;
+  try {
   parse_tree = pProg(input);
+  } catch( parse_error &e) {
+     std::cerr << "Parse error on line " << e.getLine() << "\n";
+  }
   if (parse_tree)
   {
     printf("\nParse Successful!\n");
     if (!quiet) {
       printf("\n[Abstract Syntax]\n");
-      printf("%s\n\n", showProg(parse_tree));
+      ShowAbsyn *s = new ShowAbsyn();
+      printf("%s\n\n", s->show(parse_tree));
       printf("[Linearized Tree]\n");
-      printf("%s\n\n", printProg(parse_tree));
+      PrintAbsyn *p = new PrintAbsyn();
+      printf("%s\n\n", p->print(parse_tree));
     }
-    visitProg(parse_tree);
-    free_Prog(parse_tree);
+    JLCChecker *checker = new JLCChecker();
+    parse_tree->accept(checker);
+    delete(checker);
+    delete(parse_tree);
     return 0;
   }
   return 1;

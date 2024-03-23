@@ -100,31 +100,31 @@ extern int javalette_debug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 129 "Javalette.y"
+#line 50 "Javalette.y"
 
   int    _int;
   char   _char;
   double _double;
   char*  _string;
-  Prog prog_;
-  TopDef topdef_;
-  ListTopDef listtopdef_;
-  Arg arg_;
-  ListArg listarg_;
-  Blk blk_;
-  ListStmt liststmt_;
-  Stmt stmt_;
-  Item item_;
-  ListItem listitem_;
-  Type type_;
-  ListType listtype_;
-  Expr expr_;
-  ListExpr listexpr_;
-  AddOp addop_;
-  MulOp mulop_;
-  RelOp relop_;
+  Prog* prog_;
+  TopDef* topdef_;
+  ListTopDef* listtopdef_;
+  Arg* arg_;
+  ListArg* listarg_;
+  Blk* blk_;
+  ListStmt* liststmt_;
+  Stmt* stmt_;
+  Item* item_;
+  ListItem* listitem_;
+  Type* type_;
+  ListType* listtype_;
+  Expr* expr_;
+  ListExpr* listexpr_;
+  AddOp* addop_;
+  MulOp* mulop_;
+  RelOp* relop_;
 
-#line 128 "Bison.h"
+#line 128 "Bison.H"
 
 };
 typedef union YYSTYPE YYSTYPE;
