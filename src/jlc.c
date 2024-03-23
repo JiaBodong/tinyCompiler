@@ -5,6 +5,7 @@
 #include "Parser.h"
 #include "Printer.h"
 #include "Absyn.h"
+#include "Checker.h"
 
 void usage(void) {
   printf("usage: Call with one of the following argument combinations:\n");
@@ -53,6 +54,7 @@ int main(int argc, char ** argv)
       printf("[Linearized Tree]\n");
       printf("%s\n\n", printProg(parse_tree));
     }
+    visitProg(parse_tree);
     free_Prog(parse_tree);
     return 0;
   }
