@@ -7,8 +7,47 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <string.h>
 #include "Skeleton.h"
+
+ /* kv map */
+struct KeyValuePair {
+    void* key;
+    void* value;
+    struct KeyValuePair* next;
+};
+struct KeyValuePair* globalMap = NULL;
+void addToMap(void* key, void* value);
+void* getValue(void* key);
+
+
+/* add kv to table */
+void addToMap(void* key, void* value) {
+
+    struct KeyValuePair* newNode = malloc(sizeof(struct KeyValuePair));
+    newNode->key = key;
+    newNode->value = value;
+    newNode->next = NULL;
+
+    
+    newNode->next = globalMap;
+    globalMap = newNode;
+}
+
+/*get value from table */
+void* getValue(void* key) {
+
+    struct KeyValuePair* current = globalMap;
+    while (current != NULL) {
+        if (strcmp((char*)current->key, (char*)key) == 0) {
+            return current->value;
+        }
+        current = current->next;
+    }
+ 
+    return NULL;
+}
+
 
 void visitProg(Prog p)
 {
@@ -119,6 +158,7 @@ void visitStmt(Stmt p)
     /* Code for Decl Goes Here */
     visitType(p->u.decl_.type_);
     visitListItem(p->u.decl_.listitem_);
+    addToMap()
     break;
   case is_Ass:
     /* Code for Ass Goes Here */
@@ -390,16 +430,22 @@ void visitRelOp(RelOp p)
   }
 }
 
+ /* these are the smallest units of the program */
 void visitIdent(Ident i)
 {
+   /* record the status of i, decl? if decl, init or noinit? if init , what is the value? what's the type? */
   /* Code for Ident Goes Here */
 }
 void visitInteger(Integer i)
 {
+  fprintf(stderr, "visit integer\n");
+  return;
   /* Code for Integer Goes Here */
 }
 void visitDouble(Double d)
 {
+  fprintf(stderr, "visit double\n");
+  return;
   /* Code for Double Goes Here */
 }
 void visitChar(Char c)
