@@ -276,7 +276,7 @@ void visitExpr(Expr p)
     break;
   case is_EMul:
     /* Code for EMul Goes Here */
-    
+ 
     visitExpr(p->u.emul_.expr_1);
     visitMulOp(p->u.emul_.mulop_);
     visitExpr(p->u.emul_.expr_2);

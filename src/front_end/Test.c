@@ -14,7 +14,7 @@
 #include "Parser.h"
 #include "Printer.h"
 #include "Absyn.h"
-#include "Skeleton.h"
+
 void usage(void) {
   printf("usage: Call with one of the following argument combinations:\n");
   printf("\t--help\t\tDisplay this help message.\n");
@@ -61,13 +61,8 @@ int main(int argc, char ** argv)
       printf("%s\n\n", showProg(parse_tree));
       printf("[Linearized Tree]\n");
       printf("%s\n\n", printProg(parse_tree));
-      printf("Typer Check\n");
-      visitProg(parse_tree);
-    
     }
-   
     free_Prog(parse_tree);
-    
     return 0;
   }
   return 1;
