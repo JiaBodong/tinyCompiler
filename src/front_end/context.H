@@ -2,6 +2,7 @@
 #define __CONTEXT_H__
 
 #include <map>
+enum type_enum {INT=0, DOUB, BOOL, VOID, FUN, UNDEFINED};
 
 // for each parameter, declared CVARiable, we create a new CVAR object
 class CVAR{
@@ -33,15 +34,24 @@ public:
 class Frame{
 public:
   Frame() = default;
-  Frame(std::string name): name(name) {}
+  Frame(std::string name): name(name), returnType(UNDEFINED) {}
   ~Frame() = default;
   std::string name; // name of the function
   std::map<std::string, CVAR> parameters; // map of CVARiables
+  type_enum returnType; // return type of the function
+
+  std::map<std::string, type_enum> args; // map of arguments
+
+  // chcek if the argument is declared
+  bool isExistArg(const std::string& name){
+	return args.find(name) != args.end();
+  }
 
 	// there are many checking functions for each new frame
 	// for example, check if the CVARiable is declared
 	// check if the function is already declared
 	// check if the function returns types
+  
 };
 
 // Context is a class that holds the current state of the program.
@@ -52,10 +62,24 @@ public:
 	std::map<std::string, Frame> funcs;
 	// rules for checking the function
 
+	std::string currentFrameName;
+
+	Frame & currentFrame(){
+		return funcs["main"];
+	}
+
 	void addFrame(const std::string& name){
 		Frame frame(name);
 		funcs[name] = frame;
 	}
+	Frame & getFrame(const std::string& name){
+		return funcs[name];
+	}
+
+	bool isExistFunction(const std::string& name){
+		return funcs.find(name) != funcs.end();
+	}
+
 };
 
 #endif

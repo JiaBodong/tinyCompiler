@@ -6,7 +6,6 @@
 
 #include "Absyn.H"
 
-
 class JLCChecker : public Visitor
 {
 public:

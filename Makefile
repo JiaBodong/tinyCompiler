@@ -2,7 +2,7 @@
 # [+] remove bnfc stage, and use the generated Makefile 
 # as a reference to generate our own Makefile.
 
-CC = g++ -g -std=c++11
+CC = g++ -std=c++11 -g
 CCFLAGS = --ansi -W -Wall -Wsign-conversion \
 	-Wno-unused-parameter \
 	-Wno-unused-function \

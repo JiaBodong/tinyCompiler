@@ -11,7 +11,23 @@
 #include "util.h"
 
 #include <iostream>
+#include <string>
+#include <cstdlib>
 Context globalContext;
+
+
+std::string to_string(type_enum t) {
+  switch(t) {
+    case INT: return "int";
+    case DOUB: return "double";
+    case BOOL: return "bool";
+    case VOID: return "void";
+    case FUN: return "fun";
+  }
+  return "unknown";
+}
+
+type_enum temp_type;
 
 void JLCChecker::visitProg(Prog *t) {} //abstract class
 void JLCChecker::visitTopDef(TopDef *t) {} //abstract class
@@ -37,20 +53,62 @@ void JLCChecker::visitFnDef(FnDef *fn_def)
 {
   /* Code For FnDef Goes Here */
   DEBUG_PRINT("Visiting FnDef:");
-  DEBUG_PRINT("Function name: " + fn_def->ident_);
+  DEBUG_PRINT("\tFunction name: " + fn_def->ident_);
 
+  /* type ident ( listarg ) block */
+  // check function type
   if (fn_def->type_) fn_def->type_->accept(this);
-  visitIdent(fn_def->ident_);
-  if (fn_def->listarg_) fn_def->listarg_->accept(this);
-  if (fn_def->blk_) fn_def->blk_->accept(this);
+  DEBUG_PRINT("\tFunction type: " + to_string(temp_type));
+  // don't need to check type_, as long as the parser is correct, otherwise it will throw an error
+  // it is impossible to have a function without a type
 
+  
+  // check function name
+  visitIdent(fn_def->ident_);
+  // check if the function is already declared
+  if(globalContext.isExistFunction(fn_def->ident_)){
+    std::cerr << "Error: Function " << fn_def->ident_ << " is already declared" << std::endl;
+    exit(1);
+  }
+  // add the function to the global context
+  globalContext.addFrame(fn_def->ident_);
+  globalContext.currentFrameName = fn_def->ident_;
+
+  Frame& func = globalContext.getFrame(fn_def->ident_);
+  func.returnType = temp_type;
+  
+  
+  // check function arguments
+  if (fn_def->listarg_) fn_def->listarg_->accept(this);
+
+  if (fn_def->blk_) fn_def->blk_->accept(this);
 }
 
 void JLCChecker::visitArgument(Argument *argument)
 {
   /* Code For Argument Goes Here */
-
   if (argument->type_) argument->type_->accept(this);
+  DEBUG_PRINT("\tArgument name: " + argument->ident_ + 
+    "\tArgument type: " + to_string(temp_type));
+  // check if the type is ok: case 072, void type
+  if(temp_type == VOID){
+    std::cerr << "Error: Argument " << argument->ident_ 
+        << " in function:"<< globalContext.currentFrameName
+        << " has void type" << std::endl;
+    exit(1);
+  }
+
+  Frame& func = globalContext.getFrame(globalContext.currentFrameName);
+  // check if the argument is already declared
+  if(func.isExistArg(argument->ident_)){
+    std::cerr << "Error: Argument " << argument->ident_ 
+        << " in function:"<< globalContext.currentFrameName
+        << " is already declared" << std::endl;
+    exit(1);
+  }
+  // add the argument to the function
+  func.args[argument->ident_] = temp_type;
+
   visitIdent(argument->ident_);
 
 }
@@ -183,28 +241,26 @@ void JLCChecker::visitInit(Init *init)
 void JLCChecker::visitInt(Int *int_)
 {
   /* Code For Int Goes Here */
-
-
+  temp_type = INT;
 }
 
 void JLCChecker::visitDoub(Doub *doub)
 {
   /* Code For Doub Goes Here */
-
-
+  temp_type = DOUB;
 }
 
 void JLCChecker::visitBool(Bool *bool_)
 {
   /* Code For Bool Goes Here */
-
+  temp_type = BOOL;
 
 }
 
 void JLCChecker::visitVoid(Void *void_)
 {
   /* Code For Void Goes Here */
-
+  temp_type = VOID;
 
 }
 
