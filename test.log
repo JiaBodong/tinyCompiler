@@ -104,12 +104,12 @@ About to run tests with these settings:
 [ 96/123] testsuite/bad/bad001      ... OK
 [ 97/123] testsuite/bad/struct05    ... OK
 [ 98/123] testsuite/bad/bad073      ... FAILED
-[ 99/123] testsuite/bad/bad003      ... FAILED
-[100/123] testsuite/bad/bad064      ... FAILED
+[ 99/123] testsuite/bad/bad003      ... OK
+[100/123] testsuite/bad/bad064      ... OK
 [101/123] testsuite/bad/bad065      ... FAILED
 [102/123] testsuite/bad/bad015      ... FAILED
 [103/123] testsuite/bad/bad002      ... OK
-[104/123] testsuite/bad/bad072      ... FAILED
+[104/123] testsuite/bad/bad072      ... OK
 [105/123] testsuite/bad/bad011      ... FAILED
 [106/123] testsuite/bad/bad061      ... OK
 [107/123] testsuite/bad/bad029      ... FAILED
@@ -410,24 +410,6 @@ Some tests failed:
 - compiler return code info:
     compiler return code: 0, nonzero expected
 
----------- !!! testsuite/bad/bad003.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
----------- !!! testsuite/bad/bad064.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
 ---------- !!! testsuite/bad/bad065.jl failed !!! ----------
 
 - stderr expected:
@@ -438,15 +420,6 @@ Some tests failed:
     compiler return code: 0, nonzero expected
 
 ---------- !!! testsuite/bad/bad015.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
----------- !!! testsuite/bad/bad072.jl failed !!! ----------
 
 - stderr expected:
     ERROR

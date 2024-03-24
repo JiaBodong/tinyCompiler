@@ -67,7 +67,7 @@ void JLCChecker::visitFnDef(FnDef *fn_def)
   visitIdent(fn_def->ident_);
   // check if the function is already declared
   if(globalContext.isExistFunction(fn_def->ident_)){
-    std::cerr << "Error: Function " << fn_def->ident_ << " is already declared" << std::endl;
+    std::cerr << "ERROR: Function " << fn_def->ident_ << " is already declared" << std::endl;
     exit(1);
   }
   // add the function to the global context
@@ -92,7 +92,7 @@ void JLCChecker::visitArgument(Argument *argument)
     "\tArgument type: " + to_string(temp_type));
   // check if the type is ok: case 072, void type
   if(temp_type == VOID){
-    std::cerr << "Error: Argument " << argument->ident_ 
+    std::cerr << "ERROR: Argument " << argument->ident_ 
         << " in function:"<< globalContext.currentFrameName
         << " has void type" << std::endl;
     exit(1);
@@ -101,7 +101,7 @@ void JLCChecker::visitArgument(Argument *argument)
   Frame& func = globalContext.getFrame(globalContext.currentFrameName);
   // check if the argument is already declared
   if(func.isExistArg(argument->ident_)){
-    std::cerr << "Error: Argument " << argument->ident_ 
+    std::cerr << "ERROR: Argument " << argument->ident_ 
         << " in function:"<< globalContext.currentFrameName
         << " is already declared" << std::endl;
     exit(1);
