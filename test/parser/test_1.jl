@@ -1,11 +1,13 @@
 int main() {
     // Arithmetic operations with cross-types
-    # int x;
-    x = 2;
-    int z = x + 1;
-    double y;
-    x*y;
-
+    int a;
+    a = 1;
+    int b = 2;
+    int c = a + 1;
+    int d = a + b;
+    int e;
+    e = a + b;
     return 0;
 }
 
+# 
