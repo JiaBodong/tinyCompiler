@@ -63,8 +63,10 @@ int main(int argc, char ** argv)
     parse_tree->accept(checker);
     delete(checker);
     delete(parse_tree);
+    std::cerr << "OK" << std::endl;
     return 0;
   }
+  std::cerr << "ERROR" << std::endl;
   return 1;
 }
 

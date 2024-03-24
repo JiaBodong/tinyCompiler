@@ -2,7 +2,7 @@
 # [+] remove bnfc stage, and use the generated Makefile 
 # as a reference to generate our own Makefile.
 
-CC = g++ -g
+CC = g++ -g -std=c++11
 CCFLAGS = --ansi -W -Wall -Wsign-conversion \
 	-Wno-unused-parameter \
 	-Wno-unused-function \
@@ -70,13 +70,13 @@ $(BUILD_DIR)/%.o: $(FRONT_END_DIR)/%.C $(HEADERS)
 # test: $(OBJS)
 # 	@echo $(OBJS)
 
-TestJavalette: $(OBJS)
+TestJavalette: $(OBJS) $(SRC_DIR)/Test.cpp 
 	@echo "Linking TestJavalette..."
 	$(CC) $(OBJS) $(SRC_DIR)/Test.cpp $(CC_INCLUDES) -o $(BUILD_DIR)/TestJavalette
 
 # this target is used to generate the jlc executable, 
 # output to the root directory directly.
-jlc: $(OBJS) 
+jlc: $(OBJS) $(SRC_DIR)/jlc.cpp
 	@echo "Building jlc..."
 	$(CC) $(OBJS) $(SRC_DIR)/jlc.cpp $(CC_INCLUDES) -o jlc
 

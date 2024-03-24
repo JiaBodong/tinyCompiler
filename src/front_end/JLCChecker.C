@@ -7,9 +7,11 @@
    algorithms to use context information differently. */
 
 #include "JLCChecker.H"
+#include "context.H"
+#include "util.h"
 
 #include <iostream>
-
+Context globalContext;
 
 void JLCChecker::visitProg(Prog *t) {} //abstract class
 void JLCChecker::visitTopDef(TopDef *t) {} //abstract class
@@ -26,7 +28,7 @@ void JLCChecker::visitRelOp(RelOp *t) {} //abstract class
 void JLCChecker::visitProgram(Program *program)
 {
   /* Code For Program Goes Here */
-  std::cout << "Start Visiting Program" << std::endl;
+  DEBUG_PRINT("Visiting Program");
   if (program->listtopdef_) program->listtopdef_->accept(this);
 
 }
@@ -34,6 +36,8 @@ void JLCChecker::visitProgram(Program *program)
 void JLCChecker::visitFnDef(FnDef *fn_def)
 {
   /* Code For FnDef Goes Here */
+  DEBUG_PRINT("Visiting FnDef:");
+  DEBUG_PRINT("Function name: " + fn_def->ident_);
 
   if (fn_def->type_) fn_def->type_->accept(this);
   visitIdent(fn_def->ident_);

@@ -29,5 +29,8 @@ enum {
 //     (enum == is_EAnd) ? "EAnd" : \
 //     (enum == is_EOr) ? "EOr" : "Unknown"
 
+#define DEBUG_PRINT(ss) \
+    std::cout << "[DEBUG]:" << ss << std::endl;
+
 
 #endif /* __MMUTIL_H__ */ 
