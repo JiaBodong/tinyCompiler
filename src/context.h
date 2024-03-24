@@ -39,11 +39,18 @@ public:
 
 	// there are many checking functions for each new frame
 	// for example, check if the variable is declared
-	// check if the variable is initialized
+	// check if the function is already declared
+	// check if the function returns types
 }
 
 // Context is a class that holds the current state of the program.
-std::ordered_map<std::string, Frame> gContext;
+class Context{
+public:
+	Context();
+	~Context();
+	std::ordered_map<std::string, Frame> funcs;
+	// rules for checking the function
 
+};
 
 #endif
