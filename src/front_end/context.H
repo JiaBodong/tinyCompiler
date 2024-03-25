@@ -2,7 +2,11 @@
 #define __CONTEXT_H__
 
 #include <map>
+#include <string>
+#include <vector>
+
 enum type_enum {INT=0, DOUB, BOOL, VOID, FUN, UNDEFINED};
+std::string to_string(type_enum t);
 
 // for each parameter, declared CVARiable, we create a new CVAR object
 class CVAR{
@@ -81,5 +85,7 @@ public:
 	}
 
 };
+
+extern Context globalContext;
 
 #endif
