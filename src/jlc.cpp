@@ -59,7 +59,7 @@ int main(int argc, char ** argv)
       PrintAbsyn *p = new PrintAbsyn();
       printf("%s\n\n", p->print(parse_tree));
     }
-    JLCChecker *checker = new JLCChecker();
+    JLCFuncDeclearationChecker *checker = new JLCFuncDeclearationChecker();
     parse_tree->accept(checker);
     delete(checker);
     delete(parse_tree);
