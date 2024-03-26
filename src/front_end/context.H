@@ -44,11 +44,13 @@ public:
   std::map<std::string, CVAR> parameters; // map of CVARiables
   type_enum returnType; // return type of the function
 
-  std::map<std::string, type_enum> args; // map of arguments
-
+  std::vector<std::pair<std::string, type_enum> > args; // save the arguments of the function
+  
   // chcek if the argument is declared
-  bool isExistArg(const std::string& name){
-	return args.find(name) != args.end();
+  bool isExistArg(const std::string& name);
+
+  void addArg(const std::string& name, type_enum type){
+	args.push_back(std::make_pair(name, type));
   }
 
 	// there are many checking functions for each new frame

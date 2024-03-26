@@ -13,3 +13,13 @@ std::string to_string(type_enum t) {
   }
   return "unknown";
 }
+
+
+bool Frame::isExistArg(const std::string& name){
+	for(const auto & arg : args){
+	  if(arg.first == name){
+		return true;
+	  }
+	}
+	return false;
+} 
