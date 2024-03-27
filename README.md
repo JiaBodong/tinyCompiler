@@ -72,11 +72,11 @@ python3 testing.py path/to/submission
 - [ ] bad031: return check
 - [ ] bad067: return check
 - [ ] bad065: return check
-- [ ] bad011: return check
+- [x] bad011: return check
 - [ ] bad029: return check
-- [ ] bad071: return check
+- [x] bad071: return check
 - [x] bad058: return check
-- [ ] bad010: return check
+- [x] bad010: return check
 - [ ] bad012: return check
 
 

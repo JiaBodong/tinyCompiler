@@ -110,7 +110,7 @@ About to run tests with these settings:
 [102/123] testsuite/bad/bad015      ... OK
 [103/123] testsuite/bad/bad002      ... OK
 [104/123] testsuite/bad/bad072      ... OK
-[105/123] testsuite/bad/bad011      ... FAILED
+[105/123] testsuite/bad/bad011      ... OK
 [106/123] testsuite/bad/bad061      ... OK
 [107/123] testsuite/bad/bad029      ... FAILED
 [108/123] testsuite/bad/bad006      ... OK
@@ -121,7 +121,7 @@ About to run tests with these settings:
 [113/123] testsuite/bad/bad007      ... OK
 [114/123] testsuite/bad/bad028      ... OK
 [115/123] testsuite/bad/bad060      ... OK
-[116/123] testsuite/bad/bad010      ... FAILED
+[116/123] testsuite/bad/bad010      ... OK
 [117/123] testsuite/bad/bad062      ... OK
 [118/123] testsuite/bad/bad012      ... FAILED
 [119/123] testsuite/bad/bad005      ... OK
@@ -239,25 +239,7 @@ Some tests failed:
 - compiler return code info:
     compiler return code: 0, nonzero expected
 
----------- !!! testsuite/bad/bad011.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
 ---------- !!! testsuite/bad/bad029.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
----------- !!! testsuite/bad/bad010.jl failed !!! ----------
 
 - stderr expected:
     ERROR

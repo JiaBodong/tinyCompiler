@@ -1,4 +1,8 @@
-// return type must be int
-void main() {
-    return 0;
+int main() {
+   return f(3); 
+}
+
+int f(int x) {
+    if (x<0) 
+       return 2.0;
 }

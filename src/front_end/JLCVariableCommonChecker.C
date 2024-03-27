@@ -207,13 +207,24 @@ void JLCVariableCommonChecker::visitRet(Ret *ret)
   /* Code For Ret Goes Here */
 
   if (ret->expr_) ret->expr_->accept(this);
-
+  // check if the function return type is the same as the expression type
+  auto & frame = globalContext.currentFrame();
+  if(frame.returnType != temp_type){
+    std::cerr << "ERROR: function " << frame.name << " should return a value with type:" 
+    << to_string(frame.returnType) << ", but " << to_string(temp_type) << " is provided\n";
+    exit(1);
+  }
 }
 
 void JLCVariableCommonChecker::visitVRet(VRet *v_ret)
 {
   /* Code For VRet Goes Here */
-
+  // check if the function return type is void
+  auto & frame = globalContext.currentFrame();
+  if(frame.returnType != VOID){
+    std::cerr << "ERROR: function " << frame.name << " should return a value\n";
+    exit(1);
+  }
 
 }
 
@@ -577,7 +588,6 @@ void JLCVariableCommonChecker::visitMod(Mod *mod)
 void JLCVariableCommonChecker::visitLTH(LTH *lth)
 {
   /* Code For LTH Goes Here */
-
 
 }
 
