@@ -488,8 +488,18 @@ void JLCVariableCommonChecker::visitERel(ERel *e_rel)
   /* Code For ERel Goes Here */
 
   if (e_rel->expr_1) e_rel->expr_1->accept(this);
+  auto temp_type_1 = temp_type;
   if (e_rel->relop_) e_rel->relop_->accept(this);
+  auto local_op = temp_op;
   if (e_rel->expr_2) e_rel->expr_2->accept(this);
+  auto temp_type_2 = temp_type;
+  // check if the type of the two expressions are the same
+  if(temp_type_1 != temp_type_2){
+    std::cerr << "ERROR: expression " + std::string(p.print(e_rel->expr_1)) + " type:"
+    + to_string(temp_type_1) + " and " + std::string(p.print(e_rel->expr_2)) + " type:"
+    + to_string(temp_type_2) + " have different types\n";
+    exit(1);
+  }
   temp_type = BOOL;
 }
 

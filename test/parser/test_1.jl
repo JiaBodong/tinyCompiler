@@ -1,4 +1,4 @@
-int main() {
-        x = 14;
-	return 0 ;
+// return type must be int
+void main() {
+    return 0;
 }

@@ -58,11 +58,13 @@ python3 testing.py path/to/submission
 - [x] bad074: variable declearation
 - [x] bad063: variable declearation
 
+- [x] bad020: Compare double with boolean
+
 - [ ] bad035: while(b) return 0; 
 - [ ] bad021: invalid return
 - [ ] bad069: return check
 - [ ] bad068: return check
-- [ ] bad020: Compare double with boolean
+
 - [ ] bad033: same as bad035
 - [ ] bad025: return check
 - [ ] bad032: return check

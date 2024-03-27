@@ -64,7 +64,13 @@ void JLCFuncDeclearationChecker::visitFnDef(FnDef *fn_def)
   Frame& func = globalContext.getFrame(fn_def->ident_);
   func.returnType = temp_type;
   
-  
+  // if fuction is main, check if it has int type
+  if(fn_def->ident_ == "main" && temp_type != INT){
+    std::cerr << "ERROR: Function main should have int type return" << std::endl;
+    exit(1);
+  }
+
+
   // check function arguments
   if (fn_def->listarg_) fn_def->listarg_->accept(this);
 
