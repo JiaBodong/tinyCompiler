@@ -3,7 +3,7 @@
 # as a reference to generate our own Makefile.
 
 CC = g++ -std=c++11 -g
-CCFLAGS = --ansi -W -Wall -Wsign-conversion \
+CCFLAGS = -W -Wall -Wsign-conversion \
 	-Wno-unused-parameter \
 	-Wno-unused-function \
 	-Wno-unneeded-internal-declaration \
@@ -78,7 +78,7 @@ TestJavalette: $(OBJS) $(SRC_DIR)/Test.cpp
 # output to the root directory directly.
 jlc: $(OBJS) $(SRC_DIR)/jlc.cpp
 	@echo "Building jlc..."
-	$(CC) $(OBJS) $(SRC_DIR)/jlc.cpp $(CC_INCLUDES) -o jlc
+	$(CC) $(OBJS) $(SRC_DIR)/jlc.cpp $(CC_INCLUDES) -o jlc 
 
 # remove this target, because we just need to generate it once,
 # thus, we generate it manually.

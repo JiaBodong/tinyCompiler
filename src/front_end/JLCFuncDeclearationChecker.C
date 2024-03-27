@@ -94,7 +94,7 @@ void JLCFuncDeclearationChecker::visitArgument(Argument *argument)
     exit(1);
   }
   // add the argument to the function
-  func.args[argument->ident_] = temp_type;
+  func.addArg(argument->ident_, temp_type);
 
   visitIdent(argument->ident_);
 
