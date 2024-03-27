@@ -34,23 +34,23 @@ python3 testing.py path/to/submission
 - [x] bad026: invalid operation
 
 <!-- op -->
-- [ ] bad052: invalid operation
-- [ ] bad053: invalid operation
-- [ ] bad054: invalid operation
-- [ ] bad055: invalid operation
-- [ ] bad056: invalid operation
-- [ ] bad070: invalid operation
-- [ ] bad013: invalid operation
+- [x] bad052: invalid operation
+- [x] bad053: invalid operation
+- [x] bad054: invalid operation
+- [x] bad055: invalid operation
+- [x] bad056: invalid operation
+- [x] bad070: invalid operation
+- [x] bad013: invalid operation
 
 
-- [ ] bad027: invalid operation
+- [x] bad027: invalid operation
 - [x] bad009: invalid operation
 
 <!-- func -->
-- [ ] bad073: invalid operation
+- [x] bad073: invalid operation
 
 
-- [ ] bad006: access variable before decleration
+- [x] bad006: access variable before decleration
 - [x] bad059: access variable before decleration
 - [x] bad060: access variable
 

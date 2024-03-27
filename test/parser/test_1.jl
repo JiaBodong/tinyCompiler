@@ -1,7 +1,4 @@
-// Assigning double to int variable.
-
-int main () {
- int x;
-  x = 1.0;
- return 0 ;
+int main() {
+        x = 14;
+	return 0 ;
 }

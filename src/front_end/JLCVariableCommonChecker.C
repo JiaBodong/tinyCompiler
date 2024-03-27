@@ -19,8 +19,21 @@ static type_enum temp_type;
 static std::string temp_ident;
 static std::string temp_exp_type = "DEFAULT";
 
-static bool isCheckFunction = false;
-static std::string fuctionName;
+enum op_enum{
+  eADD,
+  eSUB,
+  eMUL,
+  eDIV,
+  eMOD,
+  eLT,
+  eLE,
+  eGT,
+  eGE,
+  eEQ,
+  eNE
+};
+
+static op_enum temp_op;
 
 static PrintAbsyn p = PrintAbsyn();
 
@@ -154,15 +167,37 @@ void JLCVariableCommonChecker::visitAss(Ass *ass)
 void JLCVariableCommonChecker::visitIncr(Incr *incr)
 {
   /* Code For Incr Goes Here */
+  // check if the variable is already declared.
+  auto& frame = globalContext.currentFrame();
+  if (!frame.isExistVar(incr->ident_)) {
+    std::cerr << "ERROR: Variable " << incr->ident_ << " is not declared.\n";
+    exit(1);
+  }
+  // check var type is INT 
+  if (frame.getVarType(incr->ident_) != INT){
+    std::cerr << "ERROR: Variable " << incr->ident_ << " is not of type INT.\n";
+    exit(1);
+  } 
 
   visitIdent(incr->ident_);
-
 }
 
 void JLCVariableCommonChecker::visitDecr(Decr *decr)
 {
   /* Code For Decr Goes Here */
-
+  auto& frame = globalContext.currentFrame();
+  if (!frame.isExistVar(decr->ident_)) {
+    std::cerr << "ERROR: Variable " << decr->ident_ << " in \"" 
+    <<  std::string(p.print(decr))
+    << "\" is not declared.\n";
+    exit(1);
+  }
+  // check var type is INT 
+  if (frame.getVarType(decr->ident_) != INT){
+    std::cerr << "ERROR: Variable " << decr->ident_ << " in \"" <<  std::string(p.print(decr))
+    << "\" is not of type INT.\n";
+    exit(1);
+  } 
   visitIdent(decr->ident_);
 
 }
@@ -383,6 +418,11 @@ void JLCVariableCommonChecker::visitNeg(Neg *neg)
   if (neg->expr_) neg->expr_->accept(this);
   // type dont' change
   // temp_type = temp_type;
+  if (temp_type == VOID){
+    std::cerr << "ERROR: expression " + std::string(p.print(neg)) + " is void type\n";
+    exit(1);
+  }
+  
 }
 
 void JLCVariableCommonChecker::visitNot(Not *not_)
@@ -390,7 +430,10 @@ void JLCVariableCommonChecker::visitNot(Not *not_)
   /* Code For Not Goes Here */
 
   if (not_->expr_) not_->expr_->accept(this);
-
+  if (temp_type == VOID){
+    std::cerr << "ERROR: expression " + std::string(p.print(not_)) + " is void type\n";
+    exit(1);
+  }
 }
 
 void JLCVariableCommonChecker::visitEMul(EMul *e_mul)
@@ -398,8 +441,27 @@ void JLCVariableCommonChecker::visitEMul(EMul *e_mul)
   /* Code For EMul Goes Here */
 
   if (e_mul->expr_1) e_mul->expr_1->accept(this);
+  auto temp_type_1 = temp_type;
   if (e_mul->mulop_) e_mul->mulop_->accept(this);
+  auto local_op = temp_op;
   if (e_mul->expr_2) e_mul->expr_2->accept(this);
+  auto temp_type_2 = temp_type;
+  // check if the type of the two expressions are the same
+  if(temp_type_1 != temp_type_2){
+    std::cerr << "ERROR: expression " + std::string(p.print(e_mul->expr_1)) + " type:"
+    + to_string(temp_type_1) + " and " + std::string(p.print(e_mul->expr_2)) + " type:"
+    + to_string(temp_type_2) + " have different types\n";
+    exit(1);
+  }
+  // if op is MOD, the type should be int
+  if(local_op == eMOD){
+    if(temp_type != INT){
+      std::cerr << "ERROR: expression " + std::string(p.print(e_mul->expr_1)) + " type:"
+      + to_string(temp_type_1) + " and " + std::string(p.print(e_mul->expr_2)) + " type:"
+      + to_string(temp_type_2) + " are not int type, Mod operation should be int type\n";
+      exit(1);
+    }
+  }
 
 }
 
@@ -408,9 +470,17 @@ void JLCVariableCommonChecker::visitEAdd(EAdd *e_add)
   /* Code For EAdd Goes Here */
 
   if (e_add->expr_1) e_add->expr_1->accept(this);
+  auto temp_type_1 = temp_type;
   if (e_add->addop_) e_add->addop_->accept(this);
   if (e_add->expr_2) e_add->expr_2->accept(this);
-
+  auto temp_type_2 = temp_type;
+  // check if the type of the two expressions are the same
+  if(temp_type_1 != temp_type_2){
+    std::cerr << "ERROR: expression " + std::string(p.print(e_add->expr_1)) + " type:"
+    + to_string(temp_type_1) + " and " + std::string(p.print(e_add->expr_2)) + " type:"
+    + to_string(temp_type_2) + " have different types\n";
+    exit(1);
+  }
 }
 
 void JLCVariableCommonChecker::visitERel(ERel *e_rel)
@@ -479,22 +549,19 @@ void JLCVariableCommonChecker::visitMinus(Minus *minus)
 void JLCVariableCommonChecker::visitTimes(Times *times)
 {
   /* Code For Times Goes Here */
-
-
+  temp_op = eMUL;
 }
 
 void JLCVariableCommonChecker::visitDiv(Div *div)
 {
   /* Code For Div Goes Here */
-
-
+  temp_op = eDIV;
 }
 
 void JLCVariableCommonChecker::visitMod(Mod *mod)
 {
   /* Code For Mod Goes Here */
-
-
+  temp_op = eMOD;
 }
 
 void JLCVariableCommonChecker::visitLTH(LTH *lth)
