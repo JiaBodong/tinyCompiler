@@ -60,24 +60,24 @@ python3 testing.py path/to/submission
 
 - [x] bad020: Compare double with boolean
 
-- [ ] bad035: while(b) return 0; 
-- [ ] bad021: invalid return
-- [ ] bad069: return check
-- [ ] bad068: return check
+- [x] bad035: while(b) return 0; 
+- [x] bad021: invalid return
+- [x] bad069: return check
+- [x] bad068: return check
 
-- [ ] bad033: same as bad035
-- [ ] bad025: return check
-- [ ] bad032: return check
-- [ ] bad008: return check
-- [ ] bad031: return check
-- [ ] bad067: return check
-- [ ] bad065: return check
+- [x] bad033: same as bad035
+- [x] bad025: return check
+- [x] bad032: return check
+- [x] bad008: return check
+- [x] bad031: return check
+- [x] bad067: return check
+- [x] bad065: return check
 - [x] bad011: return check
-- [ ] bad029: return check
+- [x] bad029: return check
 - [x] bad071: return check
 - [x] bad058: return check
 - [x] bad010: return check
-- [ ] bad012: return check
+- [x] bad012: return check
 
 
 
