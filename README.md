@@ -28,10 +28,10 @@ python3 testing.py path/to/submission
 - [x] bad019: called func parameter check
 - [x] bad018: called func parameter check
 
-- [ ] bad022: invalid operation
-- [ ] bad023: invalid operation
+- [x] bad022: invalid operation
+- [x] bad023: invalid operation
 
-- [ ] bad026: invalid operation
+- [x] bad026: invalid operation
 
 <!-- op -->
 - [ ] bad052: invalid operation
@@ -44,7 +44,7 @@ python3 testing.py path/to/submission
 
 
 - [ ] bad027: invalid operation
-- [ ] bad009: invalid operation
+- [x] bad009: invalid operation
 
 <!-- func -->
 - [ ] bad073: invalid operation

@@ -1,8 +1,7 @@
-// Test scope
+// Assigning double to int variable.
 
-int main() {
-    {
-        int a = 5;
-    }
-    return a;
+int main () {
+ int x;
+  x = 1.0;
+ return 0 ;
 }

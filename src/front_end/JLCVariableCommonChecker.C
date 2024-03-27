@@ -107,17 +107,19 @@ void JLCVariableCommonChecker::visitDecl(Decl *decl)
     std::cerr << "ERROR: cannot declare a variable with void type\n";
     exit(1);
   }
+  auto temp_decl_type = temp_type;
   auto & frame = globalContext.currentFrame();
   for (auto & item : *(decl->listitem_)){
+    temp_type = temp_decl_type;
     item->accept(this);
     if(frame.blk->isExistVar(temp_ident)){
-      // check if the variable is already declared in this block
-      std::cerr << "ERROR: variable " << temp_ident << " is already declared in this block\n";
+      // check if the variable is already declared in this block !notice: not in the whole function
+      std::cerr << "ERROR: variable " << temp_ident << " is already declared.\n";
       exit(1);
     }    
     // Add the variable to the current block
     DEBUG_PRINT( "[" + checkerName +"]" + "\tAdding variable " + temp_ident + " to the block");
-    frame.addVar(temp_ident, temp_type);
+    frame.addVar(temp_ident, temp_decl_type);
   }
 
 
@@ -130,8 +132,23 @@ void JLCVariableCommonChecker::visitAss(Ass *ass)
   /* Code For Ass Goes Here */
 
   visitIdent(ass->ident_);
-  if (ass->expr_) ass->expr_->accept(this);
+  // check if the variable is already declared in this context
+  auto &frame = globalContext.currentFrame();
+  if (!frame.isExistVar(ass->ident_)) {
+    std::cerr << "ERROR: Variable " << ass->ident_ << " is not declared.\n";
+    exit(1);
+  }
 
+  if (ass->expr_) ass->expr_->accept(this);
+  // check if the expr_ type is same as ass left-hand
+  if(temp_type != frame.getVarType(ass->ident_)){
+    std::cerr << "ERROR: Type mismatch between expression and variable assignment."
+    << " left-hand: "<< ass->ident_ << " type:" 
+    << to_string(frame.getVarType(ass->ident_))
+    << " right-hand: " << std::string(p.print(ass->expr_)) 
+    << " type:" << to_string(temp_type) << '\n';
+      exit(1);
+  }
 }
 
 void JLCVariableCommonChecker::visitIncr(Incr *incr)
@@ -198,7 +215,7 @@ void JLCVariableCommonChecker::visitSExp(SExp *s_exp)
   /* Code For SExp Goes Here */
   temp_exp_type = "DEFAULT";
   if (s_exp->expr_) s_exp->expr_->accept(this);
-  if (temp_exp_type.find("ELit") != std::string::npos){
+  if (temp_exp_type.find("ELit") != std::string::npos){ 
     std::cerr << "ERROR: expression " + std::string(p.print(s_exp->expr_)) + " is invalid\n";
     exit(1);
   }
@@ -219,8 +236,17 @@ void JLCVariableCommonChecker::visitInit(Init *init)
   DEBUG_PRINT( "[" + checkerName +"]" + "\tInit");
   visitIdent(init->ident_);
   temp_ident = init->ident_;
+  auto temp_decl_type = temp_type;
   if (init->expr_) init->expr_->accept(this);
-
+  // check if the init type is same as the variable type
+  if (temp_type != temp_decl_type){
+    std::cerr << "ERROR: Type mismatch between expression and variable assignment."
+    << " left-hand: "<< init->ident_ << " type:" 
+    << to_string(temp_decl_type)
+    << " right-hand: " << std::string(p.print(init->expr_)) 
+    << " type:" << to_string(temp_type) << "\n";
+      exit(1);
+  }
 }
 
 void JLCVariableCommonChecker::visitInt(Int *int_)
