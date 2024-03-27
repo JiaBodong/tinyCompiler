@@ -10,6 +10,8 @@ std::string to_string(type_enum t) {
     case BOOL: return "bool";
     case VOID: return "void";
     case FUN: return "fun";
+    case CHAR: return "char";
+    case STRING: return "string";
   }
   return "unknown";
 }

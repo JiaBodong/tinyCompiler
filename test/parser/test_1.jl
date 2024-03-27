@@ -1,7 +1,8 @@
+// Test scope
+
 int main() {
-	1;
-	f();
-	1 + 1;
-	;
-	return 0;
+    {
+        int a = 5;
+    }
+    return a;
 }

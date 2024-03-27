@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 
-enum type_enum {INT=0, DOUB, BOOL, VOID, FUN, UNDEFINED};
+enum type_enum {INT=0, DOUB, BOOL, VOID, FUN, CHAR, STRING, UNDEFINED};
 std::string to_string(type_enum t);
 
 // for each parameter, declared CVARiable, we create a new CVAR object
@@ -57,7 +57,6 @@ public:
   Frame(std::string name): name(name), returnType(UNDEFINED) {}
   ~Frame() = default;
   std::string name; // name of the function
-  std::map<std::string, CVAR> parameters; // map of CVARiables
   type_enum returnType; // return type of the function
   std::vector<std::pair<std::string, type_enum> > args; // save the arguments of the function
   
@@ -92,14 +91,68 @@ public:
 	  }
 	  temp = temp->parent;
 	}
+	// check if in the arguments
+	for (const auto & arg : args){
+	  if(arg.first == name){
+		return true;
+	  }
+	}
 	return false;
   } 
+  
+  type_enum getVarType(const std::string& name){
+	CBlk* temp = blk;
+	while(temp){
+	  if(temp->isExistVar(name)){
+		return temp->CVARiables[name].type;
+	  }
+	  temp = temp->parent;
+	}
+	// check if in the arguments
+	for (const auto & arg : args){
+	  if(arg.first == name){
+		return arg.second;
+	  }
+	}
+	return UNDEFINED;
+  }
 };
 
 // Context is a class that holds the current state of the program.
 class Context{
 public:
-	Context() = default;
+	Context(){
+		// internal functions
+		{
+			addFrame("printInt");
+			auto & frame = getFrame("printInt");
+			frame.returnType = VOID;
+			frame.addArg("a", INT);
+		}
+		{
+			addFrame("printDouble");
+			auto & frame = getFrame("printDouble");
+			frame.returnType = VOID;
+			frame.addArg("a", DOUB);
+		}
+		{
+			addFrame("printString");
+			auto & frame = getFrame("printString");
+			frame.returnType = VOID;
+			frame.addArg("a", STRING);
+		}
+		{
+			addFrame("readInt");
+			auto & frame = getFrame("readInt");
+			frame.returnType = INT;
+		}
+		{
+			addFrame("readDouble");
+			auto & frame = getFrame("readDouble");
+			frame.returnType = DOUB;
+		}
+
+	};
 	~Context() = default;
 	std::map<std::string, Frame> funcs;
 	// rules for checking the function

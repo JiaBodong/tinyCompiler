@@ -19,6 +19,9 @@ static type_enum temp_type;
 static std::string temp_ident;
 static std::string temp_exp_type = "DEFAULT";
 
+static bool isCheckFunction = false;
+static std::string fuctionName;
+
 static PrintAbsyn p = PrintAbsyn();
 
 static const std::string checkerName = "JLCVariableCommonChecker";
@@ -97,23 +100,29 @@ void JLCVariableCommonChecker::visitDecl(Decl *decl)
 {
   /* Code For Decl Goes Here */
   if (decl->type_) decl->type_->accept(this);
-  if (decl->listitem_) decl->listitem_->accept(this);
-   DEBUG_PRINT( "[" + checkerName +"]" + "\tDeclaring variable: type(" 
-    + to_string(temp_type) + ") " + temp_ident);
+  DEBUG_PRINT( "[" + checkerName +"]" + "\tDeclaring variable: type(" 
+    + to_string(temp_type) + ")");
   // cannot declare a variable with void type
   if(temp_type == VOID){
     std::cerr << "ERROR: cannot declare a variable with void type\n";
     exit(1);
   }
-
-  // check if the variable is already declared in this block
   auto & frame = globalContext.currentFrame();
-  if(frame.blk->isExistVar(temp_ident)){
-    std::cerr << "ERROR: variable " << temp_ident << " is already declared in this block\n";
-    exit(1);
+  for (auto & item : *(decl->listitem_)){
+    item->accept(this);
+    if(frame.blk->isExistVar(temp_ident)){
+      // check if the variable is already declared in this block
+      std::cerr << "ERROR: variable " << temp_ident << " is already declared in this block\n";
+      exit(1);
+    }    
+    // Add the variable to the current block
+    DEBUG_PRINT( "[" + checkerName +"]" + "\tAdding variable " + temp_ident + " to the block");
+    frame.addVar(temp_ident, temp_type);
   }
-  // Add the variable to the current block
-  frame.addVar(temp_ident, temp_type);
+
+
+  
+  if (decl->listitem_) decl->listitem_->accept(this);
 }
 
 void JLCVariableCommonChecker::visitAss(Ass *ass)
@@ -193,7 +202,6 @@ void JLCVariableCommonChecker::visitSExp(SExp *s_exp)
     std::cerr << "ERROR: expression " + std::string(p.print(s_exp->expr_)) + " is invalid\n";
     exit(1);
   }
-  
 }
 
 void JLCVariableCommonChecker::visitNoInit(NoInit *no_init)
@@ -253,9 +261,14 @@ void JLCVariableCommonChecker::visitFun(Fun *fun)
 void JLCVariableCommonChecker::visitEVar(EVar *e_var)
 {
   /* Code For EVar Goes Here */
-
+  // check if the variable is declared
+  auto & frame = globalContext.currentFrame();
+  if(!frame.isExistVar(e_var->ident_)){
+    std::cerr << "ERROR: variable " << e_var->ident_ << " is not declared\n";
+    exit(1);
+  }
+  temp_type = frame.getVarType(e_var->ident_);
   visitIdent(e_var->ident_);
-
 }
 
 void JLCVariableCommonChecker::visitELitInt(ELitInt *e_lit_int)
@@ -263,6 +276,7 @@ void JLCVariableCommonChecker::visitELitInt(ELitInt *e_lit_int)
   /* Code For ELitInt Goes Here */
   temp_exp_type = "ELitInt";
   visitInteger(e_lit_int->integer_);
+  temp_type = INT;
 
 }
 
@@ -271,6 +285,7 @@ void JLCVariableCommonChecker::visitELitDoub(ELitDoub *e_lit_doub)
   /* Code For ELitDoub Goes Here */
   temp_exp_type = "ELitDoub";
   visitDouble(e_lit_doub->double_);
+  temp_type = DOUB;
 
 }
 
@@ -278,6 +293,7 @@ void JLCVariableCommonChecker::visitELitTrue(ELitTrue *e_lit_true)
 {
   /* Code For ELitTrue Goes Here */
   temp_exp_type = "ELitTrue";
+  temp_type = BOOL;
 
 }
 
@@ -285,21 +301,51 @@ void JLCVariableCommonChecker::visitELitFalse(ELitFalse *e_lit_false)
 {
   /* Code For ELitFalse Goes Here */
   temp_exp_type = "ELitFalse";
+  temp_type = BOOL;
 }
 
 void JLCVariableCommonChecker::visitEApp(EApp *e_app)
 {
   /* Code For EApp Goes Here */
-  visitIdent(e_app->ident_);
-  if (e_app->listexpr_) e_app->listexpr_->accept(this);
-  temp_exp_type = "EApp";
+  DEBUG_PRINT( "[" + checkerName +"]" + " \tvisiting function call " + e_app->ident_);
+  // check if the function is declared
+  if(!globalContext.isExistFunction(e_app->ident_)){
+    std::cerr << "ERROR: function " << e_app->ident_ << " is not declared\n";
+    exit(1);
+  }
+  
+  auto & frame = globalContext.getFrame(e_app->ident_);
+  // check if the number of arguments is correct
+  if(frame.args.size() != e_app->listexpr_->size()){
+    std::cerr << "ERROR: function " << e_app->ident_ << " has " << frame.args.size() 
+    << " arguments, but " << e_app->listexpr_->size() << " arguments are provided\n";
+    exit(1);
+  }
 
+  // check if the type of arguments is correct
+  auto i = e_app->listexpr_->begin();
+  for(auto & arg : frame.args){
+    (*i)->accept(this);
+    if(temp_type != arg.second){
+      std::cerr << "ERROR: function " << e_app->ident_ << " has " << arg.first << 
+      " argument with type:" << to_string(arg.second) << ", but " << to_string(temp_type) << " argument is provided\n";
+      exit(1);
+    }
+    i++;
+  }
+  temp_type = frame.returnType;
+
+  // visitIdent(e_app->ident_);
+  // if (e_app->listexpr_) e_app->listexpr_->accept(this);
+  
+  temp_exp_type = "EApp";
 }
 
 void JLCVariableCommonChecker::visitEString(EString *e_string)
 {
   /* Code For EString Goes Here */
-
+  temp_exp_type = "ELitString";
+  temp_type = STRING;
   visitString(e_string->string_);
 
 }
@@ -309,7 +355,8 @@ void JLCVariableCommonChecker::visitNeg(Neg *neg)
   /* Code For Neg Goes Here */
 
   if (neg->expr_) neg->expr_->accept(this);
-
+  // type dont' change
+  // temp_type = temp_type;
 }
 
 void JLCVariableCommonChecker::visitNot(Not *not_)
@@ -347,7 +394,7 @@ void JLCVariableCommonChecker::visitERel(ERel *e_rel)
   if (e_rel->expr_1) e_rel->expr_1->accept(this);
   if (e_rel->relop_) e_rel->relop_->accept(this);
   if (e_rel->expr_2) e_rel->expr_2->accept(this);
-
+  temp_type = BOOL;
 }
 
 void JLCVariableCommonChecker::visitEAnd(EAnd *e_and)
@@ -355,8 +402,19 @@ void JLCVariableCommonChecker::visitEAnd(EAnd *e_and)
   /* Code For EAnd Goes Here */
 
   if (e_and->expr_1) e_and->expr_1->accept(this);
-  if (e_and->expr_2) e_and->expr_2->accept(this);
+  // check if the type of the first expression is bool
+  if(temp_type != BOOL){
+    std::cerr << "ERROR: expression " + std::string(p.print(e_and->expr_1)) + " is not bool type\n";
+    exit(1);
+  }
 
+  if (e_and->expr_2) e_and->expr_2->accept(this);
+  // check if the type of the second expression is bool
+  if(temp_type != BOOL){
+    std::cerr << "ERROR: expression " + std::string(p.print(e_and->expr_2)) + " is not bool type\n";
+    exit(1);
+  }
+  temp_type = BOOL;
 }
 
 void JLCVariableCommonChecker::visitEOr(EOr *e_or)
@@ -364,8 +422,18 @@ void JLCVariableCommonChecker::visitEOr(EOr *e_or)
   /* Code For EOr Goes Here */
 
   if (e_or->expr_1) e_or->expr_1->accept(this);
+  // check if the type of the first expression is bool
+  if(temp_type != BOOL){
+    std::cerr << "ERROR: expression " + std::string(p.print(e_or->expr_1)) + " is not bool type\n";
+    exit(1);
+  }
   if (e_or->expr_2) e_or->expr_2->accept(this);
-
+  // check if the type of the second expression is bool
+  if(temp_type != BOOL){
+    std::cerr << "ERROR: expression " + std::string(p.print(e_or->expr_2)) + " is not bool type\n";
+    exit(1);
+  }
+  temp_type = BOOL;
 }
 
 void JLCVariableCommonChecker::visitPlus(Plus *plus)

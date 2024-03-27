@@ -22,11 +22,11 @@ python3 testing.py path/to/submission
 - [x] bad064: func declearation check
 - [x] bad072: func declearation check
 
-- [ ] bad017: called func parameter check
-- [ ] bad016: called func parameter check
-- [ ] bad015: called func parameter check
-- [ ] bad019: called func parameter check
-- [ ] bad018: called func parameter check
+- [x] bad017: called func parameter check
+- [x] bad016: called func parameter check
+- [x] bad015: called func parameter check
+- [x] bad019: called func parameter check
+- [x] bad018: called func parameter check
 
 - [ ] bad022: invalid operation
 - [ ] bad023: invalid operation
@@ -50,16 +50,15 @@ python3 testing.py path/to/submission
 - [ ] bad073: invalid operation
 
 
-
 - [ ] bad006: access variable before decleration
-- [ ] bad059: access variable before decleration
-- [ ] bad060: access variable
+- [x] bad059: access variable before decleration
+- [x] bad060: access variable
 
 - [x] bad007: variable declearation
 - [x] bad074: variable declearation
 - [x] bad063: variable declearation
 
-- [ ] bad035:  while(b) return 0; 
+- [ ] bad035: while(b) return 0; 
 - [ ] bad021: invalid return
 - [ ] bad069: return check
 - [ ] bad068: return check
@@ -74,7 +73,7 @@ python3 testing.py path/to/submission
 - [ ] bad011: return check
 - [ ] bad029: return check
 - [ ] bad071: return check
-- [ ] bad058: return check
+- [x] bad058: return check
 - [ ] bad010: return check
 - [ ] bad012: return check
 

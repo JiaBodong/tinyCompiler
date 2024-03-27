@@ -64,9 +64,9 @@ About to run tests with these settings:
 [ 56/123] testsuite/bad/bad069      ... FAILED
 [ 57/123] testsuite/bad/array07     ... OK
 [ 58/123] testsuite/bad/bad046      ... OK
-[ 59/123] testsuite/bad/bad019      ... FAILED
-[ 60/123] testsuite/bad/assignedfunction ... FAILED
-[ 61/123] testsuite/bad/bad018      ... FAILED
+[ 59/123] testsuite/bad/bad019      ... OK
+[ 60/123] testsuite/bad/assignedfunction ... OK
+[ 61/123] testsuite/bad/bad018      ... OK
 [ 62/123] testsuite/bad/bad047      ... OK
 [ 63/123] testsuite/bad/array06     ... OK
 [ 64/123] testsuite/bad/bad068      ... FAILED
@@ -95,8 +95,8 @@ About to run tests with these settings:
 [ 87/123] testsuite/bad/bad038      ... OK
 [ 88/123] testsuite/bad/bad067      ... FAILED
 [ 89/123] testsuite/bad/bad048      ... OK
-[ 90/123] testsuite/bad/bad017      ... FAILED
-[ 91/123] testsuite/bad/bad016      ... FAILED
+[ 90/123] testsuite/bad/bad017      ... OK
+[ 91/123] testsuite/bad/bad016      ... OK
 [ 92/123] testsuite/bad/bad049      ... OK
 [ 93/123] testsuite/bad/bad066      ... OK
 [ 94/123] testsuite/bad/bad039      ... OK
@@ -107,7 +107,7 @@ About to run tests with these settings:
 [ 99/123] testsuite/bad/bad003      ... OK
 [100/123] testsuite/bad/bad064      ... OK
 [101/123] testsuite/bad/bad065      ... FAILED
-[102/123] testsuite/bad/bad015      ... FAILED
+[102/123] testsuite/bad/bad015      ... OK
 [103/123] testsuite/bad/bad002      ... OK
 [104/123] testsuite/bad/bad072      ... OK
 [105/123] testsuite/bad/bad011      ... FAILED
@@ -115,12 +115,12 @@ About to run tests with these settings:
 [107/123] testsuite/bad/bad029      ... FAILED
 [108/123] testsuite/bad/bad006      ... FAILED
 [109/123] testsuite/bad/struct02    ... OK
-[110/123] testsuite/bad/bad059      ... FAILED
-[111/123] testsuite/bad/bad058      ... FAILED
+[110/123] testsuite/bad/bad059      ... OK
+[111/123] testsuite/bad/bad058      ... OK
 [112/123] testsuite/bad/struct03    ... OK
 [113/123] testsuite/bad/bad007      ... OK
 [114/123] testsuite/bad/bad028      ... OK
-[115/123] testsuite/bad/bad060      ... FAILED
+[115/123] testsuite/bad/bad060      ... OK
 [116/123] testsuite/bad/bad010      ... FAILED
 [117/123] testsuite/bad/bad062      ... OK
 [118/123] testsuite/bad/bad012      ... FAILED
@@ -204,33 +204,6 @@ Some tests failed:
     compiler return code: 0, nonzero expected
 
 ---------- !!! testsuite/bad/bad069.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
----------- !!! testsuite/bad/bad019.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
----------- !!! testsuite/bad/assignedfunction.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
----------- !!! testsuite/bad/bad018.jl failed !!! ----------
 
 - stderr expected:
     ERROR
@@ -374,24 +347,6 @@ Some tests failed:
 - compiler return code info:
     compiler return code: 0, nonzero expected
 
----------- !!! testsuite/bad/bad017.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
----------- !!! testsuite/bad/bad016.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
 ---------- !!! testsuite/bad/bad071.jl failed !!! ----------
 
 - stderr expected:
@@ -419,15 +374,6 @@ Some tests failed:
 - compiler return code info:
     compiler return code: 0, nonzero expected
 
----------- !!! testsuite/bad/bad015.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
 ---------- !!! testsuite/bad/bad011.jl failed !!! ----------
 
 - stderr expected:
@@ -447,33 +393,6 @@ Some tests failed:
     compiler return code: 0, nonzero expected
 
 ---------- !!! testsuite/bad/bad006.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
----------- !!! testsuite/bad/bad059.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
----------- !!! testsuite/bad/bad058.jl failed !!! ----------
-
-- stderr expected:
-    ERROR
-- stderr actual:
-    OK
-- compiler return code info:
-    compiler return code: 0, nonzero expected
-
----------- !!! testsuite/bad/bad060.jl failed !!! ----------
 
 - stderr expected:
     ERROR
