@@ -40,14 +40,6 @@ public:
 	bool isExistVar(const std::string& name){
 		return CVARiables.find(name) != CVARiables.end();
 	}
-	// rules for checking the block
-	// for example, check if the CVARiable is declared
-	// check if the CVARiable is initialized
-	// check if the CVARiable is used
-	// check if the CVARiable is assigned
-	// check if the CVARiable is in the scope
-	// check if the CVARiable is in the frame
-	
 };
 
 // when there is a new fuction, we create a new frame

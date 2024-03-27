@@ -18,6 +18,7 @@
 static type_enum temp_type;
 static std::string temp_ident;
 static std::string temp_exp_type = "DEFAULT";
+static bool isReturnStmt = false;
 
 enum op_enum{
   eADD,
@@ -89,6 +90,11 @@ void JLCVariableCommonChecker::visitBlock(Block *block)
   auto & frame = globalContext.currentFrame();
   frame.newBlock();
   if (block->liststmt_) block->liststmt_->accept(this);
+  // check if the function block has a return statement
+  if(frame.blk->parent == nullptr &&  isReturnStmt == false && frame.returnType != VOID){
+    std::cerr << "ERROR: function " << frame.name << " should have a return statement before the end of the function\n";
+    exit(1);
+  }
   // release the block
   frame.releaseBlock();
 
@@ -214,6 +220,7 @@ void JLCVariableCommonChecker::visitRet(Ret *ret)
     << to_string(frame.returnType) << ", but " << to_string(temp_type) << " is provided\n";
     exit(1);
   }
+  isReturnStmt = true;
 }
 
 void JLCVariableCommonChecker::visitVRet(VRet *v_ret)
@@ -225,7 +232,7 @@ void JLCVariableCommonChecker::visitVRet(VRet *v_ret)
     std::cerr << "ERROR: function " << frame.name << " should return a value\n";
     exit(1);
   }
-
+  isReturnStmt = true;
 }
 
 void JLCVariableCommonChecker::visitCond(Cond *cond)
@@ -233,8 +240,13 @@ void JLCVariableCommonChecker::visitCond(Cond *cond)
   /* Code For Cond Goes Here */
 
   if (cond->expr_) cond->expr_->accept(this);
+  // check if the expression type is bool
+  if(temp_type != BOOL){
+    std::cerr << "ERROR: expression " + std::string(p.print(cond->expr_)) + " is not bool type\n";
+    exit(1);
+  }
   if (cond->stmt_) cond->stmt_->accept(this);
-
+  isReturnStmt = false;
 }
 
 void JLCVariableCommonChecker::visitCondElse(CondElse *cond_else)
@@ -242,9 +254,17 @@ void JLCVariableCommonChecker::visitCondElse(CondElse *cond_else)
   /* Code For CondElse Goes Here */
 
   if (cond_else->expr_) cond_else->expr_->accept(this);
+  // check if the expression type is bool
+  if(temp_type != BOOL){
+    std::cerr << "ERROR: expression " + std::string(p.print(cond_else->expr_)) + " is not bool type\n";
+    exit(1);
+  }
   if (cond_else->stmt_1) cond_else->stmt_1->accept(this);
+  auto local_return = isReturnStmt;
+  isReturnStmt = false;
   if (cond_else->stmt_2) cond_else->stmt_2->accept(this);
-
+  auto local_return_2 = isReturnStmt;
+  isReturnStmt = local_return && local_return_2;
 }
 
 void JLCVariableCommonChecker::visitWhile(While *while_)
@@ -252,8 +272,13 @@ void JLCVariableCommonChecker::visitWhile(While *while_)
   /* Code For While Goes Here */
 
   if (while_->expr_) while_->expr_->accept(this);
+  // check if the expression type is bool
+  if(temp_type != BOOL){
+    std::cerr << "ERROR: expression " + std::string(p.print(while_->expr_)) + " is not bool type\n";
+    exit(1);
+  }
   if (while_->stmt_) while_->stmt_->accept(this);
-
+  isReturnStmt = false;
 }
 
 void JLCVariableCommonChecker::visitSExp(SExp *s_exp)
@@ -588,34 +613,33 @@ void JLCVariableCommonChecker::visitMod(Mod *mod)
 void JLCVariableCommonChecker::visitLTH(LTH *lth)
 {
   /* Code For LTH Goes Here */
-
+  temp_op = eLT;
 }
 
 void JLCVariableCommonChecker::visitLE(LE *le)
 {
   /* Code For LE Goes Here */
-
+  temp_op = eLE;
 
 }
 
 void JLCVariableCommonChecker::visitGTH(GTH *gth)
 {
   /* Code For GTH Goes Here */
-
+  temp_op = eGT;
 
 }
 
 void JLCVariableCommonChecker::visitGE(GE *ge)
 {
   /* Code For GE Goes Here */
-
-
+  temp_op = eGE;
 }
 
 void JLCVariableCommonChecker::visitEQU(EQU *equ)
 {
   /* Code For EQU Goes Here */
-
+  temp_op = eEQ;
 
 }
 
@@ -648,6 +672,7 @@ void JLCVariableCommonChecker::visitListStmt(ListStmt *list_stmt)
   for (ListStmt::iterator i = list_stmt->begin() ; i != list_stmt->end() ; ++i)
   {
     DEBUG_PRINT( "[" + checkerName +"]" + " \tvisiting statement");
+    isReturnStmt = false;
     (*i)->accept(this);
   }
 }
