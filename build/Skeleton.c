@@ -12,42 +12,75 @@
 #include "Skeleton.h"
 #include "Absyn.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 
- /*variable kv map */
+/* TODO add if hasValue check*/
 struct KeyValuePair {
-    Ident key;
+    char* key;
     char* value;
     struct KeyValuePair* next;
 };
+
 struct KeyValuePair* globalMap = NULL;
-void addToMap(Ident key, char* value);
-char* getValue(Ident key);
+
+void addToMap(Ident key1, char* key2, char* value);
+char* getValue(Ident key1, char* key2);
 
 /* add kv to table */
-void addToMap(Ident key, char* value) {
+void addToMap(Ident key1, char* key2, char* value) {
+    // Concatenate key1 and key2 with a delimiter
+    char* combinedKey = malloc(strlen(key1) + strlen(key2) + 2); // +2 for delimiter and null terminator
+    if (combinedKey == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(1);
+    }
+    strcpy(combinedKey, key1);
+    strcat(combinedKey, "_"); // Use underscore as delimiter
+    strcat(combinedKey, key2);
+
+    // Add key-value pair to the map
     struct KeyValuePair* newNode = malloc(sizeof(struct KeyValuePair));
-    newNode->key = strdup(key);
+    if (newNode == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(1);
+    }
+    newNode->key = combinedKey;
     newNode->value = value;
-    newNode->next = NULL;
-    
     newNode->next = globalMap;
     globalMap = newNode;
 }
 
-/*get value from table */
-char* getValue(Ident key) {
+/* get value from table */
+char* getValue(Ident key1, char* key2) {
+    // Concatenate key1 and key2 with a delimiter
+    char* combinedKey = malloc(strlen(key1) + strlen(key2) + 2); // +2 for delimiter and null terminator
+    if (combinedKey == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(1);
+    }
+    strcpy(combinedKey, key1);
+    strcat(combinedKey, "_"); // Use underscore as delimiter
+    strcat(combinedKey, key2);
+
+    // Search for the combined key in the map
     struct KeyValuePair* current = globalMap;
     while (current != NULL) {
-    
-        if (strcmp(current->key, key) == 0) {
+        if (strcmp(current->key, combinedKey) == 0) {
+            free(combinedKey); // Free memory allocated for combinedKey
             return current->value;
         }
         current = current->next;
     }
+    free(combinedKey); // Free memory allocated for combinedKey
     return NULL;
 }
- /*variable kv map */
 
 
  /*func kv map */
@@ -91,8 +124,6 @@ struct FunctionEntry* getFunctionFromMap(Ident name) {
     return NULL;
 }
 
-
-
  /*func kv map */
 
 
@@ -107,6 +138,8 @@ char* TypeTransferExpr(enum  Expr_ { is_EVar, is_ELitInt, is_ELitDoub, is_ELitTr
     return "Int";
   case is_ELitDoub:
     return "Doub";
+  case is_EApp:
+    return "EApp";
   }
 }
 
@@ -117,6 +150,8 @@ char* TypeTransferType(enum  Type_ { is_Int, is_Doub, is_Bool, is_Void, is_Fun }
     return "Int";
   case is_Doub:
     return "Doub";
+  case is_Void:
+    return "Void";
   }
 }
 
@@ -137,26 +172,31 @@ void visitProg(Prog p)
 }
 
 void visitTopDef(TopDef p)
-{
+{ 
+
+  char* para[10]={NULL};
+  int para_num=0;
   switch(p->kind)
   {
   case is_FnDef:
-    /*
-    char* para[]={};
-    int para_num=0;
-    */
+    
     visitType(p->u.fndef_.type_);
     visitIdent(p->u.fndef_.ident_);
-    visitListArg(p->u.fndef_.listarg_);
-
     char* func_name = p->u.fndef_.ident_;
-    char* func_returntype = TypeTransferType(p->u.fndef_.type_->kind);
- 
-    
 
+    visitListArg(p->u.fndef_.listarg_,func_name,&para_num,para);
+
+    
+    char* func_returntype = TypeTransferType(p->u.fndef_.type_->kind);
+
+    /*record the values above into the function map*/
+    addFunctionToMap(func_name,func_returntype,para_num,para);
+    
     bool hasReturn = false;
     char* returnType =func_returntype;  /*get the type of local func */
-    visitBlk(p->u.fndef_.blk_,&hasReturn, returnType );/* function return check in BLK */
+    if((strcmp(returnType,"Void")==0)) hasReturn = true;
+
+    visitBlk(p->u.fndef_.blk_,&hasReturn, returnType ,func_name );/* function return check in BLK */
 
     if(hasReturn == false) {
       fprintf(stderr, "Error: function no right return \n");
@@ -174,13 +214,14 @@ void visitListTopDef(ListTopDef listtopdef)
 {
   while(listtopdef  != 0)
   {
+    
     /* Code For ListTopDef Goes Here */
     visitTopDef(listtopdef->topdef_);
     listtopdef = listtopdef->listtopdef_;
   }
 }
 
-void visitArg(Arg p)
+void visitArg(Arg p, char* func_name)
 {
   switch(p->kind)
   {
@@ -188,6 +229,8 @@ void visitArg(Arg p)
     /* Code for Argument Goes Here */
     visitType(p->u.argument_.type_);
     visitIdent(p->u.argument_.ident_);
+    addToMap(p->u.argument_.ident_,func_name,TypeTransferType(p->u.argument_.type_->kind));
+
     break;
 
   default:
@@ -196,24 +239,27 @@ void visitArg(Arg p)
   }
 }
 
-void visitListArg(ListArg listarg)
+void visitListArg(ListArg listarg,char* func_name,int* para_num, char** para)
 {
-  while(listarg  != 0)/* record argement number here*/
-  {
+  while(listarg  != 0)/* record argement number and type here*/
+  { 
+    
+    visitArg(listarg->arg_,func_name);
+    para[(*para_num)] = TypeTransferType(listarg->arg_->u.argument_.type_->kind);
+    *para_num++;
 
-    visitArg(listarg->arg_);
     listarg = listarg->listarg_;
     /* here record the arg's type and ident */
   }
 }
 
-void visitBlk(Blk p, bool* hasReturn, char* returnType)
+void visitBlk(Blk p, bool* hasReturn, char* returnType, char* func_name)
 {
   switch(p->kind)
   {
   case is_Block:
     /* Code for Block Goes Here */
-    visitListStmt(p->u.block_.liststmt_, hasReturn, returnType);
+    visitListStmt(p->u.block_.liststmt_, hasReturn, returnType, func_name);
     break;
 
   default:
@@ -222,17 +268,17 @@ void visitBlk(Blk p, bool* hasReturn, char* returnType)
   }
 }
 
-void visitListStmt(ListStmt liststmt, bool* hasReturn, char* returnType)
+void visitListStmt(ListStmt liststmt, bool* hasReturn, char* returnType, char* func_name)
 {
   while(liststmt  != 0)
   {
     /* Code For ListStmt Goes Here */
-    visitStmt(liststmt->stmt_, hasReturn, returnType);
+    visitStmt(liststmt->stmt_, hasReturn, returnType, func_name);
     liststmt = liststmt->liststmt_;
   }
 }
 
-void visitStmt(Stmt p, bool* hasReturn, char* returnType)
+void visitStmt(Stmt p, bool* hasReturn, char* returnType, char* func_name)
 {
     /* for is_Cond */
   bool condReturn = false;
@@ -252,38 +298,45 @@ void visitStmt(Stmt p, bool* hasReturn, char* returnType)
     break;
   case is_BStmt:
     /* Code for BStmt Goes Here */
-    visitBlk(p->u.bstmt_.blk_,hasReturn,returnType);
+    visitBlk(p->u.bstmt_.blk_,hasReturn,returnType,func_name);
     break;
   case is_Decl:
     /* Code for Decl Goes Here */
     visitType(p->u.decl_.type_);
-    visitListItem(p->u.decl_.listitem_);
+    visitListItem(p->u.decl_.listitem_,func_name);
 
     if(p->u.decl_.listitem_->item_->kind == is_NoInit){
-      addToMap(p->u.decl_.listitem_->item_->u.noinit_.ident_, TypeTransferType(p->u.decl_.type_->kind));
+      addToMap(p->u.decl_.listitem_->item_->u.noinit_.ident_, func_name,TypeTransferType(p->u.decl_.type_->kind));
     } else if(p->u.decl_.listitem_->item_->kind == is_Init){
-      addToMap(p->u.decl_.listitem_->item_->u.init_.ident_, TypeTransferType(p->u.decl_.type_->kind));
+      addToMap(p->u.decl_.listitem_->item_->u.init_.ident_, func_name,TypeTransferType(p->u.decl_.type_->kind));
     }
-    
-    
+      
     break;
   case is_Ass:
     /* Code for Ass Goes Here */
     visitIdent(p->u.ass_.ident_);
 
-    if(!getValue(p->u.ass_.ident_)){
+    if(!getValue(p->u.ass_.ident_,func_name)){
       fprintf(stderr, "Error: not declared, cant ass!\n");
       exit(1);
     }
     
-    visitExpr(p->u.ass_.expr_);
+    visitExpr(p->u.ass_.expr_,func_name);
 
-    if(getValue(p->u.ass_.ident_) == TypeTransferExpr(p->u.ass_.expr_->kind)) break;
-    else {
-      fprintf(stderr, "Error: type fault, cant ass\n");
-      exit(1);
+
+    if(p->u.ass_.expr_->kind==is_ELitInt || p->u.ass_.expr_->kind==is_ELitDoub){
+      if(strcmp(getValue(p->u.ass_.ident_,func_name),TypeTransferExpr(p->u.ass_.expr_->kind))==0) break;
+      else {
+        fprintf(stderr, "Error: type fault, cant ass\n");
+        exit(1);
+      }
+    } else if(p->u.ass_.expr_->kind == is_EVar){
+      if(strcmp(getValue(p->u.ass_.ident_,func_name),TypeTransferType(p->u.ass_.expr_->kind))==0) break;
+      else {
+        fprintf(stderr, "Error: type fault, cant ass\n");
+        exit(1);
+      }
     }
-  
   case is_Incr:
     /* Code for Incr Goes Here */
     visitIdent(p->u.incr_.ident_);
@@ -294,33 +347,38 @@ void visitStmt(Stmt p, bool* hasReturn, char* returnType)
     break;
   case is_Ret:
     /* Code for Ret Goes Here */
-    visitExpr(p->u.ret_.expr_);
+    visitExpr(p->u.ret_.expr_,func_name);
 
+    if(strcmp(returnType,"Void")==0){
+        fprintf(stderr, "Error: void dont return var \n");
+        exit(1);
+    }
     *hasReturn = true;
   
     if(p->u.ret_.expr_->kind == is_EVar){
        /* return variable not decled */
-      if(!getValue(p->u.ret_.expr_->u.evar_.ident_)){
+      if(!getValue(p->u.ret_.expr_->u.evar_.ident_,func_name)){
         fprintf(stderr, "Error: no decled var\n");
         exit(1);
       }
       if(strcmp(returnType,"Int")==0||strcmp(returnType,"Doub")==0){
-        if(strcmp(getValue(p->u.ret_.expr_->u.evar_.ident_),returnType)!=0){
+        if(strcmp(getValue(p->u.ret_.expr_->u.evar_.ident_,func_name),returnType)!=0){
           fprintf(stderr, "Error: error return type\n");
           exit(1);
         }else{
           break;
         }
       }
-      strcpy(returnType, getValue(p->u.ret_.expr_->u.evar_.ident_));
-      printf("%s\n",returnType);
     } 
     else if(p->u.ret_.expr_->kind == is_EApp){
       ;
     }
+    else if(p->u.ret_.expr_->kind == is_EMul ||p->u.ret_.expr_->kind == is_EAdd){  /* process alu in the visitExpr()*/
+      break;
+    }
     else {
       if(strcmp(returnType,"Int")==0||strcmp(returnType,"Doub")==0){
-
+        printf("%s\n",returnType);
         if(strcmp(TypeTransferExpr(p->u.ret_.expr_->kind),returnType)!=0){
           fprintf(stderr, "Error: error return type\n");
           exit(1);
@@ -328,22 +386,30 @@ void visitStmt(Stmt p, bool* hasReturn, char* returnType)
           break;
         }
       }
+      /*
       strcpy(returnType, TypeTransferExpr(p->u.ret_.expr_->kind));
-      printf("%s\n",returnType);
+      printf("%s\n",returnType);*/
     }
     
     break;
   case is_VRet:
     /* Code for VRet Goes Here */
+    if(strcmp(returnType,"Void")==0){
+      break;
+    } else{
+      fprintf(stderr, "Error: just void func can return blank\n");
+      exit(1);
+    }
+
     break;
   case is_Cond:
     /* if  path return check */
 
-    visitExpr(p->u.cond_.expr_);
-    visitStmt(p->u.cond_.stmt_, &condReturn, condReturnType);
+    visitExpr(p->u.cond_.expr_,func_name);
+    visitStmt(p->u.cond_.stmt_, &condReturn, returnType, func_name);
 
     if(condReturn == false){
-      if(returnType =="Void"){
+      if(strcmp(returnType,"Void")==0){
         *hasReturn = true;
       }
       else{
@@ -353,11 +419,8 @@ void visitStmt(Stmt p, bool* hasReturn, char* returnType)
 
     } else{
 
-      if(returnType != condReturnType){
-        fprintf(stderr, "Error: if path return type error!\n");
-        exit(1);
-      }
       *hasReturn = true;
+      break;
     
     }
 
@@ -365,22 +428,21 @@ void visitStmt(Stmt p, bool* hasReturn, char* returnType)
   case is_CondElse:
     /* if-else path return check*/
 
-    visitExpr(p->u.condelse_.expr_);
-    visitStmt(p->u.condelse_.stmt_1,&condelseReturn1,condelseReturnType1);
-    visitStmt(p->u.condelse_.stmt_2,&condelseReturn2,condelseReturnType2);
-    printf("%s\n",condelseReturnType1);
-    printf("%s\n",condelseReturnType2);
+    visitExpr(p->u.condelse_.expr_,func_name);
+    visitStmt(p->u.condelse_.stmt_1,&condelseReturn1,returnType,func_name);
+    visitStmt(p->u.condelse_.stmt_2,&condelseReturn2,returnType,func_name);
+
     printf("%s\n",returnType);
     printf("%s\n",returnType);
     if(condelseReturn1 ==true && condelseReturn2 == true){
-      if(strcmp(condelseReturnType1,returnType)!=0 || strcmp(condelseReturnType2,returnType)!=0 ){
-        fprintf(stderr, "Error: if-else path return type error!\n");
-        exit(1);
-      }
+
       *hasReturn = true;
+      break;
+
     } else {
       if(strcmp(returnType,"Void")==0){
         *hasReturn = true;
+        break;
       } else {
         fprintf(stderr, "Error: if-else path dont return!\n");
         exit(1);
@@ -398,7 +460,7 @@ void visitStmt(Stmt p, bool* hasReturn, char* returnType)
     break;
   case is_SExp:
     /* Code for SExp Goes Here */
-    visitExpr(p->u.sexp_.expr_);
+    visitExpr(p->u.sexp_.expr_,func_name);
     break;
 
   default:
@@ -407,7 +469,7 @@ void visitStmt(Stmt p, bool* hasReturn, char* returnType)
   }
 }
 
-void visitItem(Item p)
+void visitItem(Item p, char* func_name)
 {
   switch(p->kind)
   {
@@ -418,7 +480,7 @@ void visitItem(Item p)
   case is_Init:
     /* Code for Init Goes Here */
     visitIdent(p->u.init_.ident_);
-    visitExpr(p->u.init_.expr_);
+    visitExpr(p->u.init_.expr_,func_name);
     break;
 
   default:
@@ -427,12 +489,12 @@ void visitItem(Item p)
   }
 }
 
-void visitListItem(ListItem listitem)
+void visitListItem(ListItem listitem, char* func_name)
 {
   while(listitem  != 0)
   {
     /* Code For ListItem Goes Here */
-    visitItem(listitem->item_);
+    visitItem(listitem->item_,func_name);
     listitem = listitem->listitem_;
   }
 }
@@ -475,15 +537,22 @@ void visitListType(ListType listtype)
   }
 }
 
-void visitExpr(Expr p)
+void visitExpr(Expr p, char* func_name)
 {
+
+  /*for isEApp*/
+  char* localPara[10];
+  int localParaNum;
+  int isEqual = 1;
+ /*for isEApp*/
+
   switch(p->kind)
   {
   case is_EVar:
     /* Code for EVar Goes Here */
     visitIdent(p->u.evar_.ident_);
 
-    if(!getValue(p->u.evar_.ident_))
+    if(!getValue(p->u.evar_.ident_,func_name))
     {
       fprintf(stderr, "Error: not found value\n");
       exit(1);
@@ -504,9 +573,37 @@ void visitExpr(Expr p)
     /* Code for ELitFalse Goes Here */
     break;
   case is_EApp:
-    /* Code for EApp Goes Here */
+   
     visitIdent(p->u.eapp_.ident_);
-    visitListExpr(p->u.eapp_.listexpr_);
+
+     /* function decled check */
+    if(!getFunctionFromMap(p->u.eapp_.ident_)){
+      fprintf(stderr, "Error: called func not declcared\n");
+      exit(1);
+    }
+    char* local_func_name = p->u.eapp_.ident_;
+
+    visitListExpr(p->u.eapp_.listexpr_,local_func_name,&localParaNum,localPara);
+
+    /* function vars compared */
+    struct FunctionEntry* funcEntry = getFunctionFromMap(local_func_name);
+    if(funcEntry->numParameters!=localParaNum){
+      fprintf(stderr, "Error: called func para number dont match\n");
+      exit(1);
+    }
+
+    for(int i=0; i< localParaNum; i++){
+      if(strcmp(localPara[i],funcEntry->parameterTypes[i])!=0){
+        isEqual = 0;
+        break;
+      }
+    }
+
+    if(isEqual==0){
+      fprintf(stderr, "Error: called func para types dont match\n");
+      exit(1);
+    }
+
     break;
   case is_EString:
     /* Code for EString Goes Here */
@@ -514,45 +611,48 @@ void visitExpr(Expr p)
     break;
   case is_Neg:
     /* Code for Neg Goes Here */
-    visitExpr(p->u.neg_.expr_);
+    visitExpr(p->u.neg_.expr_,func_name);
     break;
   case is_Not:
     /* Code for Not Goes Here */
-    visitExpr(p->u.not_.expr_);
+    visitExpr(p->u.not_.expr_,func_name);
     break;
   case is_EMul:
     /* Code for EMul Goes Here */
     
-    visitExpr(p->u.emul_.expr_1);
+    visitExpr(p->u.emul_.expr_1,func_name);
     visitMulOp(p->u.emul_.mulop_);
-    visitExpr(p->u.emul_.expr_2);
+    visitExpr(p->u.emul_.expr_2,func_name);
+
+    struct FunctionEntry* localFuncEntry = getFunctionFromMap(func_name);
+    char* LType = localFuncEntry->returnType;
     if(p->u.emul_.expr_1->kind == is_EVar && p->u.emul_.expr_2->kind == is_EVar )
     {
-        if(getValue(p->u.emul_.expr_1->u.evar_.ident_) == getValue(p->u.emul_.expr_2->u.evar_.ident_)) break;
+        if(strcmp(getValue(p->u.emul_.expr_1->u.evar_.ident_,func_name) ,getValue(p->u.emul_.expr_2->u.evar_.ident_,func_name))==0 && strcmp(getValue(p->u.emul_.expr_1->u.evar_.ident_,func_name) ,LType)==0) break;
         else {
-          fprintf(stderr, "Error: ops type cant match\n");
+          fprintf(stderr, "Error: ops type cant match or dont decl var\n");
           exit(1);
         }
     }
     else if(p->u.emul_.expr_1->kind == is_EVar || p->u.emul_.expr_2->kind == is_EVar)
     {
         if(p->u.emul_.expr_1->kind == is_EVar){
-            if(getValue(p->u.emul_.expr_1->u.evar_.ident_) == TypeTransferExpr(p->u.emul_.expr_2->kind)) break;
+            if(strcmp(getValue(p->u.emul_.expr_1->u.evar_.ident_,func_name) , TypeTransferExpr(p->u.emul_.expr_2->kind))==0&& strcmp(getValue(p->u.emul_.expr_1->u.evar_.ident_,func_name) ,LType)==0) break;
             else {
-              fprintf(stderr, "Error: ops type cant match\n");
+              fprintf(stderr, "Error: ops type cant match or dont decl var\n");
               exit(1);
             }
         }
         else{
-            if(getValue(p->u.emul_.expr_2->u.evar_.ident_) == TypeTransferExpr(p->u.emul_.expr_1->kind)) break;
+            if(strcmp(getValue(p->u.emul_.expr_2->u.evar_.ident_,func_name) , TypeTransferExpr(p->u.emul_.expr_1->kind))==0 && strcmp(getValue(p->u.emul_.expr_2->u.evar_.ident_,func_name) ,LType)==0) break;
             else {
-              fprintf(stderr, "Error: ops type cant match\n");
+              fprintf(stderr, "Error: ops type cant match or dont decl var\n");
               exit(1);
             }
         }     
     }
     else{
-        if(TypeTransferExpr(p->u.emul_.expr_2->kind) == TypeTransferExpr(p->u.emul_.expr_1->kind)) break;
+        if(strcmp(TypeTransferExpr(p->u.emul_.expr_2->kind), TypeTransferExpr(p->u.emul_.expr_1->kind))==0&&strcmp(TypeTransferExpr(p->u.emul_.expr_1->kind) ,LType)==0) break;
         else {
           fprintf(stderr, "Error: ops type cant match\n");
           exit(1);
@@ -562,25 +662,25 @@ void visitExpr(Expr p)
   
   case is_EAdd:
     /* Code for EAdd Goes Here */
-    visitExpr(p->u.eadd_.expr_1);
+    visitExpr(p->u.eadd_.expr_1,func_name);
     visitAddOp(p->u.eadd_.addop_);
-    visitExpr(p->u.eadd_.expr_2);
+    visitExpr(p->u.eadd_.expr_2,func_name);
     break;
   case is_ERel:
     /* Code for ERel Goes Here */
-    visitExpr(p->u.erel_.expr_1);
+    visitExpr(p->u.erel_.expr_1,func_name);
     visitRelOp(p->u.erel_.relop_);
-    visitExpr(p->u.erel_.expr_2);
+    visitExpr(p->u.erel_.expr_2,func_name);
     break;
   case is_EAnd:
     /* Code for EAnd Goes Here */
-    visitExpr(p->u.eand_.expr_1);
-    visitExpr(p->u.eand_.expr_2);
+    visitExpr(p->u.eand_.expr_1,func_name);
+    visitExpr(p->u.eand_.expr_2,func_name);
     break;
   case is_EOr:
     /* Code for EOr Goes Here */
-    visitExpr(p->u.eor_.expr_1);
-    visitExpr(p->u.eor_.expr_2);
+    visitExpr(p->u.eor_.expr_1,func_name);
+    visitExpr(p->u.eor_.expr_2,func_name);
     break;
 
   default:
@@ -589,12 +689,32 @@ void visitExpr(Expr p)
   }
 }
 
-void visitListExpr(ListExpr listexpr)
+void visitListExpr(ListExpr listexpr, char* func_name, int* localParaNum, char** localPara)
 {
   while(listexpr  != 0)
   {
     /* Code For ListExpr Goes Here */
-    visitExpr(listexpr->expr_);
+    visitExpr(listexpr->expr_,func_name);
+
+    switch(listexpr->expr_->kind)
+    {
+    case is_EVar:
+      localPara[(*localParaNum)] = getValue(listexpr->expr_->u.evar_.ident_,func_name);
+      
+    case is_ELitInt:
+      localPara[(*localParaNum)] = TypeTransferExpr(listexpr->expr_->kind);
+
+    case is_ELitDoub:
+      localPara[(*localParaNum)] = TypeTransferExpr(listexpr->expr_->kind);
+
+    /*todo add all cases*/
+    default:
+      fprintf(stderr, "Error: bad kind field when printing Expr!\n");
+      exit(1);
+    }
+
+    
+    *localParaNum++;
     listexpr = listexpr->listexpr_;
   }
 }
