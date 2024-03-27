@@ -55,9 +55,9 @@ python3 testing.py path/to/submission
 - [ ] bad059: access variable before decleration
 - [ ] bad060: access variable
 
-- [ ] bad007: variable declearation
-- [ ] bad074: variable declearation
-- [ ] bad063: variable declearation
+- [x] bad007: variable declearation
+- [x] bad074: variable declearation
+- [x] bad063: variable declearation
 
 - [ ] bad035:  while(b) return 0; 
 - [ ] bad021: invalid return

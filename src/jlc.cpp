@@ -59,9 +59,12 @@ int main(int argc, char ** argv)
       PrintAbsyn *p = new PrintAbsyn();
       printf("%s\n\n", p->print(parse_tree));
     }
-    JLCFuncDeclearationChecker *checker = new JLCFuncDeclearationChecker();
-    parse_tree->accept(checker);
-    delete(checker);
+    JLCFuncDeclearationChecker *jlcfc = new JLCFuncDeclearationChecker();
+    JLCVariableCommonChecker *jlcvc = new JLCVariableCommonChecker();
+    parse_tree->accept(jlcfc);
+    parse_tree->accept(jlcvc);
+    delete(jlcfc);
+    delete(jlcvc);
     delete(parse_tree);
     std::cerr << "OK" << std::endl;
     return 0;

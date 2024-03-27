@@ -46,12 +46,12 @@ CC_INCLUDES := -I$(FRONT_END_DIR) -I$(UTILS_DIR)
 
 .PHONY : clean all
 
-all: jlc
+all: clean jlc
 
 clean:
 	mkdir -p $(BUILD_DIR)
 	rm -rf $(BUILD_DIR)/*
-	rm jlc
+	rm -rf jlc
 
 
 run_parser_test: TestJavalette

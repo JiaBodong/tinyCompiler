@@ -6,7 +6,6 @@
 
 #include "Absyn.H"
 
-
 class JLCFuncDeclearationChecker : public Visitor
 {
 public:
@@ -84,7 +83,7 @@ public:
 
 };
 
-class VariableCommonChecker : public Visitor
+class JLCVariableCommonChecker : public Visitor
 {
 public:
   void visitProg(Prog *p);
