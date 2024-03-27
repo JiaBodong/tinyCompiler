@@ -46,7 +46,7 @@ CC_INCLUDES := -I$(FRONT_END_DIR) -I$(UTILS_DIR)
 
 .PHONY : clean all
 
-all: TestJavalette jlc
+all: jlc
 
 clean:
 	mkdir -p $(BUILD_DIR)
@@ -68,11 +68,11 @@ $(BUILD_DIR)/%.o: $(FRONT_END_DIR)/%.C $(HEADERS)
 	
 # test .o files
 # test: $(OBJS)
-# 	@echo $(OBJS)
+# @echo $(OBJS)
 
-TestJavalette: $(OBJS) $(SRC_DIR)/Test.cpp 
-	@echo "Linking TestJavalette..."
-	$(CC) $(OBJS) $(SRC_DIR)/Test.cpp $(CC_INCLUDES) -o $(BUILD_DIR)/TestJavalette
+# TestJavalette: $(OBJS) $(SRC_DIR)/Test.cpp 
+# 	@echo "Linking TestJavalette..."
+# 	$(CC) $(OBJS) $(SRC_DIR)/Test.cpp $(CC_INCLUDES) -o $(BUILD_DIR)/TestJavalette
 
 # this target is used to generate the jlc executable, 
 # output to the root directory directly.

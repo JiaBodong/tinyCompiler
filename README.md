@@ -22,7 +22,6 @@ python3 testing.py path/to/submission
 - [x] bad064: func declearation check
 - [x] bad072: func declearation check
 
-
 - [ ] bad017: called func parameter check
 - [ ] bad016: called func parameter check
 - [ ] bad015: called func parameter check
@@ -30,44 +29,55 @@ python3 testing.py path/to/submission
 - [ ] bad018: called func parameter check
 
 - [ ] bad022: invalid operation
-- [ ] bad052: invalid operation
-- [ ] bad035:  while(b) return 0; 
-- [ ] bad053: invalid operation
 - [ ] bad023: invalid operation
+
+- [ ] bad026: invalid operation
+
+<!-- op -->
+- [ ] bad052: invalid operation
+- [ ] bad053: invalid operation
+- [ ] bad054: invalid operation
+- [ ] bad055: invalid operation
+- [ ] bad056: invalid operation
+- [ ] bad070: invalid operation
+- [ ] bad013: invalid operation
+
+
+- [ ] bad027: invalid operation
+- [ ] bad009: invalid operation
+
+<!-- func -->
+- [ ] bad073: invalid operation
+
+
+
+- [ ] bad006: access variable before decleration
+- [ ] bad059: access variable before decleration
+- [ ] bad060: access variable
+
+- [ ] bad007: variable declearation
+- [ ] bad074: variable declearation
+- [ ] bad063: variable declearation
+
+- [ ] bad035:  while(b) return 0; 
 - [ ] bad021: invalid return
 - [ ] bad069: return check
-
 - [ ] bad068: return check
 - [ ] bad020: Compare double with boolean
 - [ ] bad033: same as bad035
-- [ ] bad054: invalid operation
 - [ ] bad025: return check
-- [ ] bad055: invalid operation
 - [ ] bad032: return check
-- [ ] bad027: invalid operation
 - [ ] bad008: return check
-- [ ] bad056: invalid operation
-- [ ] bad009: invalid operation
-- [ ] bad026: invalid operation
 - [ ] bad031: return check
-- [ ] bad070: invalid operation
 - [ ] bad067: return check
-
 - [ ] bad065: return check
 - [ ] bad011: return check
 - [ ] bad029: return check
 - [ ] bad071: return check
-- [ ] bad073: invalid operation
-- [ ] bad006: access variable before decleration.
-- [ ] bad059: access variable before decleration
 - [ ] bad058: return check
-- [ ] bad007: variable declearation
-- [ ] bad060: access variable
 - [ ] bad010: return check
 - [ ] bad012: return check
-- [ ] bad074: variable declearation
-- [ ] bad013: invalid operation
-- [ ] bad063: variable declearation
+
 
 
 qa: what about  variable name is equal to function name
