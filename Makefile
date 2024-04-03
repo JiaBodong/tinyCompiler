@@ -57,14 +57,14 @@ clean:
 run_parser_test: TestJavalette
 	./$(BUILD_DIR)/TestJavalette test/parser/test_1.jl
 
+# special c flag for Lexer.o
+$(BUILD_DIR)/Lexer.o : $(FRONT_END_DIR)/Lexer.C $(FRONT_END_DIR)/Bison.H 
+	$(CC) $(CCFLAGS) -Wno-sign-conversion $(CC_INCLUDES) -c $< -o $@;
+
 # generate the object files
 $(BUILD_DIR)/%.o: $(FRONT_END_DIR)/%.C $(HEADERS) 
-# special c flag for Lexer.o
-	if [ $* = "Lexer" ]; then \
-		$(CC) $(CCFLAGS) -Wno-sign-conversion $(CC_INCLUDES) -c $< -o $@;\
-	else \
-		$(CC) $(CCFLAGS) $(CC_INCLUDES) -c $< -o $@; \
-	fi
+	$(CC) $(CCFLAGS) $(CC_INCLUDES) -c $< -o $@; \
+	
 	
 # test .o files
 # test: $(OBJS)

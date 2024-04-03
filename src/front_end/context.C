@@ -1,7 +1,4 @@
 #include "context.H"
-// global context used by all checkers
-Context globalContext;
-
 
 std::string to_string(type_enum t) {
   switch(t) {
@@ -12,6 +9,7 @@ std::string to_string(type_enum t) {
     case FUN: return "fun";
     case CHAR: return "char";
     case STRING: return "string";
+    case UNDEFINED: return "undefined";
   }
   return "unknown";
 }
