@@ -162,34 +162,34 @@ public:
 		// internal functions
 		{
 			addFrame("printInt");
-	auto &frame = getFrame("printInt");
-	frame.returnType = VOID;
-	frame.addArg("a", INT);
+			auto &frame = getFrame("printInt");
+			frame.returnType = VOID;
+			frame.addArg("a", INT);
+		}
+		{
+			addFrame("printDouble");
+			auto &frame = getFrame("printDouble");
+			frame.returnType = VOID;
+			frame.addArg("a", DOUB);
+		}
+		{
+			addFrame("printString");
+			auto &frame = getFrame("printString");
+			frame.returnType = VOID;
+			frame.addArg("a", STRING);
+		}
+		{
+			addFrame("readInt");
+			auto &frame = getFrame("readInt");
+			frame.returnType = INT;
+		}
+		{
+			addFrame("readDouble");
+			auto &frame = getFrame("readDouble");
+			frame.returnType = DOUB;
+		}
 }
-{
-	addFrame("printDouble");
-	auto &frame = getFrame("printDouble");
-	frame.returnType = VOID;
-	frame.addArg("a", DOUB);
-}
-{
-	addFrame("printString");
-	auto &frame = getFrame("printString");
-	frame.returnType = VOID;
-	frame.addArg("a", STRING);
-}
-{
-	addFrame("readInt");
-	auto &frame = getFrame("readInt");
-	frame.returnType = INT;
-}
-{
-	addFrame("readDouble");
-	auto &frame = getFrame("readDouble");
-	frame.returnType = DOUB;
-}
-}
-;
+
 ~Context() = default;
 std::map<std::string, Frame> funcs;
 // rules for checking the function
@@ -215,7 +215,6 @@ bool isExistFunction(const std::string &name)
 {
 	return funcs.find(name) != funcs.end();
 }
-}
-;
+};
 
 #endif

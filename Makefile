@@ -84,7 +84,7 @@ jlc: $(OBJS) $(SRC_DIR)/jlc.cpp
 # thus, we generate it manually.
 # also we have to modify the generated files to make it work.
 # complie .Cf files
-CF_FILE := $(wildcard $(SRC_DIR)/Javalette.Cf)
+CF_FILE=$(SRC_DIR)/Javalette.cf
 generate_parser:
 	bnfc -m --cpp $(CF_FILE) -o $(BUILD_DIR)
 	cd $(BUILD_DIR) && make

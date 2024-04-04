@@ -14,6 +14,11 @@
 #include <string>
 #include <cstdlib>
 
+#if ENABLE_TYPE_CHECK_DEBUG == 0
+#undef DEBUG_PRINT
+#define DEBUG_PRINT(ss)
+#endif
+
 static PrintAbsyn p = PrintAbsyn();
 
 static const std::string checkerName = "JLCTypeChecker";
