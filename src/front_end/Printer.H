@@ -65,6 +65,7 @@ class PrintAbsyn : public Visitor
   void visitItem(Item *p); /* abstract class */
   void visitNoInit(NoInit *p);
   void visitInit(Init *p);
+  void visitInitArray(InitArray *p);
   void visitListItem(ListItem *p);
   void iterListItem(ListItem::const_iterator i, ListItem::const_iterator j);
   void visitType(Type *p); /* abstract class */
@@ -72,11 +73,15 @@ class PrintAbsyn : public Visitor
   void visitDoub(Doub *p);
   void visitBool(Bool *p);
   void visitVoid(Void *p);
+  void visitIntArray(IntArray *p);
+  void visitDoubArray(DoubArray *p);
+  void visitBoolArray(BoolArray *p);
   void visitFun(Fun *p);
   void visitListType(ListType *p);
   void iterListType(ListType::const_iterator i, ListType::const_iterator j);
   void visitExpr(Expr *p); /* abstract class */
   void visitEVar(EVar *p);
+  void visitEArray(EArray *p);
   void visitELitInt(ELitInt *p);
   void visitELitDoub(ELitDoub *p);
   void visitELitTrue(ELitTrue *p);
@@ -204,6 +209,7 @@ class ShowAbsyn : public Visitor
   void visitItem(Item *p); /* abstract class */
   void visitNoInit(NoInit *p);
   void visitInit(Init *p);
+  void visitInitArray(InitArray *p);
   void visitListItem(ListItem *p);
   void iterListItem(ListItem::const_iterator i, ListItem::const_iterator j);
   void visitType(Type *p); /* abstract class */
@@ -211,11 +217,15 @@ class ShowAbsyn : public Visitor
   void visitDoub(Doub *p);
   void visitBool(Bool *p);
   void visitVoid(Void *p);
+  void visitIntArray(IntArray *p);
+  void visitDoubArray(DoubArray *p);
+  void visitBoolArray(BoolArray *p);
   void visitFun(Fun *p);
   void visitListType(ListType *p);
   void iterListType(ListType::const_iterator i, ListType::const_iterator j);
   void visitExpr(Expr *p); /* abstract class */
   void visitEVar(EVar *p);
+  void visitEArray(EArray *p);
   void visitELitInt(ELitInt *p);
   void visitELitDoub(ELitDoub *p);
   void visitELitTrue(ELitTrue *p);

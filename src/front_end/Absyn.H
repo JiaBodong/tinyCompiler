@@ -41,6 +41,7 @@ class BStmt;
 class Decl;
 class NoInit;
 class Init;
+class InitArray;
 class Ass;
 class Incr;
 class Decr;
@@ -54,8 +55,12 @@ class Int;
 class Doub;
 class Bool;
 class Void;
+class IntArray;
+class DoubArray;
+class BoolArray;
 class Fun;
 class EVar;
+class EArray;
 class ELitInt;
 class ELitDoub;
 class ELitTrue;
@@ -87,12 +92,6 @@ class ListItem;
 class ListType;
 class ListExpr;
 
-/*maybe add these 4 kinds*/
-class InitArray;
-class IntArray;
-class DoubArray;
-class EArray
-
 
 /********************   Visitor Interfaces    ********************/
 class Visitor
@@ -119,6 +118,7 @@ public:
   virtual void visitDecl(Decl *p) = 0;
   virtual void visitNoInit(NoInit *p) = 0;
   virtual void visitInit(Init *p) = 0;
+  virtual void visitInitArray(InitArray *p) = 0;
   virtual void visitAss(Ass *p) = 0;
   virtual void visitIncr(Incr *p) = 0;
   virtual void visitDecr(Decr *p) = 0;
@@ -132,8 +132,12 @@ public:
   virtual void visitDoub(Doub *p) = 0;
   virtual void visitBool(Bool *p) = 0;
   virtual void visitVoid(Void *p) = 0;
+  virtual void visitIntArray(IntArray *p) = 0;
+  virtual void visitDoubArray(DoubArray *p) = 0;
+  virtual void visitBoolArray(BoolArray *p) = 0;
   virtual void visitFun(Fun *p) = 0;
   virtual void visitEVar(EVar *p) = 0;
+  virtual void visitEArray(EArray *p) = 0;
   virtual void visitELitInt(ELitInt *p) = 0;
   virtual void visitELitDoub(ELitDoub *p) = 0;
   virtual void visitELitTrue(ELitTrue *p) = 0;
@@ -525,6 +529,22 @@ public:
   void swap(Init &);
 };
 
+class InitArray : public Item
+{
+public:
+  Ident ident_;
+  Type *type_;
+  ListExpr *listexpr_;
+
+  InitArray(const InitArray &);
+  InitArray &operator=(const InitArray &);
+  InitArray(Ident p1, Type *p2, ListExpr *p3);
+  ~InitArray();
+  virtual void accept(Visitor *v);
+  virtual InitArray *clone() const;
+  void swap(InitArray &);
+};
+
 class Int : public Type
 {
 public:
@@ -577,6 +597,45 @@ public:
   void swap(Void &);
 };
 
+class IntArray : public Type
+{
+public:
+
+  IntArray(const IntArray &);
+  IntArray &operator=(const IntArray &);
+  IntArray();
+  ~IntArray();
+  virtual void accept(Visitor *v);
+  virtual IntArray *clone() const;
+  void swap(IntArray &);
+};
+
+class DoubArray : public Type
+{
+public:
+
+  DoubArray(const DoubArray &);
+  DoubArray &operator=(const DoubArray &);
+  DoubArray();
+  ~DoubArray();
+  virtual void accept(Visitor *v);
+  virtual DoubArray *clone() const;
+  void swap(DoubArray &);
+};
+
+class BoolArray : public Type
+{
+public:
+
+  BoolArray(const BoolArray &);
+  BoolArray &operator=(const BoolArray &);
+  BoolArray();
+  ~BoolArray();
+  virtual void accept(Visitor *v);
+  virtual BoolArray *clone() const;
+  void swap(BoolArray &);
+};
+
 class Fun : public Type
 {
 public:
@@ -604,6 +663,21 @@ public:
   virtual void accept(Visitor *v);
   virtual EVar *clone() const;
   void swap(EVar &);
+};
+
+class EArray : public Expr
+{
+public:
+  Ident ident_;
+  ListExpr *listexpr_;
+
+  EArray(const EArray &);
+  EArray &operator=(const EArray &);
+  EArray(Ident p1, ListExpr *p2);
+  ~EArray();
+  virtual void accept(Visitor *v);
+  virtual EArray *clone() const;
+  void swap(EArray &);
 };
 
 class ELitInt : public Expr

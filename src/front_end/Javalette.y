@@ -104,12 +104,18 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _DEQ         /* == */
 %token          _GT          /* > */
 %token          _GTEQ        /* >= */
+%token          _LBRACK      /* [ */
+%token          _RBRACK      /* ] */
 %token          _KW_boolean  /* boolean */
+%token          _SYMB_13     /* boolean[] */
 %token          _KW_double   /* double */
+%token          _SYMB_12     /* double[] */
 %token          _KW_else     /* else */
 %token          _KW_false    /* false */
 %token          _KW_if       /* if */
 %token          _KW_int      /* int */
+%token          _SYMB_11     /* int[] */
+%token          _KW_new      /* new */
 %token          _KW_return   /* return */
 %token          _KW_true     /* true */
 %token          _KW_void     /* void */
@@ -183,6 +189,7 @@ Stmt : _SEMI { $$ = new Empty(); }
 ;
 Item : _IDENT_ { $$ = new NoInit($1); }
   | _IDENT_ _EQ Expr { $$ = new Init($1, $3); }
+  | _IDENT_ _EQ _KW_new Type _LBRACK ListExpr _RBRACK { std::reverse($6->begin(),$6->end()) ;$$ = new InitArray($1, $4, $6); }
 ;
 ListItem : Item { $$ = new ListItem(); $$->push_back($1); }
   | Item _COMMA ListItem { $3->push_back($1); $$ = $3; }
@@ -191,12 +198,16 @@ Type : _KW_int { $$ = new Int(); }
   | _KW_double { $$ = new Doub(); }
   | _KW_boolean { $$ = new Bool(); }
   | _KW_void { $$ = new Void(); }
+  | _SYMB_11 { $$ = new IntArray(); }
+  | _SYMB_12 { $$ = new DoubArray(); }
+  | _SYMB_13 { $$ = new BoolArray(); }
 ;
 ListType : /* empty */ { $$ = new ListType(); }
   | Type { $$ = new ListType(); $$->push_back($1); }
   | Type _COMMA ListType { $3->push_back($1); $$ = $3; }
 ;
 Expr6 : _IDENT_ { $$ = new EVar($1); }
+  | _IDENT_ _LBRACK ListExpr _RBRACK { std::reverse($3->begin(),$3->end()) ;$$ = new EArray($1, $3); }
   | _INTEGER_ { $$ = new ELitInt($1); }
   | _DOUBLE_ { $$ = new ELitDoub($1); }
   | _KW_true { $$ = new ELitTrue(); }

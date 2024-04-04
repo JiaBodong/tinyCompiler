@@ -60,9 +60,11 @@ Bool.      Type ::= "boolean" ;
 
 Void.      Type ::= "void" ;
 
-IntArray.     Type ::= "int[]" ;
+IntArray.  Type ::= "int[]" ;
 
-DoubArray.    Type ::= "double[]" ;
+DoubArray. Type ::= "double[]" ;
+
+BoolArray. Type ::= "boolean[]" ;
 
 internal   Fun. Type ::= Type "(" [Type] ")" ;
 

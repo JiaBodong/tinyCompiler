@@ -6,7 +6,6 @@
 #include <vector>
 #include "Absyn.H"
 
-
 /********************   Program    ********************/
 Program::Program(ListTopDef *p1)
 {
@@ -828,6 +827,57 @@ Init *Init::clone() const
 
 
 
+/********************   InitArray    ********************/
+InitArray::InitArray(Ident p1, Type *p2, ListExpr *p3)
+{
+  ident_ = p1;
+  type_ = p2;
+  listexpr_ = p3;
+
+}
+
+InitArray::InitArray(const InitArray & other)
+{
+  ident_ = other.ident_;
+  type_ = other.type_->clone();
+  listexpr_ = other.listexpr_->clone();
+
+}
+
+InitArray &InitArray::operator=(const InitArray & other)
+{
+  InitArray tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void InitArray::swap(InitArray & other)
+{
+  std::swap(ident_, other.ident_);
+  std::swap(type_, other.type_);
+  std::swap(listexpr_, other.listexpr_);
+
+}
+
+InitArray::~InitArray()
+{
+  delete(type_);
+  delete(listexpr_);
+
+}
+
+void InitArray::accept(Visitor *v)
+{
+  v->visitInitArray(this);
+}
+
+InitArray *InitArray::clone() const
+{
+  return new InitArray(*this);
+}
+
+
+
 /********************   Int    ********************/
 Int::Int()
 {
@@ -988,6 +1038,126 @@ Void *Void::clone() const
 
 
 
+/********************   IntArray    ********************/
+IntArray::IntArray()
+{
+
+}
+
+IntArray::IntArray(const IntArray & other)
+{
+
+}
+
+IntArray &IntArray::operator=(const IntArray & other)
+{
+  IntArray tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void IntArray::swap(IntArray & other)
+{
+
+}
+
+IntArray::~IntArray()
+{
+
+}
+
+void IntArray::accept(Visitor *v)
+{
+  v->visitIntArray(this);
+}
+
+IntArray *IntArray::clone() const
+{
+  return new IntArray(*this);
+}
+
+
+
+/********************   DoubArray    ********************/
+DoubArray::DoubArray()
+{
+
+}
+
+DoubArray::DoubArray(const DoubArray & other)
+{
+
+}
+
+DoubArray &DoubArray::operator=(const DoubArray & other)
+{
+  DoubArray tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void DoubArray::swap(DoubArray & other)
+{
+
+}
+
+DoubArray::~DoubArray()
+{
+
+}
+
+void DoubArray::accept(Visitor *v)
+{
+  v->visitDoubArray(this);
+}
+
+DoubArray *DoubArray::clone() const
+{
+  return new DoubArray(*this);
+}
+
+
+
+/********************   BoolArray    ********************/
+BoolArray::BoolArray()
+{
+
+}
+
+BoolArray::BoolArray(const BoolArray & other)
+{
+
+}
+
+BoolArray &BoolArray::operator=(const BoolArray & other)
+{
+  BoolArray tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void BoolArray::swap(BoolArray & other)
+{
+
+}
+
+BoolArray::~BoolArray()
+{
+
+}
+
+void BoolArray::accept(Visitor *v)
+{
+  v->visitBoolArray(this);
+}
+
+BoolArray *BoolArray::clone() const
+{
+  return new BoolArray(*this);
+}
+
+
+
 /********************   Fun    ********************/
 Fun::Fun(Type *p1, ListType *p2)
 {
@@ -1075,6 +1245,53 @@ void EVar::accept(Visitor *v)
 EVar *EVar::clone() const
 {
   return new EVar(*this);
+}
+
+
+
+/********************   EArray    ********************/
+EArray::EArray(Ident p1, ListExpr *p2)
+{
+  ident_ = p1;
+  listexpr_ = p2;
+
+}
+
+EArray::EArray(const EArray & other)
+{
+  ident_ = other.ident_;
+  listexpr_ = other.listexpr_->clone();
+
+}
+
+EArray &EArray::operator=(const EArray & other)
+{
+  EArray tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void EArray::swap(EArray & other)
+{
+  std::swap(ident_, other.ident_);
+  std::swap(listexpr_, other.listexpr_);
+
+}
+
+EArray::~EArray()
+{
+  delete(listexpr_);
+
+}
+
+void EArray::accept(Visitor *v)
+{
+  v->visitEArray(this);
+}
+
+EArray *EArray::clone() const
+{
+  return new EArray(*this);
 }
 
 
