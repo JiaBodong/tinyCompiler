@@ -169,7 +169,7 @@ void JLCTypeChecker::visitDecl(Decl *decl)
   auto temp_decl_type = temp_type;
   auto & frame = globalContext.currentFrame();
   for (auto & item : *(decl->listitem_)){
-    temp_type = temp_decl_type;
+    temp_type = temp_decl_type; // !! this is important, as the type will pase to the next level
     item->accept(this);
     if(frame.blk->isExistVar(temp_ident)){
       // check if the variable is already declared in this block !notice: not in the whole function
@@ -347,7 +347,7 @@ void JLCTypeChecker::visitInit(Init *init)
   DEBUG_PRINT( "[" + checkerName +"]" + "\tInit");
   visitIdent(init->ident_);
   temp_ident = init->ident_;
-  auto temp_decl_type = temp_type;
+  auto temp_decl_type = temp_type; // !this type is passed from top level
   if (init->expr_) init->expr_->accept(this);
   // check if the init type is same as the variable type
   if (temp_type != temp_decl_type){

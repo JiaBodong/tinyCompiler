@@ -202,10 +202,12 @@ void JLCLLVMGenerator::visitBStmt(BStmt *b_stmt)
 void JLCLLVMGenerator::visitDecl(Decl *decl)
 {
   /* Code For Decl Goes Here */
-
   if (decl->type_) decl->type_->accept(this);
-  
-  if (decl->listitem_) decl->listitem_->accept(this);
+  auto temp_decl_type = temp_type;
+  for (auto & item : *(decl->listitem_)){
+    temp_type = temp_decl_type; // !! this is important, as the type will pase to the next level
+    item->accept(this);
+  }
 
 }
 
@@ -288,16 +290,30 @@ void JLCLLVMGenerator::visitSExp(SExp *s_exp)
 void JLCLLVMGenerator::visitNoInit(NoInit *no_init)
 {
   /* Code For NoInit Goes Here */
-
   visitIdent(no_init->ident_);
-
+  auto temp_decl_type = temp_type; // !this type is passed from top level
+  
+  llvm::Constant* init_val = nullptr;
+  switch (temp_decl_type)
+  {
+  case INT:
+    init_val = llvm::ConstantInt::get(*LLVM_Context_, llvm::APInt(32, 0));
+    break;
+  case DOUB:
+    init_val = llvm::ConstantFP::get(*LLVM_Context_, llvm::APFloat(0.0));
+    break;
+  default:
+    break;
+  }
+  auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_type), init_val, no_init->ident_);
 }
 
 void JLCLLVMGenerator::visitInit(Init *init)
 {
   /* Code For Init Goes Here */
-
   visitIdent(init->ident_);
+  auto temp_decl_type = temp_type; // !this type is passed from top level
+  auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_decl_type), nullptr, init->ident_);
   if (init->expr_) init->expr_->accept(this);
 
 }

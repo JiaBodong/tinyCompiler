@@ -21,6 +21,7 @@ public:
   Context globalContext;
   type_enum temp_type;
   op_enum temp_op;
+  std::string temp_ident;
 
 
   JLCLLVMGenerator(): LLVM_Context_(std::make_unique<llvm::LLVMContext>()),
@@ -40,7 +41,7 @@ private:
   std::unique_ptr<llvm::LLVMContext> LLVM_Context_;
   std::unique_ptr<llvm::Module> LLVM_module_;
   std::unique_ptr<llvm::IRBuilder<>> LLVM_builder_;
-  
+
   llvm::Function * current_func_;
 
   int block_id = 0;
