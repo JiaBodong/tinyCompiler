@@ -123,7 +123,7 @@ void JLCLLVMGenerator::visitProgram(Program *program)
   // this part is same as the type checker, will add all the functions to the context
   for (ListTopDef::iterator top_def = program->listtopdef_->begin() ; top_def != program->listtopdef_->end() ; ++top_def)
   {
-    FnDef* fn_def = dynamic_cast<FnDef*>(*top_def);
+    FnDef* fn_def = reinterpret_cast<FnDef*>(*top_def);
     visitIdent(fn_def->ident_);
     // add the function to the global context
     globalContext.addFrame(fn_def->ident_);

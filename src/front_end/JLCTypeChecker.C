@@ -43,7 +43,7 @@ void JLCTypeChecker::visitProgram(Program *program)
   /* iterate through the top definitions */
   for (ListTopDef::iterator top_def = program->listtopdef_->begin() ; top_def != program->listtopdef_->end() ; ++top_def)
   {
-    FnDef* fn_def = dynamic_cast<FnDef*>(*top_def);
+    FnDef* fn_def = reinterpret_cast<FnDef*>(*top_def);
     if (fn_def->type_) fn_def->type_->accept(this);
     DEBUG_PRINT("\tFunction type: " + to_string(temp_type));
     // don't need to check type_, as long as the parser is correct, otherwise it will throw an error

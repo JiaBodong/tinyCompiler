@@ -47,6 +47,7 @@ public:
 // for each block, we create a new CBlk object
 // a block is a sequence of statements
 // a block can contain other blocks
+// most of time a block mean a new scope, at least in "javalette"
 class CBlk
 {
 public:

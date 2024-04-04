@@ -7,6 +7,13 @@
 #include "Absyn.H"
 #include "context.H"
 
+// llvm dependencies
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/Value.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Type.h"
 
 class JLCLLVMGenerator : public Visitor
 {
@@ -15,19 +22,28 @@ public:
   type_enum temp_type;
   op_enum temp_op;
 
-  JLCLLVMGenerator(){
-    addExternalFunc();
+  JLCLLVMGenerator(): LLVM_Context_(std::make_unique<llvm::LLVMContext>()),
+                      LLVM_module_(std::make_unique<llvm::Module>("JLC_llvm", *LLVM_Context_)),
+                      LLVM_builder_(std::make_unique<llvm::IRBuilder<>>(*LLVM_Context_))
+  {
+    // addExternalFunc();
   };
 
   ~JLCLLVMGenerator()=default;
   std::vector<std::string> global_declear_segment;
 
 private:
+  /* serving for generating llvm code*/
+  std::unique_ptr<llvm::LLVMContext> LLVM_Context_;
+  std::unique_ptr<llvm::Module> LLVM_module_;
+  std::unique_ptr<llvm::IRBuilder<>> LLVM_builder_;
+  
   // add inner/external function to the head of the ll file
   // for example, printInt, printDouble, printString, printBool
   void addExternalFunc();
 
   void addFuncDeclearation(Frame &frame);
+
 
 
 public:

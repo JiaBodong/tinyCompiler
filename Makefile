@@ -3,17 +3,15 @@
 # as a reference to generate our own Makefile.
 
 CC = g++ -std=c++11 -g
-CCFLAGS = -W -Wall -Wsign-conversion \
+CCFLAGS = -W -Wall \
 	-Wno-unused-parameter \
 	-Wno-unused-function \
-	-Wno-unneeded-internal-declaration \
-	${CC_OPTS}
+	-Wno-unneeded-internal-declaration
+	
+# llvm config
+LLVM_CC_CONFIG = `llvm-config --cxxflags` -fexceptions
+LLVM_LD_CONFIG = `llvm-config --ldflags --libs --system-libs`
 
-FLEX = flex
-FLEX_OPTS = -Pjavalette_
-
-BISON = bison
-BISON_OPTS = -t -pjavalette_
 
 BUILD_DIR := build
 SRC_DIR := src
@@ -61,24 +59,20 @@ run_parser_test: TestJavalette
 $(BUILD_DIR)/Lexer.o : $(FRONT_END_DIR)/Lexer.C $(FRONT_END_DIR)/Bison.H 
 	$(CC) $(CCFLAGS) -Wno-sign-conversion $(CC_INCLUDES) -c $< -o $@;
 
+$(BUILD_DIR)/JLCLLVMGenerator.o : $(FRONT_END_DIR)/JLCLLVMGenerator.C $(FRONT_END_DIR)/JLCLLVMGenerator.H
+	$(CC) $(CCFLAGS) $(CC_INCLUDES) $(LLVM_CC_CONFIG) -c $< -o $@;
+
 # generate the object files
 $(BUILD_DIR)/%.o: $(FRONT_END_DIR)/%.C $(HEADERS) 
 	$(CC) $(CCFLAGS) $(CC_INCLUDES) -c $< -o $@; \
 	
 	
-# test .o files
-# test: $(OBJS)
-# @echo $(OBJS)
-
-# TestJavalette: $(OBJS) $(SRC_DIR)/Test.cpp 
-# 	@echo "Linking TestJavalette..."
-# 	$(CC) $(OBJS) $(SRC_DIR)/Test.cpp $(CC_INCLUDES) -o $(BUILD_DIR)/TestJavalette
-
 # this target is used to generate the jlc executable, 
 # output to the root directory directly.
 jlc: $(OBJS) $(SRC_DIR)/jlc.cpp
 	@echo "Building jlc..."
-	$(CC) $(OBJS) $(SRC_DIR)/jlc.cpp $(CC_INCLUDES) -o jlc 
+	$(CC) $(CCFLAGS) $(LLVM_CC_CONFIG) \
+		$(CC_INCLUDES) $(OBJS) $(SRC_DIR)/jlc.cpp $(LLVM_LD_CONFIG) -o jlc 
 
 # remove this target, because we just need to generate it once,
 # thus, we generate it manually.
