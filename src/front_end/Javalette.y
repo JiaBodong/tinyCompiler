@@ -97,6 +97,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _MINUS       /* - */
 %token          _DMINUS      /* -- */
 %token          _SLASH       /* / */
+%token          _COLON       /* : */
 %token          _SEMI        /* ; */
 %token          _LT          /* < */
 %token          _LDARROW     /* <= */
@@ -107,14 +108,15 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _LBRACK      /* [ */
 %token          _RBRACK      /* ] */
 %token          _KW_boolean  /* boolean */
-%token          _SYMB_13     /* boolean[] */
+%token          _SYMB_14     /* boolean[] */
 %token          _KW_double   /* double */
-%token          _SYMB_12     /* double[] */
+%token          _SYMB_13     /* double[] */
 %token          _KW_else     /* else */
 %token          _KW_false    /* false */
+%token          _KW_for      /* for */
 %token          _KW_if       /* if */
 %token          _KW_int      /* int */
-%token          _SYMB_11     /* int[] */
+%token          _SYMB_12     /* int[] */
 %token          _KW_new      /* new */
 %token          _KW_return   /* return */
 %token          _KW_true     /* true */
@@ -185,6 +187,7 @@ Stmt : _SEMI { $$ = new Empty(); }
   | _KW_if _LPAREN Expr _RPAREN Stmt { $$ = new Cond($3, $5); }
   | _KW_if _LPAREN Expr _RPAREN Stmt _KW_else Stmt { $$ = new CondElse($3, $5, $7); }
   | _KW_while _LPAREN Expr _RPAREN Stmt { $$ = new While($3, $5); }
+  | _KW_for _LPAREN Type Expr _COLON Expr _RPAREN Stmt { $$ = new ForLoop($3, $4, $6, $8); }
   | Expr _SEMI { $$ = new SExp($1); }
 ;
 Item : _IDENT_ { $$ = new NoInit($1); }
@@ -198,9 +201,9 @@ Type : _KW_int { $$ = new Int(); }
   | _KW_double { $$ = new Doub(); }
   | _KW_boolean { $$ = new Bool(); }
   | _KW_void { $$ = new Void(); }
-  | _SYMB_11 { $$ = new IntArray(); }
-  | _SYMB_12 { $$ = new DoubArray(); }
-  | _SYMB_13 { $$ = new BoolArray(); }
+  | _SYMB_12 { $$ = new IntArray(); }
+  | _SYMB_13 { $$ = new DoubArray(); }
+  | _SYMB_14 { $$ = new BoolArray(); }
 ;
 ListType : /* empty */ { $$ = new ListType(); }
   | Type { $$ = new ListType(); $$->push_back($1); }

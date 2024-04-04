@@ -693,6 +693,62 @@ While *While::clone() const
 
 
 
+/********************   ForLoop    ********************/
+ForLoop::ForLoop(Type *p1, Expr *p2, Expr *p3, Stmt *p4)
+{
+  type_ = p1;
+  expr_1 = p2;
+  expr_2 = p3;
+  stmt_ = p4;
+
+}
+
+ForLoop::ForLoop(const ForLoop & other)
+{
+  type_ = other.type_->clone();
+  expr_1 = other.expr_1->clone();
+  expr_2 = other.expr_2->clone();
+  stmt_ = other.stmt_->clone();
+
+}
+
+ForLoop &ForLoop::operator=(const ForLoop & other)
+{
+  ForLoop tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void ForLoop::swap(ForLoop & other)
+{
+  std::swap(type_, other.type_);
+  std::swap(expr_1, other.expr_1);
+  std::swap(expr_2, other.expr_2);
+  std::swap(stmt_, other.stmt_);
+
+}
+
+ForLoop::~ForLoop()
+{
+  delete(type_);
+  delete(expr_1);
+  delete(expr_2);
+  delete(stmt_);
+
+}
+
+void ForLoop::accept(Visitor *v)
+{
+  v->visitForLoop(this);
+}
+
+ForLoop *ForLoop::clone() const
+{
+  return new ForLoop(*this);
+}
+
+
+
 /********************   SExp    ********************/
 SExp::SExp(Expr *p1)
 {

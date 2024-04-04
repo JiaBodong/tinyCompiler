@@ -392,6 +392,24 @@ void PrintAbsyn::visitWhile(While *p)
   _i_ = oldi;
 }
 
+void PrintAbsyn::visitForLoop(ForLoop *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("for");
+  render('(');
+  _i_ = 0; p->type_->accept(this);
+  _i_ = 0; p->expr_1->accept(this);
+  render(':');
+  _i_ = 0; p->expr_2->accept(this);
+  render(')');
+  _i_ = 0; p->stmt_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
 void PrintAbsyn::visitSExp(SExp *p)
 {
   int oldi = _i_;
@@ -1158,6 +1176,24 @@ void ShowAbsyn::visitWhile(While *p)
   bufAppend('[');
   if (p->expr_)  p->expr_->accept(this);
   bufAppend(']');
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->stmt_)  p->stmt_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+void ShowAbsyn::visitForLoop(ForLoop *p)
+{
+  bufAppend('(');
+  bufAppend("ForLoop");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->type_)  p->type_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  p->expr_1->accept(this);
+  bufAppend(' ');
+  p->expr_2->accept(this);
   bufAppend(' ');
   bufAppend('[');
   if (p->stmt_)  p->stmt_->accept(this);

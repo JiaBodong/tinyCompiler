@@ -150,6 +150,17 @@ void Skeleton::visitWhile(While *while_)
 
 }
 
+void Skeleton::visitForLoop(ForLoop *for_loop)
+{
+  /* Code For ForLoop Goes Here */
+
+  if (for_loop->type_) for_loop->type_->accept(this);
+  if (for_loop->expr_1) for_loop->expr_1->accept(this);
+  if (for_loop->expr_2) for_loop->expr_2->accept(this);
+  if (for_loop->stmt_) for_loop->stmt_->accept(this);
+
+}
+
 void Skeleton::visitSExp(SExp *s_exp)
 {
   /* Code For SExp Goes Here */

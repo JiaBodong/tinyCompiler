@@ -61,6 +61,7 @@ class PrintAbsyn : public Visitor
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
   void visitWhile(While *p);
+  void visitForLoop(ForLoop *p);
   void visitSExp(SExp *p);
   void visitItem(Item *p); /* abstract class */
   void visitNoInit(NoInit *p);
@@ -205,6 +206,7 @@ class ShowAbsyn : public Visitor
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
   void visitWhile(While *p);
+  void visitForLoop(ForLoop *p);
   void visitSExp(SExp *p);
   void visitItem(Item *p); /* abstract class */
   void visitNoInit(NoInit *p);

@@ -48,6 +48,8 @@ CondElse.  Stmt ::= "if" "(" Expr ")" Stmt "else" Stmt  ;
 
 While.     Stmt ::= "while" "(" Expr ")" Stmt ;
 
+ForLoop.   Stmt ::= "for" "(" Type Expr ":" Expr ")" Stmt ;
+
 SExp.      Stmt ::= Expr  ";" ;
 
 -- Types ---------------------------------------------------

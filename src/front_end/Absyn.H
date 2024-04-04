@@ -50,6 +50,7 @@ class VRet;
 class Cond;
 class CondElse;
 class While;
+class ForLoop;
 class SExp;
 class Int;
 class Doub;
@@ -127,6 +128,7 @@ public:
   virtual void visitCond(Cond *p) = 0;
   virtual void visitCondElse(CondElse *p) = 0;
   virtual void visitWhile(While *p) = 0;
+  virtual void visitForLoop(ForLoop *p) = 0;
   virtual void visitSExp(SExp *p) = 0;
   virtual void visitInt(Int *p) = 0;
   virtual void visitDoub(Doub *p) = 0;
@@ -484,6 +486,23 @@ public:
   virtual void accept(Visitor *v);
   virtual While *clone() const;
   void swap(While &);
+};
+
+class ForLoop : public Stmt
+{
+public:
+  Type *type_;
+  Expr *expr_1;
+  Expr *expr_2;
+  Stmt *stmt_;
+
+  ForLoop(const ForLoop &);
+  ForLoop &operator=(const ForLoop &);
+  ForLoop(Type *p1, Expr *p2, Expr *p3, Stmt *p4);
+  ~ForLoop();
+  virtual void accept(Visitor *v);
+  virtual ForLoop *clone() const;
+  void swap(ForLoop &);
 };
 
 class SExp : public Stmt

@@ -39,6 +39,7 @@ public:
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
   void visitWhile(While *p);
+  void visitForLoop(ForLoop *p);
   void visitSExp(SExp *p);
   void visitInt(Int *p);
   void visitDoub(Doub *p);
