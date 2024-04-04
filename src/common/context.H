@@ -30,6 +30,9 @@ enum type_enum
 	FUN,
 	CHAR,
 	STRING,
+	INTARRAY,
+	DOUBARRAY,
+	BOOLARRAY,
 	UNDEFINED
 };
 std::string to_string(type_enum t);

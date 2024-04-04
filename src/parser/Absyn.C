@@ -6,7 +6,6 @@
 #include <vector>
 #include "Absyn.H"
 
-
 /********************   Program    ********************/
 Program::Program(ListTopDef *p1)
 {
@@ -376,6 +375,54 @@ Ass *Ass::clone() const
 
 
 
+/********************   ArrayAss    ********************/
+ArrayAss::ArrayAss(Expr *p1, Expr *p2)
+{
+  expr_1 = p1;
+  expr_2 = p2;
+
+}
+
+ArrayAss::ArrayAss(const ArrayAss & other)
+{
+  expr_1 = other.expr_1->clone();
+  expr_2 = other.expr_2->clone();
+
+}
+
+ArrayAss &ArrayAss::operator=(const ArrayAss & other)
+{
+  ArrayAss tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void ArrayAss::swap(ArrayAss & other)
+{
+  std::swap(expr_1, other.expr_1);
+  std::swap(expr_2, other.expr_2);
+
+}
+
+ArrayAss::~ArrayAss()
+{
+  delete(expr_1);
+  delete(expr_2);
+
+}
+
+void ArrayAss::accept(Visitor *v)
+{
+  v->visitArrayAss(this);
+}
+
+ArrayAss *ArrayAss::clone() const
+{
+  return new ArrayAss(*this);
+}
+
+
+
 /********************   Incr    ********************/
 Incr::Incr(Ident p1)
 {
@@ -694,6 +741,102 @@ While *While::clone() const
 
 
 
+/********************   ForBlk    ********************/
+ForBlk::ForBlk(Type *p1, Item *p2, Stmt *p3)
+{
+  type_ = p1;
+  item_ = p2;
+  stmt_ = p3;
+
+}
+
+ForBlk::ForBlk(const ForBlk & other)
+{
+  type_ = other.type_->clone();
+  item_ = other.item_->clone();
+  stmt_ = other.stmt_->clone();
+
+}
+
+ForBlk &ForBlk::operator=(const ForBlk & other)
+{
+  ForBlk tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void ForBlk::swap(ForBlk & other)
+{
+  std::swap(type_, other.type_);
+  std::swap(item_, other.item_);
+  std::swap(stmt_, other.stmt_);
+
+}
+
+ForBlk::~ForBlk()
+{
+  delete(type_);
+  delete(item_);
+  delete(stmt_);
+
+}
+
+void ForBlk::accept(Visitor *v)
+{
+  v->visitForBlk(this);
+}
+
+ForBlk *ForBlk::clone() const
+{
+  return new ForBlk(*this);
+}
+
+
+
+/********************   ForLoop    ********************/
+ForLoop::ForLoop(Stmt *p1)
+{
+  stmt_ = p1;
+
+}
+
+ForLoop::ForLoop(const ForLoop & other)
+{
+  stmt_ = other.stmt_->clone();
+
+}
+
+ForLoop &ForLoop::operator=(const ForLoop & other)
+{
+  ForLoop tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void ForLoop::swap(ForLoop & other)
+{
+  std::swap(stmt_, other.stmt_);
+
+}
+
+ForLoop::~ForLoop()
+{
+  delete(stmt_);
+
+}
+
+void ForLoop::accept(Visitor *v)
+{
+  v->visitForLoop(this);
+}
+
+ForLoop *ForLoop::clone() const
+{
+  return new ForLoop(*this);
+}
+
+
+
 /********************   SExp    ********************/
 SExp::SExp(Expr *p1)
 {
@@ -824,6 +967,53 @@ void Init::accept(Visitor *v)
 Init *Init::clone() const
 {
   return new Init(*this);
+}
+
+
+
+/********************   InitElem    ********************/
+InitElem::InitElem(Ident p1, Expr *p2)
+{
+  ident_ = p1;
+  expr_ = p2;
+
+}
+
+InitElem::InitElem(const InitElem & other)
+{
+  ident_ = other.ident_;
+  expr_ = other.expr_->clone();
+
+}
+
+InitElem &InitElem::operator=(const InitElem & other)
+{
+  InitElem tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void InitElem::swap(InitElem & other)
+{
+  std::swap(ident_, other.ident_);
+  std::swap(expr_, other.expr_);
+
+}
+
+InitElem::~InitElem()
+{
+  delete(expr_);
+
+}
+
+void InitElem::accept(Visitor *v)
+{
+  v->visitInitElem(this);
+}
+
+InitElem *InitElem::clone() const
+{
+  return new InitElem(*this);
 }
 
 
@@ -984,6 +1174,126 @@ void Void::accept(Visitor *v)
 Void *Void::clone() const
 {
   return new Void(*this);
+}
+
+
+
+/********************   IntArray    ********************/
+IntArray::IntArray()
+{
+
+}
+
+IntArray::IntArray(const IntArray & other)
+{
+
+}
+
+IntArray &IntArray::operator=(const IntArray & other)
+{
+  IntArray tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void IntArray::swap(IntArray & other)
+{
+
+}
+
+IntArray::~IntArray()
+{
+
+}
+
+void IntArray::accept(Visitor *v)
+{
+  v->visitIntArray(this);
+}
+
+IntArray *IntArray::clone() const
+{
+  return new IntArray(*this);
+}
+
+
+
+/********************   DoubArray    ********************/
+DoubArray::DoubArray()
+{
+
+}
+
+DoubArray::DoubArray(const DoubArray & other)
+{
+
+}
+
+DoubArray &DoubArray::operator=(const DoubArray & other)
+{
+  DoubArray tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void DoubArray::swap(DoubArray & other)
+{
+
+}
+
+DoubArray::~DoubArray()
+{
+
+}
+
+void DoubArray::accept(Visitor *v)
+{
+  v->visitDoubArray(this);
+}
+
+DoubArray *DoubArray::clone() const
+{
+  return new DoubArray(*this);
+}
+
+
+
+/********************   BoolArray    ********************/
+BoolArray::BoolArray()
+{
+
+}
+
+BoolArray::BoolArray(const BoolArray & other)
+{
+
+}
+
+BoolArray &BoolArray::operator=(const BoolArray & other)
+{
+  BoolArray tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void BoolArray::swap(BoolArray & other)
+{
+
+}
+
+BoolArray::~BoolArray()
+{
+
+}
+
+void BoolArray::accept(Visitor *v)
+{
+  v->visitBoolArray(this);
+}
+
+BoolArray *BoolArray::clone() const
+{
+  return new BoolArray(*this);
 }
 
 
@@ -1331,6 +1641,146 @@ void EString::accept(Visitor *v)
 EString *EString::clone() const
 {
   return new EString(*this);
+}
+
+
+
+/********************   EArrayNew    ********************/
+EArrayNew::EArrayNew(Type *p1, Expr *p2)
+{
+  type_ = p1;
+  expr_ = p2;
+
+}
+
+EArrayNew::EArrayNew(const EArrayNew & other)
+{
+  type_ = other.type_->clone();
+  expr_ = other.expr_->clone();
+
+}
+
+EArrayNew &EArrayNew::operator=(const EArrayNew & other)
+{
+  EArrayNew tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void EArrayNew::swap(EArrayNew & other)
+{
+  std::swap(type_, other.type_);
+  std::swap(expr_, other.expr_);
+
+}
+
+EArrayNew::~EArrayNew()
+{
+  delete(type_);
+  delete(expr_);
+
+}
+
+void EArrayNew::accept(Visitor *v)
+{
+  v->visitEArrayNew(this);
+}
+
+EArrayNew *EArrayNew::clone() const
+{
+  return new EArrayNew(*this);
+}
+
+
+
+/********************   EArrayLen    ********************/
+EArrayLen::EArrayLen(Expr *p1)
+{
+  expr_ = p1;
+
+}
+
+EArrayLen::EArrayLen(const EArrayLen & other)
+{
+  expr_ = other.expr_->clone();
+
+}
+
+EArrayLen &EArrayLen::operator=(const EArrayLen & other)
+{
+  EArrayLen tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void EArrayLen::swap(EArrayLen & other)
+{
+  std::swap(expr_, other.expr_);
+
+}
+
+EArrayLen::~EArrayLen()
+{
+  delete(expr_);
+
+}
+
+void EArrayLen::accept(Visitor *v)
+{
+  v->visitEArrayLen(this);
+}
+
+EArrayLen *EArrayLen::clone() const
+{
+  return new EArrayLen(*this);
+}
+
+
+
+/********************   EArray    ********************/
+EArray::EArray(Expr *p1, Expr *p2)
+{
+  expr_1 = p1;
+  expr_2 = p2;
+
+}
+
+EArray::EArray(const EArray & other)
+{
+  expr_1 = other.expr_1->clone();
+  expr_2 = other.expr_2->clone();
+
+}
+
+EArray &EArray::operator=(const EArray & other)
+{
+  EArray tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void EArray::swap(EArray & other)
+{
+  std::swap(expr_1, other.expr_1);
+  std::swap(expr_2, other.expr_2);
+
+}
+
+EArray::~EArray()
+{
+  delete(expr_1);
+  delete(expr_2);
+
+}
+
+void EArray::accept(Visitor *v)
+{
+  v->visitEArray(this);
+}
+
+EArray *EArray::clone() const
+{
+  return new EArray(*this);
 }
 
 
