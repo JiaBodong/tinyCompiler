@@ -12,95 +12,69 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <cstdlib>
+
+#include "llvm/Support/raw_ostream.h"
 
 static PrintAbsyn p = PrintAbsyn();
 
 static const std::string GeneratorName = "JLCLLVMGenerator";
 
-
-enum llvm_type_enum
-{
-  llvm_i1,
-  llvm_i8,
-  llvm_i32,
-  llvm_i64,
-  llvm_float,
-  llvm_double,
-  llvm_void,
-  llvm_fun,
-  llvm_ptr,
-  llvm_struct,
-  llvm_array,
-  llvm_undefined
-};
-
-std::string llvm_t_to_string(llvm_type_enum t){
+/*
+  this function is used to convert the type_enum to string
+  @return: llvm::Type*
+  @param: type_enum t
+*/
+llvm::Type* JLCLLVMGenerator::convertType(type_enum t){
   switch (t)
   {
-  case llvm_i1:
-    return "i1";
-  case llvm_i8:
-    return "i8";
-  case llvm_i32:
-    return "i32";
-  case llvm_i64:
-    return "i64";
-  case llvm_float:
-    return "float";
-  case llvm_double:
-    return "double";
-  case llvm_void:
-    return "void";
-  case llvm_fun:
-    return "fun";
-  case llvm_ptr:
-    return "ptr";
-  case llvm_struct:
-    return "struct";
-  case llvm_array:
-    return "array";
-  case llvm_undefined:
-    return "undefined";
+  case INT:
+    return llvm::Type::getInt32Ty(*LLVM_Context_);
+  case DOUB:
+    return llvm::Type::getDoubleTy(*LLVM_Context_);
+  case BOOL:
+    return llvm::Type::getInt1Ty(*LLVM_Context_);
+  case VOID:
+    return llvm::Type::getVoidTy(*LLVM_Context_);
+  case CHAR:
+    return llvm::Type::getInt8Ty(*LLVM_Context_);
+  case STRING: // the atcually out is ptr not i8*, is it ok? @todo
+    return llvm::Type::getInt8PtrTy(*LLVM_Context_);
   default:
-    return "undefined";
+    std::cerr << "Error, Unknown type:" << to_string(t) << std::endl;
+    return nullptr;
   }
 }
-
-std::map<type_enum, llvm_type_enum> t_to_llvm_t_map = {
-  {INT, llvm_i32},
-  {DOUB, llvm_double},
-  {BOOL, llvm_i1},
-  {VOID, llvm_void},
-  {CHAR, llvm_i8},
-  {FUN, llvm_fun},
-  {UNDEFINED, llvm_undefined}
-};
 
 void JLCLLVMGenerator::addExternalFunc(){
   for (auto & func : globalContext.funcs)
   {
     addFuncDeclearation(func.second);
-  }
+  }  
 }
 
 void JLCLLVMGenerator::addFuncDeclearation(Frame &frame){
+  // see the tutorial about llvm: 
   std::string func_name = frame.name;
-  auto llvm_return_type = t_to_llvm_t_map[frame.returnType];
-  std::string func_return_type = llvm_t_to_string(llvm_return_type);
-  std::string func_args = "";
+  auto llvm_return_type = convertType(frame.returnType);
+  std::vector<llvm::Type*> llvm_args;
   for (auto & arg : frame.args)
   {
-    func_args += llvm_t_to_string(t_to_llvm_t_map[arg.second]) + ", ";
+    llvm_args.push_back(convertType(arg.second));
   }
-  if (func_args.size() > 0)
-  {
-    func_args.pop_back();
-  }
-  std::string func_dec = "declare " + func_return_type + 
-    " @" + func_name + "(" + func_args + ")";
-  global_declear_segment.push_back(func_dec);
-  DEBUG_PRINT("Add function declearation: " + func_dec);
+  llvm::FunctionType* func_type = 
+    llvm::FunctionType::get(llvm_return_type, llvm_args, false);
+  auto func_dec = llvm::Function::Create(
+      func_type, 
+      llvm::Function::ExternalLinkage, 
+      func_name, 
+      LLVM_module_.get());
+  
+  std::string ss;
+  llvm::raw_string_ostream ss2(ss);
+  func_dec->print(ss2);
+  DEBUG_PRINT("Add function declearation: " + ss);
 }
 
 
@@ -146,11 +120,35 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
 {
   /* Code For FnDef Goes Here */
 
-  if (fn_def->type_) fn_def->type_->accept(this);
-  visitIdent(fn_def->ident_);
-  if (fn_def->listarg_) fn_def->listarg_->accept(this);
-  if (fn_def->blk_) fn_def->blk_->accept(this);
+  // add a new fucntion definition to the llvm module
+  auto & frame = globalContext.getFrame(fn_def->ident_);
+  std::string func_name = frame.name;
+  auto llvm_return_type = convertType(frame.returnType);
+  std::vector<llvm::Type*> llvm_args;
+  for (auto & arg : frame.args)
+  {
+    llvm_args.push_back(convertType(arg.second));
+  }
+  llvm::FunctionType* func_type = 
+    llvm::FunctionType::get(llvm_return_type, llvm_args, false);
+  current_func_ = llvm::Function::Create(
+      func_type, 
+      llvm::Function::ExternalLinkage, 
+      func_name, 
+      LLVM_module_.get());
+  
+  
+  // reset inner variables before visiting the function body
+  block_id = 0;
 
+  // debug print
+  std::string ss;
+  llvm::raw_string_ostream ss2(ss);
+  current_func_->print(ss2);
+  DEBUG_PRINT("Add function define: " + ss);
+
+  // cotinue to iterate the function body
+  if (fn_def->blk_) fn_def->blk_->accept(this);
 }
 
 void JLCLLVMGenerator::visitArgument(Argument *argument)
@@ -172,11 +170,18 @@ void JLCLLVMGenerator::visitBlock(Block *block)
   /* Code For Block Goes Here */
   DEBUG_PRINT( "[" + GeneratorName  +"]" + " visiting Block");
   // create a new block 
-  auto & frame = globalContext.currentFrame();
-  frame.newBlock();
+  // auto & frame = globalContext.currentFrame();
+  // frame.newBlock();
+  
+  // add the function body
+  llvm::BasicBlock* entry = 
+    llvm::BasicBlock::Create(*LLVM_Context_, getBlockName(), current_func_);
+  LLVM_builder_->SetInsertPoint(entry);
+  block_id++;
+
   if (block->liststmt_) block->liststmt_->accept(this);
   // release the block
-  frame.releaseBlock();
+  // frame.releaseBlock();
 }
 
 void JLCLLVMGenerator::visitEmpty(Empty *empty)
@@ -199,6 +204,7 @@ void JLCLLVMGenerator::visitDecl(Decl *decl)
   /* Code For Decl Goes Here */
 
   if (decl->type_) decl->type_->accept(this);
+  
   if (decl->listitem_) decl->listitem_->accept(this);
 
 }

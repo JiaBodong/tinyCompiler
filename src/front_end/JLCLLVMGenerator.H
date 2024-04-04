@@ -22,15 +22,18 @@ public:
   type_enum temp_type;
   op_enum temp_op;
 
+
   JLCLLVMGenerator(): LLVM_Context_(std::make_unique<llvm::LLVMContext>()),
                       LLVM_module_(std::make_unique<llvm::Module>("JLC_llvm", *LLVM_Context_)),
                       LLVM_builder_(std::make_unique<llvm::IRBuilder<>>(*LLVM_Context_))
   {
-    // addExternalFunc();
+    addExternalFunc();
   };
 
-  ~JLCLLVMGenerator()=default;
-  std::vector<std::string> global_declear_segment;
+  ~JLCLLVMGenerator(){
+    LLVM_module_->print(llvm::errs(), nullptr);
+  };
+  // std::vector<std::string> global_declear_segment;
 
 private:
   /* serving for generating llvm code*/
@@ -38,12 +41,22 @@ private:
   std::unique_ptr<llvm::Module> LLVM_module_;
   std::unique_ptr<llvm::IRBuilder<>> LLVM_builder_;
   
+  llvm::Function * current_func_;
+
+  int block_id = 0;
+
+  std::string getBlockName(){
+    if (block_id == 0) return "entry";
+    return "l" + std::to_string(block_id++);
+  }
+
+  // type conversion
+  llvm::Type *convertType(type_enum type);
   // add inner/external function to the head of the ll file
   // for example, printInt, printDouble, printString, printBool
   void addExternalFunc();
 
   void addFuncDeclearation(Frame &frame);
-
 
 
 public:
