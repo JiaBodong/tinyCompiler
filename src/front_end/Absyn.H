@@ -87,6 +87,12 @@ class ListItem;
 class ListType;
 class ListExpr;
 
+/*maybe add these 4 kinds*/
+class InitArray;
+class IntArray;
+class DoubArray;
+class EArray
+
 
 /********************   Visitor Interfaces    ********************/
 class Visitor

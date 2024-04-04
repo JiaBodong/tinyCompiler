@@ -28,6 +28,8 @@ NoInit.    Item ::= Ident ;
 
 Init.      Item ::= Ident "=" Expr ;
 
+InitArray. Item ::= Ident "=" "new" Type "[" [Expr] "]" ; 
+
 separator nonempty Item "," ;
 
 Ass.       Stmt ::= Ident "=" Expr  ";" ;
@@ -58,6 +60,10 @@ Bool.      Type ::= "boolean" ;
 
 Void.      Type ::= "void" ;
 
+IntArray.     Type ::= "int[]" ;
+
+DoubArray.    Type ::= "double[]" ;
+
 internal   Fun. Type ::= Type "(" [Type] ")" ;
 
 separator  Type "," ;
@@ -65,6 +71,8 @@ separator  Type "," ;
 -- Expressions ---------------------------------------------
 
 EVar.      Expr6 ::= Ident ;
+
+EArray.    Expr6 ::= Ident "[" [Expr] "]";
 
 ELitInt.   Expr6 ::= Integer ;
 
