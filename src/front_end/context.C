@@ -9,6 +9,9 @@ std::string to_string(type_enum t) {
     case FUN: return "fun";
     case CHAR: return "char";
     case STRING: return "string";
+    case INTARRAY: return "int[]";
+    case DOUBARRAY: return "double[]";
+    case BOOLARRAY: return "bool[]";
     case UNDEFINED: return "undefined";
   }
   return "unknown";

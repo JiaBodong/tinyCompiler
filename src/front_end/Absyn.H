@@ -41,7 +41,9 @@ class BStmt;
 class Decl;
 class NoInit;
 class Init;
+class InitElem;
 class Ass;
+class ArrayAss;
 class Incr;
 class Decr;
 class Ret;
@@ -49,11 +51,16 @@ class VRet;
 class Cond;
 class CondElse;
 class While;
+class ForBlk;
+class ForLoop;
 class SExp;
 class Int;
 class Doub;
 class Bool;
 class Void;
+class IntArray;
+class DoubArray;
+class BoolArray;
 class Fun;
 class EVar;
 class ELitInt;
@@ -62,6 +69,9 @@ class ELitTrue;
 class ELitFalse;
 class EApp;
 class EString;
+class EArrayNew;
+class EArrayLen;
+class EArray;
 class Neg;
 class Not;
 class EMul;
@@ -113,7 +123,9 @@ public:
   virtual void visitDecl(Decl *p) = 0;
   virtual void visitNoInit(NoInit *p) = 0;
   virtual void visitInit(Init *p) = 0;
+  virtual void visitInitElem(InitElem *p) = 0;
   virtual void visitAss(Ass *p) = 0;
+  virtual void visitArrayAss(ArrayAss *p) = 0;
   virtual void visitIncr(Incr *p) = 0;
   virtual void visitDecr(Decr *p) = 0;
   virtual void visitRet(Ret *p) = 0;
@@ -121,11 +133,16 @@ public:
   virtual void visitCond(Cond *p) = 0;
   virtual void visitCondElse(CondElse *p) = 0;
   virtual void visitWhile(While *p) = 0;
+  virtual void visitForBlk(ForBlk *p) = 0;
+  virtual void visitForLoop(ForLoop *p) = 0;
   virtual void visitSExp(SExp *p) = 0;
   virtual void visitInt(Int *p) = 0;
   virtual void visitDoub(Doub *p) = 0;
   virtual void visitBool(Bool *p) = 0;
   virtual void visitVoid(Void *p) = 0;
+  virtual void visitIntArray(IntArray *p) = 0;
+  virtual void visitDoubArray(DoubArray *p) = 0;
+  virtual void visitBoolArray(BoolArray *p) = 0;
   virtual void visitFun(Fun *p) = 0;
   virtual void visitEVar(EVar *p) = 0;
   virtual void visitELitInt(ELitInt *p) = 0;
@@ -134,6 +151,9 @@ public:
   virtual void visitELitFalse(ELitFalse *p) = 0;
   virtual void visitEApp(EApp *p) = 0;
   virtual void visitEString(EString *p) = 0;
+  virtual void visitEArrayNew(EArrayNew *p) = 0;
+  virtual void visitEArrayLen(EArrayLen *p) = 0;
+  virtual void visitEArray(EArray *p) = 0;
   virtual void visitNeg(Neg *p) = 0;
   virtual void visitNot(Not *p) = 0;
   virtual void visitEMul(EMul *p) = 0;
@@ -375,6 +395,21 @@ public:
   void swap(Ass &);
 };
 
+class ArrayAss : public Stmt
+{
+public:
+  Expr *expr_1;
+  Expr *expr_2;
+
+  ArrayAss(const ArrayAss &);
+  ArrayAss &operator=(const ArrayAss &);
+  ArrayAss(Expr *p1, Expr *p2);
+  ~ArrayAss();
+  virtual void accept(Visitor *v);
+  virtual ArrayAss *clone() const;
+  void swap(ArrayAss &);
+};
+
 class Incr : public Stmt
 {
 public:
@@ -476,6 +511,36 @@ public:
   void swap(While &);
 };
 
+class ForBlk : public Stmt
+{
+public:
+  Type *type_;
+  Item *item_;
+  Stmt *stmt_;
+
+  ForBlk(const ForBlk &);
+  ForBlk &operator=(const ForBlk &);
+  ForBlk(Type *p1, Item *p2, Stmt *p3);
+  ~ForBlk();
+  virtual void accept(Visitor *v);
+  virtual ForBlk *clone() const;
+  void swap(ForBlk &);
+};
+
+class ForLoop : public Stmt
+{
+public:
+  Stmt *stmt_;
+
+  ForLoop(const ForLoop &);
+  ForLoop &operator=(const ForLoop &);
+  ForLoop(Stmt *p1);
+  ~ForLoop();
+  virtual void accept(Visitor *v);
+  virtual ForLoop *clone() const;
+  void swap(ForLoop &);
+};
+
 class SExp : public Stmt
 {
 public:
@@ -517,6 +582,21 @@ public:
   virtual void accept(Visitor *v);
   virtual Init *clone() const;
   void swap(Init &);
+};
+
+class InitElem : public Item
+{
+public:
+  Ident ident_;
+  Expr *expr_;
+
+  InitElem(const InitElem &);
+  InitElem &operator=(const InitElem &);
+  InitElem(Ident p1, Expr *p2);
+  ~InitElem();
+  virtual void accept(Visitor *v);
+  virtual InitElem *clone() const;
+  void swap(InitElem &);
 };
 
 class Int : public Type
@@ -569,6 +649,45 @@ public:
   virtual void accept(Visitor *v);
   virtual Void *clone() const;
   void swap(Void &);
+};
+
+class IntArray : public Type
+{
+public:
+
+  IntArray(const IntArray &);
+  IntArray &operator=(const IntArray &);
+  IntArray();
+  ~IntArray();
+  virtual void accept(Visitor *v);
+  virtual IntArray *clone() const;
+  void swap(IntArray &);
+};
+
+class DoubArray : public Type
+{
+public:
+
+  DoubArray(const DoubArray &);
+  DoubArray &operator=(const DoubArray &);
+  DoubArray();
+  ~DoubArray();
+  virtual void accept(Visitor *v);
+  virtual DoubArray *clone() const;
+  void swap(DoubArray &);
+};
+
+class BoolArray : public Type
+{
+public:
+
+  BoolArray(const BoolArray &);
+  BoolArray &operator=(const BoolArray &);
+  BoolArray();
+  ~BoolArray();
+  virtual void accept(Visitor *v);
+  virtual BoolArray *clone() const;
+  void swap(BoolArray &);
 };
 
 class Fun : public Type
@@ -681,6 +800,50 @@ public:
   virtual void accept(Visitor *v);
   virtual EString *clone() const;
   void swap(EString &);
+};
+
+class EArrayNew : public Expr
+{
+public:
+  Type *type_;
+  Expr *expr_;
+
+  EArrayNew(const EArrayNew &);
+  EArrayNew &operator=(const EArrayNew &);
+  EArrayNew(Type *p1, Expr *p2);
+  ~EArrayNew();
+  virtual void accept(Visitor *v);
+  virtual EArrayNew *clone() const;
+  void swap(EArrayNew &);
+};
+
+class EArrayLen : public Expr
+{
+public:
+  Expr *expr_;
+
+  EArrayLen(const EArrayLen &);
+  EArrayLen &operator=(const EArrayLen &);
+  EArrayLen(Expr *p1);
+  ~EArrayLen();
+  virtual void accept(Visitor *v);
+  virtual EArrayLen *clone() const;
+  void swap(EArrayLen &);
+};
+
+class EArray : public Expr
+{
+public:
+  Expr *expr_1;
+  Expr *expr_2;
+
+  EArray(const EArray &);
+  EArray &operator=(const EArray &);
+  EArray(Expr *p1, Expr *p2);
+  ~EArray();
+  virtual void accept(Visitor *v);
+  virtual EArray *clone() const;
+  void swap(EArray &);
 };
 
 class Neg : public Expr
