@@ -82,3 +82,20 @@ python3 testing.py path/to/submission
 
 
 qa: what about  variable name is equal to function name
+
+
+# LLVM Backend
+- [x] variable definition and initialization
+- [x] add basic operation
+  - [x] add, sub
+  - [x] mul, mod, div
+  - [ ] logic op
+- [x] add function call
+- [x] add return 
+  - [x] return
+  - [x] void return
+- [] add if, if/else, while
+
+
+- [] add debug script to generate linked bc file
+

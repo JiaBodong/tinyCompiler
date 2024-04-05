@@ -119,32 +119,40 @@ void JLCLLVMGenerator::visitProgram(Program *program)
 void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
 {
   /* Code For FnDef Goes Here */
-
+  globalContext.currentFrameName = fn_def->ident_; // set context to the current function
+  auto & func = globalContext.currentFrame();
   // add a new fucntion definition to the llvm module
-  auto & frame = globalContext.getFrame(fn_def->ident_);
-  std::string func_name = frame.name;
-  auto llvm_return_type = convertType(frame.returnType);
+  
+  auto llvm_return_type = convertType(func.returnType);
   std::vector<llvm::Type*> llvm_args;
-  for (auto & arg : frame.args)
+  for (auto & arg : func.args)
   {
     llvm_args.push_back(convertType(arg.second));
   }
   llvm::FunctionType* func_type = 
     llvm::FunctionType::get(llvm_return_type, llvm_args, false);
-  current_func_ = llvm::Function::Create(
+  auto local_llvm_func = llvm::Function::Create(
       func_type, 
       llvm::Function::ExternalLinkage, 
-      func_name, 
+      func.name, 
       LLVM_module_.get());
   
-  
+  // set arguments name
+  auto arg_iter = local_llvm_func->arg_begin();
+  for (int i = 0; i < func.args.size(); i++)
+  {
+    arg_iter->setName(func.args[i].first);
+    arg_iter++;
+  }
+
   // reset inner variables before visiting the function body
   block_id = 0;
+  block_var_map_list.clear();
 
   // debug print
   std::string ss;
   llvm::raw_string_ostream ss2(ss);
-  current_func_->print(ss2);
+  local_llvm_func->print(ss2);
   DEBUG_PRINT("Add function define: " + ss);
 
   // cotinue to iterate the function body
@@ -170,18 +178,42 @@ void JLCLLVMGenerator::visitBlock(Block *block)
   /* Code For Block Goes Here */
   DEBUG_PRINT( "[" + GeneratorName  +"]" + " visiting Block");
   // create a new block 
-  // auto & frame = globalContext.currentFrame();
-  // frame.newBlock();
-  
-  // add the function body
+  auto & func = globalContext.currentFrame();
+  func.newBlock();
+  addBlockVarMap();
+  // add a new block to the function
+  auto llvm_func = LLVM_module_->getFunction(func.name);
   llvm::BasicBlock* entry = 
-    llvm::BasicBlock::Create(*LLVM_Context_, getBlockName(), current_func_);
+    llvm::BasicBlock::Create(*LLVM_Context_, getBlockName(), llvm_func);
   LLVM_builder_->SetInsertPoint(entry);
   block_id++;
 
+  DEBUG_PRINT("init args");
+  // if the block is the function body, we need to add the arguments to the block
+  if (func.blk->parent == nullptr)
+  {
+    for (auto & arg : func.args)
+    {
+      auto arg_iter = llvm_func->arg_begin();
+      for (int i = 0; i < func.args.size(); i++)
+      {
+        if (arg.first == std::string(arg_iter->getName()))
+        {   
+          auto alloca = LLVM_builder_->CreateAlloca(convertType(arg.second), nullptr, arg.first);
+          LLVM_builder_->CreateStore(arg_iter, alloca);
+          addVarToBlockMap(arg.first, alloca);
+          break;
+        }
+        arg_iter++;
+      }
+    }
+  }
+  DEBUG_PRINT("go through the block")
   if (block->liststmt_) block->liststmt_->accept(this);
   // release the block
-  // frame.releaseBlock();
+  DEBUG_PRINT("release block");
+  func.releaseBlock();
+  removeBlockVarMap();
 }
 
 void JLCLLVMGenerator::visitEmpty(Empty *empty)
@@ -208,7 +240,6 @@ void JLCLLVMGenerator::visitDecl(Decl *decl)
     temp_type = temp_decl_type; // !! this is important, as the type will pase to the next level
     item->accept(this);
   }
-
 }
 
 void JLCLLVMGenerator::visitAss(Ass *ass)
@@ -217,7 +248,9 @@ void JLCLLVMGenerator::visitAss(Ass *ass)
 
   visitIdent(ass->ident_);
   if (ass->expr_) ass->expr_->accept(this);
-
+  // llvm_temp_value_ is set by next level (accept)
+  auto var = getVarFromBlockMap(ass->ident_);
+  auto store = LLVM_builder_->CreateStore(llvm_temp_value_, var);
 }
 
 void JLCLLVMGenerator::visitIncr(Incr *incr)
@@ -241,14 +274,15 @@ void JLCLLVMGenerator::visitRet(Ret *ret)
   /* Code For Ret Goes Here */
 
   if (ret->expr_) ret->expr_->accept(this);
-
+  // add llvm return 
+  auto llvm_ret = LLVM_builder_->CreateRet(llvm_temp_value_);
 }
 
 void JLCLLVMGenerator::visitVRet(VRet *v_ret)
 {
   /* Code For VRet Goes Here */
-
-
+  auto llvm_ret = LLVM_builder_->CreateRetVoid();
+  DEBUG_PRINT("visitVRet");
 }
 
 void JLCLLVMGenerator::visitCond(Cond *cond)
@@ -292,6 +326,9 @@ void JLCLLVMGenerator::visitNoInit(NoInit *no_init)
   /* Code For NoInit Goes Here */
   visitIdent(no_init->ident_);
   auto temp_decl_type = temp_type; // !this type is passed from top level
+  auto & frame = globalContext.currentFrame();
+  frame.addVar(no_init->ident_, temp_decl_type);
+
   
   llvm::Constant* init_val = nullptr;
   switch (temp_decl_type)
@@ -305,7 +342,21 @@ void JLCLLVMGenerator::visitNoInit(NoInit *no_init)
   default:
     break;
   }
-  auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_type), init_val, no_init->ident_);
+  /*todo: this should be an optional part, 
+    which initialize the variable when allocates the memory
+    now we just first allocate the memory, and then use sort to initialize the memory
+  */ 
+  // auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_type), init_val, no_init->ident_);
+  auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_type), nullptr, no_init->ident_);
+  addVarToBlockMap(no_init->ident_, alloca);
+  if (init_val != nullptr)
+  {
+    LLVM_builder_->CreateStore(init_val, alloca);
+    //@TODO: a better way to add comments
+    llvm::MDNode* N = llvm::MDNode::get(*LLVM_Context_, 
+      llvm::MDString::get(*LLVM_Context_, "Default value: 0"));
+    alloca->setMetadata("comment", N);
+  }
 }
 
 void JLCLLVMGenerator::visitInit(Init *init)
@@ -313,9 +364,16 @@ void JLCLLVMGenerator::visitInit(Init *init)
   /* Code For Init Goes Here */
   visitIdent(init->ident_);
   auto temp_decl_type = temp_type; // !this type is passed from top level
+  auto & frame = globalContext.currentFrame();
+  frame.addVar(init->ident_, temp_decl_type);
+  
   auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_decl_type), nullptr, init->ident_);
-  if (init->expr_) init->expr_->accept(this);
+  // add the variable to the block map
+  addVarToBlockMap(init->ident_, alloca);
 
+  if (init->expr_) init->expr_->accept(this);
+  // store a constant value to the memory
+  auto store = LLVM_builder_->CreateStore(llvm_temp_value_, alloca);
 }
 
 void JLCLLVMGenerator::visitInt(Int *int_)
@@ -357,8 +415,12 @@ void JLCLLVMGenerator::visitEVar(EVar *e_var)
   /* Code For EVar Goes Here */
   auto & frame = globalContext.currentFrame();
   temp_type = frame.getVarType(e_var->ident_);
-  visitIdent(e_var->ident_);
-
+  // visitIdent(e_var->ident_);
+  
+  // when we access a variable, we need to load the value from the memory
+  // llvm load 
+  llvm::Value* var = getVarFromBlockMap(e_var->ident_);
+  llvm_temp_value_ = LLVM_builder_->CreateLoad(convertType(temp_type), var, e_var->ident_);
 }
 
 void JLCLLVMGenerator::visitELitInt(ELitInt *e_lit_int)
@@ -367,6 +429,10 @@ void JLCLLVMGenerator::visitELitInt(ELitInt *e_lit_int)
 
   visitInteger(e_lit_int->integer_);
   temp_type = INT;
+  
+  // llvm constant
+  llvm_temp_value_ = llvm::ConstantInt::get(*LLVM_Context_, llvm::APInt(32, e_lit_int->integer_));
+
 }
 
 void JLCLLVMGenerator::visitELitDoub(ELitDoub *e_lit_doub)
@@ -375,6 +441,8 @@ void JLCLLVMGenerator::visitELitDoub(ELitDoub *e_lit_doub)
 
   visitDouble(e_lit_doub->double_);
   temp_type = DOUB;
+  // llvm constant
+  llvm_temp_value_ = llvm::ConstantFP::get(*LLVM_Context_, llvm::APFloat(e_lit_doub->double_));
 }
 
 void JLCLLVMGenerator::visitELitTrue(ELitTrue *e_lit_true)
@@ -382,21 +450,40 @@ void JLCLLVMGenerator::visitELitTrue(ELitTrue *e_lit_true)
   /* Code For ELitTrue Goes Here */
 
   temp_type = BOOL;
+  // llvm constant 
+  llvm_temp_value_ = llvm::ConstantInt::get(*LLVM_Context_, llvm::APInt(1, 1));
+
 }
 
 void JLCLLVMGenerator::visitELitFalse(ELitFalse *e_lit_false)
 {
   /* Code For ELitFalse Goes Here */
   temp_type = BOOL;
+  // llvm constant
+  llvm_temp_value_ = llvm::ConstantInt::get(*LLVM_Context_, llvm::APInt(1, 0));
 }
 
 void JLCLLVMGenerator::visitEApp(EApp *e_app)
 {
   /* Code For EApp Goes Here */
-
-  visitIdent(e_app->ident_);
-  if (e_app->listexpr_) e_app->listexpr_->accept(this);
-
+  std::vector<llvm::Value*> args;
+  // iterate through the arguments, and collect the llvm values
+  for (auto & expr : *(e_app->listexpr_))
+  {
+    expr->accept(this);
+    args.push_back(llvm_temp_value_);
+  }
+  // add llvm function call
+  auto llvm_func = LLVM_module_->getFunction(e_app->ident_);
+  // check if the return type is void
+  std::string tag = "";
+  if (!llvm_func->getReturnType()->isVoidTy())
+  {
+    // if return type is void, then we have to pass empty string as tag
+    tag = e_app->ident_;
+  }
+  llvm_temp_value_ = LLVM_builder_->CreateCall(llvm_func, args, tag);
+  
 }
 
 void JLCLLVMGenerator::visitEString(EString *e_string)
@@ -428,9 +515,30 @@ void JLCLLVMGenerator::visitEMul(EMul *e_mul)
   /* Code For EMul Goes Here */
 
   if (e_mul->expr_1) e_mul->expr_1->accept(this);
+  auto expr_1_llvm_value = llvm_temp_value_;
   if (e_mul->mulop_) e_mul->mulop_->accept(this);
+  auto local_op = temp_op;
   if (e_mul->expr_2) e_mul->expr_2->accept(this);
+  auto expr_2_llvm_value = llvm_temp_value_;
 
+  switch (local_op)
+  {
+  case eMUL:
+    llvm_temp_value_ = LLVM_builder_->CreateMul(
+        expr_1_llvm_value, expr_2_llvm_value, "mul");
+    break;
+  case eDIV:
+    llvm_temp_value_ = LLVM_builder_->CreateSDiv(
+        expr_1_llvm_value, expr_2_llvm_value, "div");
+    break;
+  case eMOD:
+    llvm_temp_value_ = LLVM_builder_->CreateSRem(
+        expr_1_llvm_value, expr_2_llvm_value, "mod");
+    break;
+  default:
+    std::cerr << "Error: unknown EMUL operation."<< std::endl;
+    break;
+  }
 }
 
 void JLCLLVMGenerator::visitEAdd(EAdd *e_add)
@@ -438,8 +546,26 @@ void JLCLLVMGenerator::visitEAdd(EAdd *e_add)
   /* Code For EAdd Goes Here */
 
   if (e_add->expr_1) e_add->expr_1->accept(this);
+  auto expr_1_llvm_value = llvm_temp_value_;
   if (e_add->addop_) e_add->addop_->accept(this);
+  auto local_op = temp_op;
   if (e_add->expr_2) e_add->expr_2->accept(this);
+  auto expr_2_llvm_value = llvm_temp_value_;
+
+  switch (local_op)
+  {
+  case eADD:
+    llvm_temp_value_ = LLVM_builder_->CreateAdd(
+        expr_1_llvm_value, expr_2_llvm_value, "add");
+    break;
+  case eSUB:
+    llvm_temp_value_ = LLVM_builder_->CreateSub(
+        expr_1_llvm_value, expr_2_llvm_value, "sub");
+    break;
+  default:
+    std::cerr << "Error: unknown EADD operation."<< std::endl;
+    break;
+  }
 
 }
 
@@ -474,43 +600,36 @@ void JLCLLVMGenerator::visitEOr(EOr *e_or)
 void JLCLLVMGenerator::visitPlus(Plus *plus)
 {
   /* Code For Plus Goes Here */
-
-
+  temp_op = eADD;
 }
 
 void JLCLLVMGenerator::visitMinus(Minus *minus)
 {
   /* Code For Minus Goes Here */
-
-
+  temp_op = eSUB;
 }
 
 void JLCLLVMGenerator::visitTimes(Times *times)
 {
   /* Code For Times Goes Here */
-
-
+  temp_op = eMUL;
 }
 
 void JLCLLVMGenerator::visitDiv(Div *div)
 {
   /* Code For Div Goes Here */
-
-
+  temp_op = eDIV;
 }
 
 void JLCLLVMGenerator::visitMod(Mod *mod)
 {
   /* Code For Mod Goes Here */
-
-
+  temp_op = eMOD;
 }
 
 void JLCLLVMGenerator::visitLTH(LTH *lth)
 {
   /* Code For LTH Goes Here */
-
-
 }
 
 void JLCLLVMGenerator::visitLE(LE *le)

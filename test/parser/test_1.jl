@@ -1,15 +1,16 @@
 // declaration and initialization in same statement
-int f(int x) {
-  return x;
+int f(int x, int y) {
+  return x+y;
+}
+
+void b(int x) {
+  return;
 }
 
 int main() {
- int x=7, y=f(1), z;
- printInt(x);
- if (x == 7){
-    int y = 8;
-    printInt(y);
- }
- y = 9;
+ int a = 2;
+
+ f(f(a,1),a);
+ b(a);
  return 0 ;
 }

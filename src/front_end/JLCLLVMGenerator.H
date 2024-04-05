@@ -3,6 +3,7 @@
 #ifndef __JLC_LLVM_GENERATOR__
 #define __JLC_LLVM_GENERATOR__
 /* You might want to change the above name. */
+#include <iostream>
 
 #include "Absyn.H"
 #include "context.H"
@@ -23,7 +24,6 @@ public:
   op_enum temp_op;
   std::string temp_ident;
 
-
   JLCLLVMGenerator(): LLVM_Context_(std::make_unique<llvm::LLVMContext>()),
                       LLVM_module_(std::make_unique<llvm::Module>("JLC_llvm", *LLVM_Context_)),
                       LLVM_builder_(std::make_unique<llvm::IRBuilder<>>(*LLVM_Context_))
@@ -32,7 +32,7 @@ public:
   };
 
   ~JLCLLVMGenerator(){
-    LLVM_module_->print(llvm::errs(), nullptr);
+    LLVM_module_->print(llvm::outs(), nullptr);
   };
   // std::vector<std::string> global_declear_segment;
 
@@ -42,13 +42,37 @@ private:
   std::unique_ptr<llvm::Module> LLVM_module_;
   std::unique_ptr<llvm::IRBuilder<>> LLVM_builder_;
 
-  llvm::Function * current_func_;
+  llvm::Value * llvm_temp_value_;
 
   int block_id = 0;
+  std::vector<std::map<std::string, llvm::Value *>> block_var_map_list;
 
   std::string getBlockName(){
     if (block_id == 0) return "entry";
     return "l" + std::to_string(block_id++);
+  }
+
+  void addBlockVarMap(){
+    block_var_map_list.push_back(std::map<std::string, llvm::Value *>());
+  }
+
+  void removeBlockVarMap(){
+    block_var_map_list.pop_back();
+  }
+
+  void addVarToBlockMap(std::string var_name, llvm::Value * var_value){
+    block_var_map_list.back()[var_name] = var_value;
+  }
+
+  llvm::Value * getVarFromBlockMap(std::string var_name){
+    for (int i = block_var_map_list.size() - 1; i >= 0; i--){
+      if (block_var_map_list[i].find(var_name) != block_var_map_list[i].end()){
+        return block_var_map_list[i][var_name];
+      }
+    }
+    // it should not reach here
+    std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
+    return nullptr;
   }
 
   // type conversion
