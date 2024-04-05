@@ -51,8 +51,8 @@ int main(int argc, char ** argv)
   }
   if (parse_tree)
   {
-    printf("\nParse Successful!\n");
     if (!quiet) {
+      printf("\nParse Successful!\n");
       printf("\n[Abstract Syntax]\n");
       ShowAbsyn *s = new ShowAbsyn();
       printf("%s\n\n", s->show(parse_tree));

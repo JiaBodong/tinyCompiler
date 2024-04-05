@@ -10,7 +10,7 @@
 #define ENABLE_TYPE_CHECK_DEBUG 0
 
 #define DEBUG_PRINT(ss) \
-    std::cout << "[DEBUG]:" << ss << std::endl;
+    std::cerr << "[DEBUG]:" << ss << std::endl;
 
 
 #endif /* __MMUTIL_H__ */ 
