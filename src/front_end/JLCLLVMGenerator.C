@@ -78,18 +78,6 @@ void JLCLLVMGenerator::addFuncDeclearation(Frame &frame){
 }
 
 
-void JLCLLVMGenerator::visitProg(Prog *t) {} //abstract class
-void JLCLLVMGenerator::visitTopDef(TopDef *t) {} //abstract class
-void JLCLLVMGenerator::visitArg(Arg *t) {} //abstract class
-void JLCLLVMGenerator::visitBlk(Blk *t) {} //abstract class
-void JLCLLVMGenerator::visitStmt(Stmt *t) {} //abstract class
-void JLCLLVMGenerator::visitItem(Item *t) {} //abstract class
-void JLCLLVMGenerator::visitType(Type *t) {} //abstract class
-void JLCLLVMGenerator::visitExpr(Expr *t) {} //abstract class
-void JLCLLVMGenerator::visitAddOp(AddOp *t) {} //abstract class
-void JLCLLVMGenerator::visitMulOp(MulOp *t) {} //abstract class
-void JLCLLVMGenerator::visitRelOp(RelOp *t) {} //abstract class
-
 void JLCLLVMGenerator::visitProgram(Program *program)
 {
   /* Code For Program Goes Here */

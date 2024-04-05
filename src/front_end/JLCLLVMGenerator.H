@@ -8,6 +8,8 @@
 #include "Absyn.H"
 #include "context.H"
 
+#include "Skeleton.H"
+
 // llvm dependencies
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
@@ -16,7 +18,7 @@
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Type.h"
 
-class JLCLLVMGenerator : public Visitor
+class JLCLLVMGenerator : public Skeleton
 {
 public:
   Context globalContext;
@@ -85,17 +87,18 @@ private:
 
 
 public:
-  void visitProg(Prog *p);
-  void visitTopDef(TopDef *p);
-  void visitArg(Arg *p);
-  void visitBlk(Blk *p);
-  void visitStmt(Stmt *p);
-  void visitItem(Item *p);
-  void visitType(Type *p);
-  void visitExpr(Expr *p);
-  void visitAddOp(AddOp *p);
-  void visitMulOp(MulOp *p);
-  void visitRelOp(RelOp *p);
+  // void visitProg(Prog *p);
+  // void visitTopDef(TopDef *p);
+  // void visitArg(Arg *p);
+  // void visitBlk(Blk *p);
+  // void visitStmt(Stmt *p);
+  // void visitItem(Item *p);
+  // void visitType(Type *p);
+  // void visitExpr(Expr *p);
+  // void visitAddOp(AddOp *p);
+  // void visitMulOp(MulOp *p);
+  // void visitRelOp(RelOp *p);
+  
   void visitProgram(Program *p);
   void visitFnDef(FnDef *p);
   void visitArgument(Argument *p);

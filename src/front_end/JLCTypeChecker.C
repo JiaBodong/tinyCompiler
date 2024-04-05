@@ -23,17 +23,6 @@ static PrintAbsyn p = PrintAbsyn();
 
 static const std::string checkerName = "JLCTypeChecker";
 
-void JLCTypeChecker::visitProg(Prog *t) {} //abstract class
-void JLCTypeChecker::visitTopDef(TopDef *t) {} //abstract class
-void JLCTypeChecker::visitArg(Arg *t) {} //abstract class
-void JLCTypeChecker::visitBlk(Blk *t) {} //abstract class
-void JLCTypeChecker::visitStmt(Stmt *t) {} //abstract class
-void JLCTypeChecker::visitItem(Item *t) {} //abstract class
-void JLCTypeChecker::visitType(Type *t) {} //abstract class
-void JLCTypeChecker::visitExpr(Expr *t) {} //abstract class
-void JLCTypeChecker::visitAddOp(AddOp *t) {} //abstract class
-void JLCTypeChecker::visitMulOp(MulOp *t) {} //abstract class
-void JLCTypeChecker::visitRelOp(RelOp *t) {} //abstract class
 
 void JLCTypeChecker::visitProgram(Program *program)
 {
@@ -137,21 +126,6 @@ void JLCTypeChecker::visitBlock(Block *block)
   }
   // release the block
   frame.releaseBlock();
-
-}
-
-void JLCTypeChecker::visitEmpty(Empty *empty)
-{
-  /* Code For Empty Goes Here */
-
-
-}
-
-void JLCTypeChecker::visitBStmt(BStmt *b_stmt)
-{
-  /* Code For BStmt Goes Here */
-
-  if (b_stmt->blk_) b_stmt->blk_->accept(this);
 
 }
 
@@ -619,20 +593,6 @@ void JLCTypeChecker::visitEOr(EOr *e_or)
   temp_type = BOOL;
 }
 
-void JLCTypeChecker::visitPlus(Plus *plus)
-{
-  /* Code For Plus Goes Here */
-
-
-}
-
-void JLCTypeChecker::visitMinus(Minus *minus)
-{
-  /* Code For Minus Goes Here */
-
-
-}
-
 void JLCTypeChecker::visitTimes(Times *times)
 {
   /* Code For Times Goes Here */
@@ -687,25 +647,7 @@ void JLCTypeChecker::visitEQU(EQU *equ)
 void JLCTypeChecker::visitNE(NE *ne)
 {
   /* Code For NE Goes Here */
-
-
-}
-
-
-void JLCTypeChecker::visitListTopDef(ListTopDef *list_top_def)
-{
-  for (ListTopDef::iterator i = list_top_def->begin() ; i != list_top_def->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
-}
-
-void JLCTypeChecker::visitListArg(ListArg *list_arg)
-{
-  for (ListArg::iterator i = list_arg->begin() ; i != list_arg->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
+  temp_op = eNE;
 }
 
 void JLCTypeChecker::visitListStmt(ListStmt *list_stmt)
@@ -716,58 +658,6 @@ void JLCTypeChecker::visitListStmt(ListStmt *list_stmt)
     isReturnStmt = false;
     (*i)->accept(this);
   }
-}
-
-void JLCTypeChecker::visitListItem(ListItem *list_item)
-{
-  for (ListItem::iterator i = list_item->begin() ; i != list_item->end() ; ++i)
-  {
-    DEBUG_PRINT( "[" + checkerName +"]" + "\t\tvisiting list item");
-    (*i)->accept(this);
-  }
-}
-
-void JLCTypeChecker::visitListType(ListType *list_type)
-{
-  for (ListType::iterator i = list_type->begin() ; i != list_type->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
-}
-
-void JLCTypeChecker::visitListExpr(ListExpr *list_expr)
-{
-  for (ListExpr::iterator i = list_expr->begin() ; i != list_expr->end() ; ++i)
-  {
-    DEBUG_PRINT( "[" + checkerName +"]" + " \tvisiting expression");
-    (*i)->accept(this);
-  }
-}
-
-
-void JLCTypeChecker::visitInteger(Integer x)
-{
-  /* Code for Integer Goes Here */
-}
-
-void JLCTypeChecker::visitChar(Char x)
-{
-  /* Code for Char Goes Here */
-}
-
-void JLCTypeChecker::visitDouble(Double x)
-{
-  /* Code for Double Goes Here */
-}
-
-void JLCTypeChecker::visitString(String x)
-{
-  /* Code for String Goes Here */
-}
-
-void JLCTypeChecker::visitIdent(Ident x)
-{
-  /* Code for Ident Goes Here */
 }
 
 
