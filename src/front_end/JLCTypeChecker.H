@@ -41,6 +41,7 @@ public:
   void visitDecl(Decl *p);
   void visitNoInit(NoInit *p);
   void visitInit(Init *p);
+  void visitInitArray(InitArray *p);
   void visitAss(Ass *p);
   void visitIncr(Incr *p);
   void visitDecr(Decr *p);
@@ -49,13 +50,18 @@ public:
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
   void visitWhile(While *p);
+  void visitForLoop(ForLoop *p);
   void visitSExp(SExp *p);
   void visitInt(Int *p);
   void visitDoub(Doub *p);
   void visitBool(Bool *p);
   void visitVoid(Void *p);
+  void visitIntArray(IntArray *p);
+  void visitDoubArray(DoubArray *p);
+  void visitBoolArray(BoolArray *p);
   void visitFun(Fun *p);
   void visitEVar(EVar *p);
+  void visitEArray(EArray *p);
   void visitELitInt(ELitInt *p);
   void visitELitDoub(ELitDoub *p);
   void visitELitTrue(ELitTrue *p);

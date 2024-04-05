@@ -458,7 +458,7 @@ void PrintAbsyn::visitInitArray(InitArray *p)
   render("new");
   _i_ = 0; p->type_->accept(this);
   render('[');
-  _i_ = 0; visitListExpr(p->listexpr_);
+  _i_ = 0; p->expr_->accept(this);
   render(']');
 
   if (oldi > 0) render(_R_PAREN);
@@ -614,7 +614,7 @@ void PrintAbsyn::visitEArray(EArray *p)
 
   visitIdent(p->ident_);
   render('[');
-  _i_ = 0; visitListExpr(p->listexpr_);
+  _i_ = 0; p->expr_->accept(this);
   render(']');
 
   if (oldi > 6) render(_R_PAREN);
@@ -1245,7 +1245,7 @@ void ShowAbsyn::visitInitArray(InitArray *p)
   bufAppend(']');
   bufAppend(' ');
   bufAppend('[');
-  if (p->listexpr_)  p->listexpr_->accept(this);
+  if (p->expr_)  p->expr_->accept(this);
   bufAppend(']');
   bufAppend(' ');
   bufAppend(')');
@@ -1331,7 +1331,7 @@ void ShowAbsyn::visitEArray(EArray *p)
   visitIdent(p->ident_);
   bufAppend(' ');
   bufAppend('[');
-  if (p->listexpr_)  p->listexpr_->accept(this);
+  if (p->expr_)  p->expr_->accept(this);
   bufAppend(']');
   bufAppend(' ');
   bufAppend(')');

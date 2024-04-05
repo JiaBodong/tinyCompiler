@@ -884,11 +884,11 @@ Init *Init::clone() const
 
 
 /********************   InitArray    ********************/
-InitArray::InitArray(Ident p1, Type *p2, ListExpr *p3)
+InitArray::InitArray(Ident p1, Type *p2, Expr *p3)
 {
   ident_ = p1;
   type_ = p2;
-  listexpr_ = p3;
+  expr_ = p3;
 
 }
 
@@ -896,7 +896,7 @@ InitArray::InitArray(const InitArray & other)
 {
   ident_ = other.ident_;
   type_ = other.type_->clone();
-  listexpr_ = other.listexpr_->clone();
+  expr_ = other.expr_->clone();
 
 }
 
@@ -911,14 +911,14 @@ void InitArray::swap(InitArray & other)
 {
   std::swap(ident_, other.ident_);
   std::swap(type_, other.type_);
-  std::swap(listexpr_, other.listexpr_);
+  std::swap(expr_, other.expr_);
 
 }
 
 InitArray::~InitArray()
 {
   delete(type_);
-  delete(listexpr_);
+  delete(expr_);
 
 }
 
@@ -1306,17 +1306,17 @@ EVar *EVar::clone() const
 
 
 /********************   EArray    ********************/
-EArray::EArray(Ident p1, ListExpr *p2)
+EArray::EArray(Ident p1, Expr *p2)
 {
   ident_ = p1;
-  listexpr_ = p2;
+  expr_ = p2;
 
 }
 
 EArray::EArray(const EArray & other)
 {
   ident_ = other.ident_;
-  listexpr_ = other.listexpr_->clone();
+  expr_ = other.expr_->clone();
 
 }
 
@@ -1330,13 +1330,13 @@ EArray &EArray::operator=(const EArray & other)
 void EArray::swap(EArray & other)
 {
   std::swap(ident_, other.ident_);
-  std::swap(listexpr_, other.listexpr_);
+  std::swap(expr_, other.expr_);
 
 }
 
 EArray::~EArray()
 {
-  delete(listexpr_);
+  delete(expr_);
 
 }
 

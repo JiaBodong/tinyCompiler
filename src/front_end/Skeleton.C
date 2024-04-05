@@ -192,7 +192,7 @@ void Skeleton::visitInitArray(InitArray *init_array)
 
   visitIdent(init_array->ident_);
   if (init_array->type_) init_array->type_->accept(this);
-  if (init_array->listexpr_) init_array->listexpr_->accept(this);
+  if (init_array->expr_) init_array->expr_->accept(this);
 
 }
 
@@ -267,7 +267,7 @@ void Skeleton::visitEArray(EArray *e_array)
   /* Code For EArray Goes Here */
 
   visitIdent(e_array->ident_);
-  if (e_array->listexpr_) e_array->listexpr_->accept(this);
+  if (e_array->expr_) e_array->expr_->accept(this);
 
 }
 

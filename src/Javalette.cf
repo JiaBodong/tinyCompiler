@@ -28,7 +28,7 @@ NoInit.    Item ::= Ident ;
 
 Init.      Item ::= Ident "=" Expr ;
 
-InitArray. Item ::= Ident "=" "new" Type "[" [Expr] "]" ; 
+InitArray. Item ::= Ident "=" "new" Type "[" Expr "]" ; 
 
 separator nonempty Item "," ;
 
@@ -76,7 +76,7 @@ separator  Type "," ;
 
 EVar.      Expr6 ::= Ident ;
 
-EArray.    Expr6 ::= Ident "[" [Expr] "]";
+EArray.    Expr6 ::= Ident "[" Expr "]";
 
 ELitInt.   Expr6 ::= Integer ;
 

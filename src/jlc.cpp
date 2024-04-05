@@ -60,13 +60,13 @@ int main(int argc, char ** argv)
       PrintAbsyn *p = new PrintAbsyn();
       printf("%s\n\n", p->print(parse_tree));
     }
-    //JLCTypeChecker *jlcvc = new JLCTypeChecker();
-    // parse_tree->accept(jlcvc);
-    // delete(jlcvc);
+    JLCTypeChecker *jlcvc = new JLCTypeChecker();
+    parse_tree->accept(jlcvc);
+    delete(jlcvc);
     // //JLCLLVMGenerator *jlcg = new JLCLLVMGenerator();
     // parse_tree->accept(jlcg);
     // delete(jlcg);
-    // delete(parse_tree);
+    delete(parse_tree);
     std::cerr << "OK" << std::endl;
     return 0;
   }

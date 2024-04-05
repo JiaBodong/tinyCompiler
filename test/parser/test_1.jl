@@ -7,11 +7,9 @@ int main() {
  int x=7, y=f(1), z;
  int[] c = new int[30];
  int[] p = new int[30];
- int u = c[2];
- c = p;
- for(int k : c){
-    k++;
- }
+ int u = 3.0;
+ 
+
  printInt(x);
  if (x == 7){
     int y = 8;

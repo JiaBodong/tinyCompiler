@@ -553,11 +553,11 @@ class InitArray : public Item
 public:
   Ident ident_;
   Type *type_;
-  ListExpr *listexpr_;
+  Expr *expr_;
 
   InitArray(const InitArray &);
   InitArray &operator=(const InitArray &);
-  InitArray(Ident p1, Type *p2, ListExpr *p3);
+  InitArray(Ident p1, Type *p2, Expr *p3);
   ~InitArray();
   virtual void accept(Visitor *v);
   virtual InitArray *clone() const;
@@ -688,11 +688,11 @@ class EArray : public Expr
 {
 public:
   Ident ident_;
-  ListExpr *listexpr_;
+  Expr *expr_;
 
   EArray(const EArray &);
   EArray &operator=(const EArray &);
-  EArray(Ident p1, ListExpr *p2);
+  EArray(Ident p1, Expr *p2);
   ~EArray();
   virtual void accept(Visitor *v);
   virtual EArray *clone() const;
