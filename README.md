@@ -80,23 +80,28 @@ python3 testing.py path/to/submission
 - [x] bad012: return check
 
 
-
-qa: what about  variable name is equal to function name
-
-
 # LLVM Backend
 - [x] variable definition and initialization
 - [x] sting
 - [x] add basic operation
   - [x] add, sub
   - [x] mul, mod, div
+  - [x] Neg
+  - [x] Not ?@TODO, have to double check the result. 
+  - [x] Incre, Decre
   - [ ] logic op
 - [x] add function call
 - [x] add return 
   - [x] return
   - [x] void return
 - [ ] add if, if/else, while
+  - [ ] if
 
 
 - [x] add debug script to generate linked bc file
 
+# QA:
+
+## undefined operation: 
++ printInt(x++);
++ what about variable name is same as a function name

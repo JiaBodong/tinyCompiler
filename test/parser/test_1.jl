@@ -1,18 +1,13 @@
-/* void expression as statement */
-void foo() {
-  #  printString("foo");
-   printInt(1);
-   printDouble(1.0);
-   printString("foo");
-   printString("foo");
-   printString("a very long string that should be printed on multiple lines to test the printString function");
-   return;
-}
 
-int main() {
-  foo();
+#define boolean int
+int main () {
+  int x=1;
+  x++;
+  printInt(x);
+  x--;
+  printInt(x);
+  x--;
+  printInt(x);
   return 0 ;
 
 }
-
-

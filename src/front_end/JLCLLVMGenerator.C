@@ -245,16 +245,42 @@ void JLCLLVMGenerator::visitIncr(Incr *incr)
 {
   /* Code For Incr Goes Here */
 
-  visitIdent(incr->ident_);
-
+  // visitIdent(incr->ident_);
+  // x++ -> x=x+1
+  auto var = getVarFromBlockMap(incr->ident_);
+  // load x must but int type, it will be check by the typer checker
+  auto load = LLVM_builder_->CreateLoad(
+      convertType(INT), var, incr->ident_);
+  // add with 1 
+  auto op = LLVM_builder_->CreateAdd(
+        load, 
+        llvm::ConstantInt::get(*LLVM_Context_, 
+            llvm::APInt(32, 1)),
+        "add");
+  // store
+  LLVM_builder_->CreateStore(op, var);
 }
 
 void JLCLLVMGenerator::visitDecr(Decr *decr)
 {
   /* Code For Decr Goes Here */
 
-  visitIdent(decr->ident_);
-
+  // visitIdent(decr->ident_);
+  // x-- -> x=x-1
+  auto var = getVarFromBlockMap(decr->ident_);
+  // load x must but int type, it will be check by the typer checker
+  auto load = LLVM_builder_->CreateLoad(
+      convertType(INT), var, decr->ident_);
+  // sub 1 
+  auto op = LLVM_builder_->CreateSub(
+        load, 
+        llvm::ConstantInt::get(*LLVM_Context_, 
+            llvm::APInt(32, 1)),
+        "sub");
+  // store
+  LLVM_builder_->CreateStore(op, var);
+  // store does not return a value, 
+  // so we do not need to set llvm_temp_value_
 }
 
 void JLCLLVMGenerator::visitRet(Ret *ret)
@@ -518,7 +544,8 @@ void JLCLLVMGenerator::visitNeg(Neg *neg)
   /* Code For Neg Goes Here */
 
   if (neg->expr_) neg->expr_->accept(this);
-
+  // llvm neg
+  llvm_temp_value_ = LLVM_builder_->CreateNeg(llvm_temp_value_);
 }
 
 void JLCLLVMGenerator::visitNot(Not *not_)
@@ -526,6 +553,8 @@ void JLCLLVMGenerator::visitNot(Not *not_)
   /* Code For Not Goes Here */
 
   if (not_->expr_) not_->expr_->accept(this);
+  // llvm not
+  llvm_temp_value_ = LLVM_builder_->CreateNot(llvm_temp_value_);
 
 }
 
