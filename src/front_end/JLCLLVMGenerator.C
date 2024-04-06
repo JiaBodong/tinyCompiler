@@ -471,15 +471,46 @@ void JLCLLVMGenerator::visitEApp(EApp *e_app)
     tag = e_app->ident_;
   }
   llvm_temp_value_ = LLVM_builder_->CreateCall(llvm_func, args, tag);
-  
+  DEBUG_PRINT("Call function: " + e_app->ident_);
 }
 
 void JLCLLVMGenerator::visitEString(EString *e_string)
 {
   /* Code For EString Goes Here */
+  temp_type = STRING;
+  
+  // check if the string is already in the global context
+  // @TODO: this is not a good way to store the string, 
+  //        using llvm api to check if a string is already in the global context
+  // why we convert string to id? Considering the case a very long string.
+  static int global_string_id = 0;
+  static std::map<std::string, int> string_id_map;
+  static std::map<int, llvm::GlobalVariable*> global_sid_var_map;
+  
+  int id = -1;
+  if (string_id_map.find(e_string->string_) == string_id_map.end())
+  {
+    string_id_map[e_string->string_] = global_string_id;
+    global_string_id++;
+  }
+  id = string_id_map[e_string->string_];
+  if (global_sid_var_map.find(id) == global_sid_var_map.end())
+  {
+    DEBUG_PRINT("Add string to global context: " 
+      + e_string->string_ + " id: " + std::to_string(id));
 
-  visitString(e_string->string_);
+    auto global_var = new llvm::GlobalVariable(
+      *LLVM_module_, 
+      llvm::ArrayType::get(llvm::Type::getInt8Ty(*LLVM_Context_), e_string->string_.size() + 1),
+      true,
+      llvm::GlobalValue::PrivateLinkage,
+      llvm::ConstantDataArray::getString(*LLVM_Context_, e_string->string_),
+      "str" + std::to_string(id)
+    );
+    global_sid_var_map[id] = global_var;
+  }
 
+  llvm_temp_value_ = global_sid_var_map[id];
 }
 
 void JLCLLVMGenerator::visitNeg(Neg *neg)

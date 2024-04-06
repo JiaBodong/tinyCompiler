@@ -86,6 +86,7 @@ qa: what about  variable name is equal to function name
 
 # LLVM Backend
 - [x] variable definition and initialization
+- [x] sting
 - [x] add basic operation
   - [x] add, sub
   - [x] mul, mod, div
@@ -94,8 +95,8 @@ qa: what about  variable name is equal to function name
 - [x] add return 
   - [x] return
   - [x] void return
-- [] add if, if/else, while
+- [ ] add if, if/else, while
 
 
-- [] add debug script to generate linked bc file
+- [x] add debug script to generate linked bc file
 

@@ -12,4 +12,6 @@ llvm-link build/llvm/jlc_generated.bc build/llvm/runtime.bc -o build/llvm/jlc_ge
 
 # run the generated llvm ir code
 echo "Running the generated llvm ir code:"
+echo "-----------------------------------"
 lli build/llvm/jlc_generated_linked.bc
+echo "-----------------------------------"

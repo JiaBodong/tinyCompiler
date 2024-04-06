@@ -1,17 +1,18 @@
-// declaration and initialization in same statement
-int f(int x, int y) {
-  return x+y;
-}
-
-void b(int x) {
-  return;
+/* void expression as statement */
+void foo() {
+  #  printString("foo");
+   printInt(1);
+   printDouble(1.0);
+   printString("foo");
+   printString("foo");
+   printString("a very long string that should be printed on multiple lines to test the printString function");
+   return;
 }
 
 int main() {
- int a = 2;
+  foo();
+  return 0 ;
 
- f(f(a,1),a);
- b(a);
- printInt(a);
- return 0 ;
 }
+
+
