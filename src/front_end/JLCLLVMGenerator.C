@@ -127,7 +127,7 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
   
   // set arguments name
   auto arg_iter = local_llvm_func->arg_begin();
-  for (int i = 0; i < func.args.size(); i++)
+  for (size_t i = 0; i < func.args.size(); i++)
   {
     arg_iter->setName(func.args[i].first);
     arg_iter++;
@@ -183,7 +183,7 @@ void JLCLLVMGenerator::visitBlock(Block *block)
     for (auto & arg : func.args)
     {
       auto arg_iter = llvm_func->arg_begin();
-      for (int i = 0; i < func.args.size(); i++)
+      for (size_t i = 0; i < func.args.size(); i++)
       {
         if (arg.first == std::string(arg_iter->getName()))
         {   
@@ -238,7 +238,7 @@ void JLCLLVMGenerator::visitAss(Ass *ass)
   if (ass->expr_) ass->expr_->accept(this);
   // llvm_temp_value_ is set by next level (accept)
   auto var = getVarFromBlockMap(ass->ident_);
-  auto store = LLVM_builder_->CreateStore(llvm_temp_value_, var);
+  LLVM_builder_->CreateStore(llvm_temp_value_, var);
 }
 
 void JLCLLVMGenerator::visitIncr(Incr *incr)
@@ -289,13 +289,13 @@ void JLCLLVMGenerator::visitRet(Ret *ret)
 
   if (ret->expr_) ret->expr_->accept(this);
   // add llvm return 
-  auto llvm_ret = LLVM_builder_->CreateRet(llvm_temp_value_);
+  LLVM_builder_->CreateRet(llvm_temp_value_);
 }
 
 void JLCLLVMGenerator::visitVRet(VRet *v_ret)
 {
   /* Code For VRet Goes Here */
-  auto llvm_ret = LLVM_builder_->CreateRetVoid();
+  LLVM_builder_->CreateRetVoid();
   DEBUG_PRINT("visitVRet");
 }
 
@@ -387,7 +387,7 @@ void JLCLLVMGenerator::visitInit(Init *init)
 
   if (init->expr_) init->expr_->accept(this);
   // store a constant value to the memory
-  auto store = LLVM_builder_->CreateStore(llvm_temp_value_, alloca);
+  LLVM_builder_->CreateStore(llvm_temp_value_, alloca);
 }
 
 void JLCLLVMGenerator::visitInt(Int *int_)
@@ -678,41 +678,37 @@ void JLCLLVMGenerator::visitMod(Mod *mod)
 void JLCLLVMGenerator::visitLTH(LTH *lth)
 {
   /* Code For LTH Goes Here */
+  temp_op = eLT;
 }
 
 void JLCLLVMGenerator::visitLE(LE *le)
 {
   /* Code For LE Goes Here */
-
-
+  temp_op = eLE;
 }
 
 void JLCLLVMGenerator::visitGTH(GTH *gth)
 {
   /* Code For GTH Goes Here */
-
-
+  temp_op = eGT;
 }
 
 void JLCLLVMGenerator::visitGE(GE *ge)
 {
   /* Code For GE Goes Here */
-
-
+  temp_op = eGE;
 }
 
 void JLCLLVMGenerator::visitEQU(EQU *equ)
 {
   /* Code For EQU Goes Here */
-
-
+  temp_op = eEQ;
 }
 
 void JLCLLVMGenerator::visitNE(NE *ne)
 {
   /* Code For NE Goes Here */
-
-
+  temp_op = eNE;
 }
 
 
@@ -763,32 +759,3 @@ void JLCLLVMGenerator::visitListExpr(ListExpr *list_expr)
     (*i)->accept(this);
   }
 }
-
-
-void JLCLLVMGenerator::visitInteger(Integer x)
-{
-  /* Code for Integer Goes Here */
-}
-
-void JLCLLVMGenerator::visitChar(Char x)
-{
-  /* Code for Char Goes Here */
-}
-
-void JLCLLVMGenerator::visitDouble(Double x)
-{
-  /* Code for Double Goes Here */
-}
-
-void JLCLLVMGenerator::visitString(String x)
-{
-  /* Code for String Goes Here */
-}
-
-void JLCLLVMGenerator::visitIdent(Ident x)
-{
-  /* Code for Ident Goes Here */
-}
-
-
-

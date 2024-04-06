@@ -154,11 +154,11 @@ public:
   void visitListType(ListType *p);
   void visitListExpr(ListExpr *p);
 
-  void visitInteger(Integer x);
-  void visitChar(Char x);
-  void visitDouble(Double x);
-  void visitString(String x);
-  void visitIdent(Ident x);
+  // void visitInteger(Integer x);
+  // void visitChar(Char x);
+  // void visitDouble(Double x);
+  // void visitString(String x);
+  // void visitIdent(Ident x);
 
 };
 
