@@ -7,7 +7,12 @@ CCFLAGS = -W -Wall \
 	-Wno-unused-parameter \
 	-Wno-unused-function \
 	-Wno-unneeded-internal-declaration
-	
+
+# run with DEBUG flag: make DEBUG=1
+ifdef DEBUG
+	CCFLAGS += -DDEBUG
+endif
+
 # llvm config
 LLVM_CC_CONFIG = `llvm-config --cxxflags` -fexceptions
 LLVM_LD_CONFIG = `llvm-config --ldflags --libs --system-libs`
@@ -42,6 +47,7 @@ OBJS := $(FRONT_END_DIR_OBJS) $(UTILS_DIR_OBJS)
 
 CC_INCLUDES := -I$(FRONT_END_DIR) -I$(UTILS_DIR)
 
+
 .PHONY : clean all
 
 all: clean jlc
@@ -50,6 +56,7 @@ clean:
 	mkdir -p $(BUILD_DIR)
 	rm -rf $(BUILD_DIR)/*
 	rm -rf jlc
+
 
 
 run_parser_test: TestJavalette

@@ -4,48 +4,41 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 target triple = "x86_64-unknown-linux-gnu"
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define dso_local i32 @f(i32 noundef %x, i32 noundef %y) #0 {
-entry:
-  %x.addr = alloca i32, align 4
-  %y.addr = alloca i32, align 4
-  store i32 %x, ptr %x.addr, align 4
-  store i32 %y, ptr %y.addr, align 4
-  %0 = load i32, ptr %x.addr, align 4
-  %1 = load i32, ptr %y.addr, align 4
-  %add = add nsw i32 %0, %1
-  ret i32 %add
-}
-
-; Function Attrs: noinline nounwind optnone uwtable
-define dso_local void @b(i32 noundef %x) #0 {
-entry:
-  %x.addr = alloca i32, align 4
-  store i32 %x, ptr %x.addr, align 4
-  ret void
-}
-
-; Function Attrs: noinline nounwind optnone uwtable
 define dso_local i32 @main() #0 {
 entry:
   %retval = alloca i32, align 4
   %a = alloca i32, align 4
+  %b = alloca i32, align 4
+  %c = alloca i32, align 4
+  %e = alloca i32, align 4
+  %d = alloca i32, align 4
   store i32 0, ptr %retval, align 4
-  store i32 2, ptr %a, align 4
+  store i32 1, ptr %a, align 4
+  store i32 0, ptr %b, align 4
+  store i32 1, ptr %c, align 4
   %0 = load i32, ptr %a, align 4
-  %call = call i32 @f(i32 noundef %0, i32 noundef 1)
-  %1 = load i32, ptr %a, align 4
-  %call1 = call i32 @f(i32 noundef %call, i32 noundef %1)
-  %2 = load i32, ptr %a, align 4
-  call void @b(i32 noundef %2)
-  %3 = load i32, ptr %a, align 4
-  call void @printInt(i32 noundef %3)
+  %tobool = icmp ne i32 %0, 0
+  br i1 %tobool, label %land.lhs.true, label %land.end
+
+land.lhs.true:                                    ; preds = %entry
+  %1 = load i32, ptr %b, align 4
+  %tobool1 = icmp ne i32 %1, 0
+  br i1 %tobool1, label %land.rhs, label %land.end
+
+land.rhs:                                         ; preds = %land.lhs.true
+  %2 = load i32, ptr %c, align 4
+  %tobool2 = icmp ne i32 %2, 0
+  br label %land.end
+
+land.end:                                         ; preds = %land.rhs, %land.lhs.true, %entry
+  %3 = phi i1 [ false, %land.lhs.true ], [ false, %entry ], [ %tobool2, %land.rhs ]
+  %land.ext = zext i1 %3 to i32
+  store i32 %land.ext, ptr %e, align 4
+  store i32 1, ptr %d, align 4
   ret i32 0
 }
 
-declare void @printInt(i32 noundef) #1
-
 attributes #0 = { noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #1 = { "frame-pointer"="all" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
 
 !llvm.module.flags = !{!0, !1, !2, !3, !4}
 !llvm.ident = !{!5}

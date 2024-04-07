@@ -52,13 +52,15 @@ int main(int argc, char ** argv)
   if (parse_tree)
   {
     if (!quiet) {
-      printf("\nParse Successful!\n");
-      printf("\n[Abstract Syntax]\n");
-      ShowAbsyn *s = new ShowAbsyn();
-      printf("%s\n\n", s->show(parse_tree));
-      printf("[Linearized Tree]\n");
-      PrintAbsyn *p = new PrintAbsyn();
-      printf("%s\n\n", p->print(parse_tree));
+      #if DEBUG
+        printf("\nParse Successful!\n");
+        printf("\n[Abstract Syntax]\n");
+        ShowAbsyn *s = new ShowAbsyn();
+        printf("%s\n\n", s->show(parse_tree));
+        printf("[Linearized Tree]\n");
+        PrintAbsyn *p = new PrintAbsyn();
+        printf("%s\n\n", p->print(parse_tree));
+      #endif
     }
     JLCTypeChecker *jlcvc = new JLCTypeChecker();
     parse_tree->accept(jlcvc);
