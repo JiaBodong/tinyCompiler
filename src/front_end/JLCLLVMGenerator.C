@@ -620,29 +620,106 @@ void JLCLLVMGenerator::visitEAdd(EAdd *e_add)
 void JLCLLVMGenerator::visitERel(ERel *e_rel)
 {
   /* Code For ERel Goes Here */
-
   if (e_rel->expr_1) e_rel->expr_1->accept(this);
+  auto expr_1_llvm_value = llvm_temp_value_;
   if (e_rel->relop_) e_rel->relop_->accept(this);
+  auto local_op = temp_op;
   if (e_rel->expr_2) e_rel->expr_2->accept(this);
+  auto expr_2_llvm_value = llvm_temp_value_;
 
+  switch (local_op)
+  {
+  case eLT:
+    llvm_temp_value_ = LLVM_builder_->CreateICmpSLT(
+        expr_1_llvm_value, expr_2_llvm_value, "lt");
+    break;
+  case eLE:
+    llvm_temp_value_ = LLVM_builder_->CreateICmpSLE(
+        expr_1_llvm_value, expr_2_llvm_value, "le");
+    break;
+  case eGT:
+    llvm_temp_value_ = LLVM_builder_->CreateICmpSGT(
+        expr_1_llvm_value, expr_2_llvm_value, "gt");
+    break;
+  case eGE:
+    llvm_temp_value_ = LLVM_builder_->CreateICmpSGE(
+        expr_1_llvm_value, expr_2_llvm_value, "ge");
+    break;
+  case eEQ:
+    llvm_temp_value_ = LLVM_builder_->CreateICmpEQ(
+        expr_1_llvm_value, expr_2_llvm_value, "eq");
+    break;
+  case eNE:
+    llvm_temp_value_ = LLVM_builder_->CreateICmpNE(
+        expr_1_llvm_value, expr_2_llvm_value, "ne");
+    break;
+  default:
+    std::cerr << "Error: unknown EREL operation."<< std::endl;
+    break;
+  }
 }
 
 void JLCLLVMGenerator::visitEAnd(EAnd *e_and)
 {
   /* Code For EAnd Goes Here */
+  auto current_block = LLVM_builder_->GetInsertBlock();
+  auto parent = current_block->getParent();
+  auto and_true_block = llvm::BasicBlock::Create(*LLVM_Context_, "and.true", parent);
+  auto and_end_block = llvm::BasicBlock::Create(*LLVM_Context_, "and.end", parent);
 
   if (e_and->expr_1) e_and->expr_1->accept(this);
-  if (e_and->expr_2) e_and->expr_2->accept(this);
+  auto expr_1_llvm_value = llvm_temp_value_;
+  // short-circui evaluation
+  // if the first expression is false, 
+  // then we do not need to evaluate the second expression
+  // @todo: how to do this in llvm ?
 
+  LLVM_builder_->CreateCondBr(expr_1_llvm_value, and_true_block, and_end_block);
+  LLVM_builder_->SetInsertPoint(and_true_block);
+  if (e_and->expr_2) e_and->expr_2->accept(this);
+  auto expr_2_llvm_value = llvm_temp_value_;
+
+  LLVM_builder_->CreateBr(and_end_block);
+  LLVM_builder_->SetInsertPoint(and_end_block);
+  llvm::PHINode* phi = LLVM_builder_->CreatePHI(
+      llvm::Type::getInt1Ty(*LLVM_Context_), 2, "and");
+  phi->addIncoming(expr_1_llvm_value, current_block);
+  phi->addIncoming(expr_2_llvm_value, and_true_block);
+  llvm_temp_value_ = phi;
+
+  // reset the block
+  // LLVM_builder_->SetInsertPoint(current_block);  @todo: do we really need this?
 }
 
 void JLCLLVMGenerator::visitEOr(EOr *e_or)
 {
   /* Code For EOr Goes Here */
+  auto current_block = LLVM_builder_->GetInsertBlock();
+  auto parent = current_block->getParent();
+  auto or_false_block = llvm::BasicBlock::Create(*LLVM_Context_, "or.false", parent);
+  auto or_end_block = llvm::BasicBlock::Create(*LLVM_Context_, "or.end", parent);
 
   if (e_or->expr_1) e_or->expr_1->accept(this);
-  if (e_or->expr_2) e_or->expr_2->accept(this);
+  auto expr_1_llvm_value = llvm_temp_value_;
+  // if the first expression is true, then we do not need to evaluate the second expression
 
+  LLVM_builder_->CreateCondBr(expr_1_llvm_value, or_end_block, or_false_block);
+  LLVM_builder_->SetInsertPoint(or_false_block);
+
+  if (e_or->expr_2) e_or->expr_2->accept(this);
+  auto expr_2_llvm_value = llvm_temp_value_;
+
+  LLVM_builder_->CreateBr(or_end_block);
+  LLVM_builder_->SetInsertPoint(or_end_block);
+  llvm::PHINode* phi = LLVM_builder_->CreatePHI(
+      llvm::Type::getInt1Ty(*LLVM_Context_), 2, "or");
+  
+  phi->addIncoming(expr_1_llvm_value, current_block);
+  phi->addIncoming(expr_2_llvm_value, or_false_block);
+  llvm_temp_value_ = phi;
+
+  // reset the block
+  // LLVM_builder_->SetInsertPoint(current_block);  @todo: do we really need this?
 }
 
 void JLCLLVMGenerator::visitPlus(Plus *plus)

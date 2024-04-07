@@ -1,13 +1,10 @@
 
 #define boolean int
+#define true 1
+#define false 0
 int main () {
-  int x=1;
-  x++;
-  printInt(x);
-  x--;
-  printInt(x);
-  x--;
-  printInt(x);
-  return 0 ;
-
+  boolean a =true,b = false, c=true;
+  boolean e = (a > b) && (c || b);
+  int d = 1;
+  return 0;
 }

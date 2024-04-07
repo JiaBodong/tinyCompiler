@@ -89,12 +89,14 @@ python3 testing.py path/to/submission
   - [x] Neg
   - [x] Not ?@TODO, have to double check the result. 
   - [x] Incre, Decre
-  - [ ] logic op
+  - [x] logic op
+    - [x] others 
+    - [x] and , or : short-circui evaluation @TODO
 - [x] add function call
 - [x] add return 
   - [x] return
   - [x] void return
-- [ ] add if, if/else, while
+- [ ] if, if/else, while
   - [ ] if
 
 
@@ -105,3 +107,13 @@ python3 testing.py path/to/submission
 ## undefined operation: 
 + printInt(x++);
 + what about variable name is same as a function name
+
++ Short-circui evaluation:
+```c
+int main () {
+  int a =1,b =2;
+  if(a<0 && b>0){
+    a = 1;
+  }
+}
+```
