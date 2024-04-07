@@ -98,6 +98,38 @@ void JLCLLVMGenerator::visitProgram(Program *program)
 
     // check function arguments
     if (fn_def->listarg_) fn_def->listarg_->accept(this);
+
+    // add to llvm module - start
+    // @todo maybe we can drop the self-defined CONTEXT, 
+    // and use the llvm::Module directly
+
+    auto llvm_return_type = convertType(func.returnType);
+    std::vector<llvm::Type*> llvm_args;
+    for (auto & arg : func.args)
+    {
+      llvm_args.push_back(convertType(arg.second));
+    }
+    llvm::FunctionType* func_type = 
+      llvm::FunctionType::get(llvm_return_type, llvm_args, false);
+    auto local_llvm_func = llvm::Function::Create(
+        func_type, 
+        llvm::Function::ExternalLinkage, 
+        func.name, 
+        LLVM_module_.get());
+    
+    // set arguments name
+    auto arg_iter = local_llvm_func->arg_begin();
+    for (size_t i = 0; i < func.args.size(); i++)
+    {
+      arg_iter->setName(func.args[i].first);
+      arg_iter++;
+    }
+    // add to llvm module - end 
+    // debug print
+    std::string ss;
+    llvm::raw_string_ostream ss2(ss);
+    local_llvm_func->print(ss2);
+    DEBUG_PRINT("Add function define: " + ss);
   }
   
   if (program->listtopdef_) program->listtopdef_->accept(this);
@@ -108,40 +140,10 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
 {
   /* Code For FnDef Goes Here */
   globalContext.currentFrameName = fn_def->ident_; // set context to the current function
-  auto & func = globalContext.currentFrame();
-  // add a new fucntion definition to the llvm module
-  
-  auto llvm_return_type = convertType(func.returnType);
-  std::vector<llvm::Type*> llvm_args;
-  for (auto & arg : func.args)
-  {
-    llvm_args.push_back(convertType(arg.second));
-  }
-  llvm::FunctionType* func_type = 
-    llvm::FunctionType::get(llvm_return_type, llvm_args, false);
-  auto local_llvm_func = llvm::Function::Create(
-      func_type, 
-      llvm::Function::ExternalLinkage, 
-      func.name, 
-      LLVM_module_.get());
-  
-  // set arguments name
-  auto arg_iter = local_llvm_func->arg_begin();
-  for (size_t i = 0; i < func.args.size(); i++)
-  {
-    arg_iter->setName(func.args[i].first);
-    arg_iter++;
-  }
 
   // reset inner variables before visiting the function body
   block_id = 0;
   block_var_map_list.clear();
-
-  // debug print
-  std::string ss;
-  llvm::raw_string_ostream ss2(ss);
-  local_llvm_func->print(ss2);
-  DEBUG_PRINT("Add function define: " + ss);
 
   // cotinue to iterate the function body
   if (fn_def->blk_) fn_def->blk_->accept(this);
@@ -479,6 +481,7 @@ void JLCLLVMGenerator::visitELitFalse(ELitFalse *e_lit_false)
 
 void JLCLLVMGenerator::visitEApp(EApp *e_app)
 {
+  DEBUG_PRINT("Visit EApp: " + e_app->ident_);
   /* Code For EApp Goes Here */
   std::vector<llvm::Value*> args;
   // iterate through the arguments, and collect the llvm values
@@ -491,11 +494,14 @@ void JLCLLVMGenerator::visitEApp(EApp *e_app)
   auto llvm_func = LLVM_module_->getFunction(e_app->ident_);
   // check if the return type is void
   std::string tag = "";
+  DEBUG_PRINT("EApp check return type")
   if (!llvm_func->getReturnType()->isVoidTy())
   {
+    DEBUG_PRINT("EApp return type is not void")
     // if return type is void, then we have to pass empty string as tag
     tag = e_app->ident_;
   }
+  DEBUG_PRINT("EApp create call")
   llvm_temp_value_ = LLVM_builder_->CreateCall(llvm_func, args, tag);
   DEBUG_PRINT("Call function: " + e_app->ident_);
 }
