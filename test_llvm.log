@@ -17,7 +17,7 @@ About to run tests with these settings:
 [  9/123] testsuite/good/registers2 ... FAILED
 [ 10/123] testsuite/good/core022    ... OK
 [ 11/123] testsuite/good/assignedargument ... OK
-[ 12/123] testsuite/good/core020    ... FAILED
+[ 12/123] testsuite/good/core020    ... OK
 [ 13/123] testsuite/good/core018    ... FAILED
 [ 14/123] testsuite/good/core019    ... FAILED
 [ 15/123] testsuite/good/registers1 ... OK
@@ -32,7 +32,7 @@ About to run tests with these settings:
 [ 24/123] testsuite/good/core013    ... FAILED
 [ 25/123] testsuite/good/core004    ... FAILED
 [ 26/123] testsuite/good/core005    ... FAILED
-[ 27/123] testsuite/good/shadowedfunction ... FAILED
+[ 27/123] testsuite/good/shadowedfunction ... OK
 [ 28/123] testsuite/good/order_binop ... OK
 [ 29/123] testsuite/good/core012    ... FAILED
 [ 30/123] testsuite/good/order_binop2 ... OK
@@ -40,7 +40,7 @@ About to run tests with these settings:
 [ 32/123] testsuite/good/intarith3  ... FAILED
 [ 33/123] testsuite/good/core016    ... FAILED
 [ 34/123] testsuite/good/core017    ... FAILED
-[ 35/123] testsuite/good/stack1     ... FAILED
+[ 35/123] testsuite/good/stack1     ... OK
 [ 36/123] testsuite/good/intarith   ... FAILED
 [ 37/123] testsuite/good/intarith2  ... FAILED
 [ 38/123] testsuite/good/core002    ... OK
@@ -132,6 +132,15 @@ About to run tests with these settings:
 
 
 Some tests failed:
+---------- !!! testsuite/good/core032.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
+
 ---------- !!! testsuite/good/core031.jl failed !!! ----------
 
 - stderr expected:
@@ -141,6 +150,15 @@ Some tests failed:
 - compiler return code info:
     compiler return code: -6, 0 expected
 
+---------- !!! testsuite/good/core027.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
+
 ---------- !!! testsuite/good/core030.jl failed !!! ----------
 
 - stderr expected:
@@ -149,6 +167,15 @@ Some tests failed:
     jlc: /chalmers/sw/sup64/llvm-16.0.5/dist/llvm-project-16/llvm/lib/IR/Instructions.cpp:2893: void llvm::BinaryOperator::AssertOK(): Assertion `getType()->isIntOrIntVectorTy() && "Tried to create an integer operation on a non-integer type!"' failed.
 - compiler return code info:
     compiler return code: -6, 0 expected
+
+---------- !!! testsuite/good/core023.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
 
 ---------- !!! testsuite/good/registers2.jl failed !!! ----------
 
@@ -168,6 +195,33 @@ Some tests failed:
 - compiler return code info:
     compiler return code: -6, 0 expected
 
+---------- !!! testsuite/good/core019.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
+
+---------- !!! testsuite/good/core010.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
+
+---------- !!! testsuite/good/intarith4.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
+
 ---------- !!! testsuite/good/core029.jl failed !!! ----------
 
 - stderr expected:
@@ -176,6 +230,24 @@ Some tests failed:
     jlc: /nfs4/sol.ita.chalmers.se/ufs/groups/manual20/sup_de/sup64/llvm-16.0.5/include/llvm/IR/Instructions.h:1204: void llvm::ICmpInst::AssertOK(): Assertion `(getOperand(0)->getType()->isIntOrIntVectorTy() || getOperand(0)->getType()->isPtrOrPtrVectorTy()) && "Invalid operand types for ICmp instruction"' failed.
 - compiler return code info:
     compiler return code: -6, 0 expected
+
+---------- !!! testsuite/good/core004.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
+
+---------- !!! testsuite/good/core005.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
 
 ---------- !!! testsuite/good/core012.jl failed !!! ----------
 
@@ -191,18 +263,45 @@ Some tests failed:
 - stderr expected:
     OK
 - stderr actual:
-    jlc: /nfs4/sol.ita.chalmers.se/ufs/groups/manual20/sup_de/sup64/llvm-16.0.5/include/llvm/IR/Instructions.h:1204: void llvm::ICmpInst::AssertOK(): Assertion `(getOperand(0)->getType()->isIntOrIntVectorTy() || getOperand(0)->getType()->isPtrOrPtrVectorTy()) && "Invalid operand types for ICmp instruction"' failed.
+    Error: function block does not have a return statement
 - compiler return code info:
-    compiler return code: -6, 0 expected
+    compiler return code: 1, 0 expected
+
+---------- !!! testsuite/good/intarith3.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
 
 ---------- !!! testsuite/good/core017.jl failed !!! ----------
 
 - stderr expected:
     OK
 - stderr actual:
-    jlc: /chalmers/sw/sup64/llvm-16.0.5/dist/llvm-project-16/llvm/lib/IR/Constants.cpp:2282: static llvm::Constant* llvm::ConstantExpr::get(unsigned int, llvm::Constant*, llvm::Constant*, unsigned int, llvm::Type*): Assertion `C1->getType()->isIntOrIntVectorTy() && "Tried to create an integer operation on a non-integer type!"' failed.
+    Error: function block does not have a return statement
 - compiler return code info:
-    compiler return code: -6, 0 expected
+    compiler return code: 1, 0 expected
+
+---------- !!! testsuite/good/intarith.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
+
+---------- !!! testsuite/good/intarith2.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
 
 ---------- !!! testsuite/good/core015.jl failed !!! ----------
 
@@ -211,88 +310,20 @@ Some tests failed:
 - stdout actual:
 
 
+---------- !!! testsuite/good/core014.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: function block does not have a return statement
+- compiler return code info:
+    compiler return code: 1, 0 expected
+
 Some tests caused build failures:
----------- !!! testsuite/good/core032.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:21:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/core027.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:20:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/core023.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:17:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/core020.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:23:1: error: expected instruction opcode
-    }
-    ^
-
----------- !!! testsuite/good/core019.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:21:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/core010.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:35:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/intarith4.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:37:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
 ---------- !!! testsuite/good/core013.jl failed !!! ----------
 
     llvm-as failed with:
     llvm-as: <stdin>:117:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/core004.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:17:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/core005.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:24:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/shadowedfunction.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:19:1: error: expected instruction opcode
-    }
-    ^
-
----------- !!! testsuite/good/intarith3.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:21:1: error: expected instruction opcode
     l1:                                               ; No predecessors!
     ^
 
@@ -303,39 +334,11 @@ Some tests caused build failures:
     l1:                                               ; No predecessors!
     ^
 
----------- !!! testsuite/good/stack1.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:36:1: error: expected instruction opcode
-    }
-    ^
-
----------- !!! testsuite/good/intarith.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:22:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/intarith2.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:19:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/core014.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:32:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
 ---------- !!! testsuite/good/stack2.jl failed !!! ----------
 
     llvm-as failed with:
-    llvm-as: <stdin>:32:1: error: expected instruction opcode
-    }
+    llvm-as: <stdin>:41:1: error: expected instruction opcode
+    l1:                                               ; No predecessors!
     ^
 
 /chalmers/users/chenhon/lab-group-22

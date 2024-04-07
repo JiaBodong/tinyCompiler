@@ -1,12 +1,7 @@
-/* void expression as statement */
-
 int main() {
-  foo();
-  return 0 ;
-
+    p();
+    printInt(1);
+    return 0;
 }
 
-void foo() {
-   printString("foo");
-   return;
-}
+void p() {}

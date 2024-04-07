@@ -23,6 +23,7 @@ class JLCLLVMGenerator : public Skeleton
 public:
   Context globalContext;
   type_enum temp_type;
+  bool isReturnStmt;
   op_enum temp_op;
   std::string temp_ident;
 

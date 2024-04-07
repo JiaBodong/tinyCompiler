@@ -105,10 +105,10 @@ python3 testing.py path/to/submission
 # QA:
 
 ## undefined operation: 
-+ printInt(x++);
-+ what about variable name is same as a function name
+- [ ] printInt(x++);
+- [x] what about variable name is same as a function name -> see core020.jl
 
-+ Short-circui evaluation:
+- [x] Short-circui evaluation:
 ```c
 int main () {
   int a =1,b =2;

@@ -43,7 +43,7 @@ llvm::Type* JLCLLVMGenerator::convertType(type_enum t){
     return llvm::Type::getInt8PtrTy(*LLVM_Context_);
   default:
     std::cerr << "Error, Unknown type:" << to_string(t) << std::endl;
-    return nullptr;
+    exit(1);
   }
 }
 
@@ -200,6 +200,21 @@ void JLCLLVMGenerator::visitBlock(Block *block)
   }
   DEBUG_PRINT("go through the block")
   if (block->liststmt_) block->liststmt_->accept(this);
+  // check if the predecessor block is terminated
+  if (LLVM_builder_->GetInsertBlock()->getTerminator() == nullptr)
+  {
+    // if the block is not terminated, we need to add a return statement
+    if (func.returnType == VOID)
+    {
+      LLVM_builder_->CreateRetVoid();
+    }
+    else
+    {
+     std::cerr << "Error: function block does not have a return statement" << std::endl;
+     exit(1);
+    }
+  }
+
   // release the block
   DEBUG_PRINT("release block");
   func.releaseBlock();
@@ -591,6 +606,7 @@ void JLCLLVMGenerator::visitEMul(EMul *e_mul)
     break;
   default:
     std::cerr << "Error: unknown EMUL operation."<< std::endl;
+    exit(1);
     break;
   }
 }
@@ -618,6 +634,7 @@ void JLCLLVMGenerator::visitEAdd(EAdd *e_add)
     break;
   default:
     std::cerr << "Error: unknown EADD operation."<< std::endl;
+    exit(1);
     break;
   }
 
@@ -661,6 +678,7 @@ void JLCLLVMGenerator::visitERel(ERel *e_rel)
     break;
   default:
     std::cerr << "Error: unknown EREL operation."<< std::endl;
+    exit(1);
     break;
   }
 }
