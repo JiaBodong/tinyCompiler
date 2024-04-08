@@ -159,8 +159,6 @@ void Skeleton::visitWhile(While *while_)
 
 }
 
-<<<<<<< HEAD:src/front_end/Skeleton.C
-=======
 void Skeleton::visitForBlk(ForBlk *for_blk)
 {
   /* Code For ForBlk Goes Here */
@@ -171,17 +169,10 @@ void Skeleton::visitForBlk(ForBlk *for_blk)
 
 }
 
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Skeleton.C
 void Skeleton::visitForLoop(ForLoop *for_loop)
 {
   /* Code For ForLoop Goes Here */
 
-<<<<<<< HEAD:src/front_end/Skeleton.C
-  if (for_loop->type_) for_loop->type_->accept(this);
-  if (for_loop->expr_1) for_loop->expr_1->accept(this);
-  if (for_loop->expr_2) for_loop->expr_2->accept(this);
-=======
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Skeleton.C
   if (for_loop->stmt_) for_loop->stmt_->accept(this);
 
 }
@@ -211,22 +202,12 @@ void Skeleton::visitInit(Init *init)
 
 }
 
-<<<<<<< HEAD:src/front_end/Skeleton.C
-void Skeleton::visitInitArray(InitArray *init_array)
-{
-  /* Code For InitArray Goes Here */
-
-  visitIdent(init_array->ident_);
-  if (init_array->type_) init_array->type_->accept(this);
-  if (init_array->expr_) init_array->expr_->accept(this);
-=======
 void Skeleton::visitInitElem(InitElem *init_elem)
 {
   /* Code For InitElem Goes Here */
 
   visitIdent(init_elem->ident_);
   if (init_elem->expr_) init_elem->expr_->accept(this);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Skeleton.C
 
 }
 
@@ -296,15 +277,6 @@ void Skeleton::visitEVar(EVar *e_var)
 
 }
 
-void Skeleton::visitEArray(EArray *e_array)
-{
-  /* Code For EArray Goes Here */
-
-  visitIdent(e_array->ident_);
-  if (e_array->expr_) e_array->expr_->accept(this);
-
-}
-
 void Skeleton::visitELitInt(ELitInt *e_lit_int)
 {
   /* Code For ELitInt Goes Here */
@@ -365,7 +337,8 @@ void Skeleton::visitEArrayLen(EArrayLen *e_array_len)
 {
   /* Code For EArrayLen Goes Here */
 
-  if (e_array_len->expr_) e_array_len->expr_->accept(this);
+  if (e_array_len->expr_1) e_array_len->expr_1->accept(this);
+  if (e_array_len->expr_2) e_array_len->expr_2->accept(this);
 
 }
 

@@ -62,20 +62,13 @@ class PrintAbsyn : public Visitor
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
   void visitWhile(While *p);
-<<<<<<< HEAD:src/front_end/Printer.H
-=======
   void visitForBlk(ForBlk *p);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.H
   void visitForLoop(ForLoop *p);
   void visitSExp(SExp *p);
   void visitItem(Item *p); /* abstract class */
   void visitNoInit(NoInit *p);
   void visitInit(Init *p);
-<<<<<<< HEAD:src/front_end/Printer.H
-  void visitInitArray(InitArray *p);
-=======
   void visitInitElem(InitElem *p);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.H
   void visitListItem(ListItem *p);
   void iterListItem(ListItem::const_iterator i, ListItem::const_iterator j);
   void visitType(Type *p); /* abstract class */
@@ -91,7 +84,6 @@ class PrintAbsyn : public Visitor
   void iterListType(ListType::const_iterator i, ListType::const_iterator j);
   void visitExpr(Expr *p); /* abstract class */
   void visitEVar(EVar *p);
-  void visitEArray(EArray *p);
   void visitELitInt(ELitInt *p);
   void visitELitDoub(ELitDoub *p);
   void visitELitTrue(ELitTrue *p);
@@ -219,20 +211,13 @@ class ShowAbsyn : public Visitor
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
   void visitWhile(While *p);
-<<<<<<< HEAD:src/front_end/Printer.H
-=======
   void visitForBlk(ForBlk *p);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.H
   void visitForLoop(ForLoop *p);
   void visitSExp(SExp *p);
   void visitItem(Item *p); /* abstract class */
   void visitNoInit(NoInit *p);
   void visitInit(Init *p);
-<<<<<<< HEAD:src/front_end/Printer.H
-  void visitInitArray(InitArray *p);
-=======
   void visitInitElem(InitElem *p);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.H
   void visitListItem(ListItem *p);
   void iterListItem(ListItem::const_iterator i, ListItem::const_iterator j);
   void visitType(Type *p); /* abstract class */
@@ -248,7 +233,6 @@ class ShowAbsyn : public Visitor
   void iterListType(ListType::const_iterator i, ListType::const_iterator j);
   void visitExpr(Expr *p); /* abstract class */
   void visitEVar(EVar *p);
-  void visitEArray(EArray *p);
   void visitELitInt(ELitInt *p);
   void visitELitDoub(ELitDoub *p);
   void visitELitTrue(ELitTrue *p);

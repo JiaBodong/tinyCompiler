@@ -30,11 +30,7 @@ public:
   void visitDecl(Decl *p);
   void visitNoInit(NoInit *p);
   void visitInit(Init *p);
-<<<<<<< HEAD:src/front_end/Skeleton.H
-  void visitInitArray(InitArray *p);
-=======
   void visitInitElem(InitElem *p);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Skeleton.H
   void visitAss(Ass *p);
   void visitArrayAss(ArrayAss *p);
   void visitIncr(Incr *p);
@@ -44,10 +40,7 @@ public:
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
   void visitWhile(While *p);
-<<<<<<< HEAD:src/front_end/Skeleton.H
-=======
   void visitForBlk(ForBlk *p);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Skeleton.H
   void visitForLoop(ForLoop *p);
   void visitSExp(SExp *p);
   void visitInt(Int *p);
@@ -59,7 +52,6 @@ public:
   void visitBoolArray(BoolArray *p);
   void visitFun(Fun *p);
   void visitEVar(EVar *p);
-  void visitEArray(EArray *p);
   void visitELitInt(ELitInt *p);
   void visitELitDoub(ELitDoub *p);
   void visitELitTrue(ELitTrue *p);

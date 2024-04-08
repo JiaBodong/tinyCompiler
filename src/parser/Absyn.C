@@ -741,23 +741,6 @@ While *While::clone() const
 
 
 
-<<<<<<< HEAD:src/front_end/Absyn.C
-/********************   ForLoop    ********************/
-ForLoop::ForLoop(Type *p1, Expr *p2, Expr *p3, Stmt *p4)
-{
-  type_ = p1;
-  expr_1 = p2;
-  expr_2 = p3;
-  stmt_ = p4;
-
-}
-
-ForLoop::ForLoop(const ForLoop & other)
-{
-  type_ = other.type_->clone();
-  expr_1 = other.expr_1->clone();
-  expr_2 = other.expr_2->clone();
-=======
 /********************   ForBlk    ********************/
 ForBlk::ForBlk(Type *p1, Item *p2, Stmt *p3)
 {
@@ -819,7 +802,6 @@ ForLoop::ForLoop(Stmt *p1)
 
 ForLoop::ForLoop(const ForLoop & other)
 {
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.C
   stmt_ = other.stmt_->clone();
 
 }
@@ -833,24 +815,12 @@ ForLoop &ForLoop::operator=(const ForLoop & other)
 
 void ForLoop::swap(ForLoop & other)
 {
-<<<<<<< HEAD:src/front_end/Absyn.C
-  std::swap(type_, other.type_);
-  std::swap(expr_1, other.expr_1);
-  std::swap(expr_2, other.expr_2);
-=======
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.C
   std::swap(stmt_, other.stmt_);
 
 }
 
 ForLoop::~ForLoop()
 {
-<<<<<<< HEAD:src/front_end/Absyn.C
-  delete(type_);
-  delete(expr_1);
-  delete(expr_2);
-=======
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.C
   delete(stmt_);
 
 }
@@ -1001,21 +971,6 @@ Init *Init::clone() const
 
 
 
-<<<<<<< HEAD:src/front_end/Absyn.C
-/********************   InitArray    ********************/
-InitArray::InitArray(Ident p1, Type *p2, Expr *p3)
-{
-  ident_ = p1;
-  type_ = p2;
-  expr_ = p3;
-
-}
-
-InitArray::InitArray(const InitArray & other)
-{
-  ident_ = other.ident_;
-  type_ = other.type_->clone();
-=======
 /********************   InitElem    ********************/
 InitElem::InitElem(Ident p1, Expr *p2)
 {
@@ -1027,60 +982,30 @@ InitElem::InitElem(Ident p1, Expr *p2)
 InitElem::InitElem(const InitElem & other)
 {
   ident_ = other.ident_;
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.C
   expr_ = other.expr_->clone();
 
 }
 
-<<<<<<< HEAD:src/front_end/Absyn.C
-InitArray &InitArray::operator=(const InitArray & other)
-{
-  InitArray tmp(other);
-=======
 InitElem &InitElem::operator=(const InitElem & other)
 {
   InitElem tmp(other);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.C
   swap(tmp);
   return *this;
 }
 
-<<<<<<< HEAD:src/front_end/Absyn.C
-void InitArray::swap(InitArray & other)
-{
-  std::swap(ident_, other.ident_);
-  std::swap(type_, other.type_);
-=======
 void InitElem::swap(InitElem & other)
 {
   std::swap(ident_, other.ident_);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.C
   std::swap(expr_, other.expr_);
 
 }
 
-<<<<<<< HEAD:src/front_end/Absyn.C
-InitArray::~InitArray()
-{
-  delete(type_);
-=======
 InitElem::~InitElem()
 {
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.C
   delete(expr_);
 
 }
 
-<<<<<<< HEAD:src/front_end/Absyn.C
-void InitArray::accept(Visitor *v)
-{
-  v->visitInitArray(this);
-}
-
-InitArray *InitArray::clone() const
-{
-  return new InitArray(*this);
-=======
 void InitElem::accept(Visitor *v)
 {
   v->visitInitElem(this);
@@ -1089,7 +1014,6 @@ void InitElem::accept(Visitor *v)
 InitElem *InitElem::clone() const
 {
   return new InitElem(*this);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.C
 }
 
 
@@ -1465,53 +1389,6 @@ EVar *EVar::clone() const
 
 
 
-/********************   EArray    ********************/
-EArray::EArray(Ident p1, Expr *p2)
-{
-  ident_ = p1;
-  expr_ = p2;
-
-}
-
-EArray::EArray(const EArray & other)
-{
-  ident_ = other.ident_;
-  expr_ = other.expr_->clone();
-
-}
-
-EArray &EArray::operator=(const EArray & other)
-{
-  EArray tmp(other);
-  swap(tmp);
-  return *this;
-}
-
-void EArray::swap(EArray & other)
-{
-  std::swap(ident_, other.ident_);
-  std::swap(expr_, other.expr_);
-
-}
-
-EArray::~EArray()
-{
-  delete(expr_);
-
-}
-
-void EArray::accept(Visitor *v)
-{
-  v->visitEArray(this);
-}
-
-EArray *EArray::clone() const
-{
-  return new EArray(*this);
-}
-
-
-
 /********************   ELitInt    ********************/
 ELitInt::ELitInt(Integer p1)
 {
@@ -1817,15 +1694,17 @@ EArrayNew *EArrayNew::clone() const
 
 
 /********************   EArrayLen    ********************/
-EArrayLen::EArrayLen(Expr *p1)
+EArrayLen::EArrayLen(Expr *p1, Expr *p2)
 {
-  expr_ = p1;
+  expr_1 = p1;
+  expr_2 = p2;
 
 }
 
 EArrayLen::EArrayLen(const EArrayLen & other)
 {
-  expr_ = other.expr_->clone();
+  expr_1 = other.expr_1->clone();
+  expr_2 = other.expr_2->clone();
 
 }
 
@@ -1838,13 +1717,15 @@ EArrayLen &EArrayLen::operator=(const EArrayLen & other)
 
 void EArrayLen::swap(EArrayLen & other)
 {
-  std::swap(expr_, other.expr_);
+  std::swap(expr_1, other.expr_1);
+  std::swap(expr_2, other.expr_2);
 
 }
 
 EArrayLen::~EArrayLen()
 {
-  delete(expr_);
+  delete(expr_1);
+  delete(expr_2);
 
 }
 

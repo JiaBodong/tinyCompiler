@@ -160,6 +160,9 @@ void JLCTypeChecker::visitDecl(Decl *decl)
   if (decl->listitem_) decl->listitem_->accept(this);
 }
 
+
+
+
 void JLCTypeChecker::visitAss(Ass *ass)
 {
   /* Code For Ass Goes Here */
@@ -314,29 +317,6 @@ void JLCTypeChecker::visitWhile(While *while_)
 }
 
 
-<<<<<<< HEAD:src/front_end/JLCTypeChecker.C
-void JLCTypeChecker::visitForLoop(ForLoop *for_loop)
-{
-  /* Code For ForLoop Goes Here */
-
-  if (for_loop->type_) for_loop->type_->accept(this);
-  auto temp_type_1 = temp_type;
-  if (for_loop->expr_1) for_loop->expr_1->accept(this);
-  if (for_loop->expr_2) for_loop->expr_2->accept(this);
-  auto temp_type_2 = temp_type;
-  if(temp_type_2 == INTARRAY) temp_type_2 = INT;
-  if(temp_type_2 == DOUBARRAY) temp_type_2 = DOUB;
-  if(temp_type_2 == BOOLARRAY) temp_type_2 = BOOL;
-
-  if(temp_type_1!=temp_type_2){
-    std::cerr << "ERROR: For loop iteration type cant match array type\n";
-    exit(1);
-  }
-
-
-  if (for_loop->stmt_) for_loop->stmt_->accept(this);
-  isReturnStmt = false;
-=======
 
 void JLCTypeChecker::visitForBlk(ForBlk *for_blk)
 {
@@ -367,7 +347,6 @@ void JLCTypeChecker::visitForLoop(ForLoop *for_loop)
   if (for_loop->stmt_) for_loop->stmt_->accept(this);
   
   frame.releaseBlock();
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/typechecker/JLCTypeChecker.C
 }
 
 
@@ -412,14 +391,6 @@ void JLCTypeChecker::visitInit(Init *init)
   }
 }
 
-<<<<<<< HEAD:src/front_end/JLCTypeChecker.C
-void JLCTypeChecker::visitInitArray(InitArray *init_array)
-{
-  /* Code For InitArray Goes Here */
-  DEBUG_PRINT( "[" + checkerName +"]" + "\tInitArray");
-  visitIdent(init_array->ident_);
-  temp_ident = init_array->ident_;
-=======
 
 void JLCTypeChecker::visitInitElem(InitElem *init_elem)
 {
@@ -434,29 +405,10 @@ void JLCTypeChecker::visitInitElem(InitElem *init_elem)
     std::cerr << "ERROR: Array Variable  is not declared.\n";
     exit(1);
   }
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/typechecker/JLCTypeChecker.C
   if(temp_type == INTARRAY) temp_type = INT;
   if(temp_type == DOUBARRAY) temp_type = DOUB;
   if(temp_type == BOOLARRAY) temp_type = BOOL;
 
-<<<<<<< HEAD:src/front_end/JLCTypeChecker.C
-  auto temp_decl_type = temp_type;
-
-  if (init_array->type_) init_array->type_->accept(this);
-  if(temp_type!=temp_decl_type){
-    std::cerr << "ERROR: Type mismatch between expression and variable assignment."
-    << " left-hand: "<< init_array->ident_ << " type:" 
-    << to_string(temp_decl_type)
-    << " right-hand- " << " type:" << to_string(temp_type) << "\n";
-      exit(1);
-  }
-
-  if (init_array->expr_) init_array->expr_->accept(this);
-  if(temp_type!=INT){
-    std::cerr << "ERROR: The var in [] can just be int" << "\n";
-      exit(1);
-  }
-=======
   if(temp_decl_type!=temp_type) {
      std::cerr << "ERROR: Type mismatch between expression and variable assignment."
     << " left-hand: "<< init_elem->ident_ << " type:" 
@@ -466,7 +418,6 @@ void JLCTypeChecker::visitInitElem(InitElem *init_elem)
       exit(1);
   }
 
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/typechecker/JLCTypeChecker.C
 }
 
 void JLCTypeChecker::visitInt(Int *int_)
@@ -538,21 +489,6 @@ void JLCTypeChecker::visitEVar(EVar *e_var)
   visitIdent(e_var->ident_);
 }
 
-<<<<<<< HEAD:src/front_end/JLCTypeChecker.C
-void JLCTypeChecker::visitEArray(EArray *e_array)
-{
-  /* Code For EArray Goes Here */
-  DEBUG_PRINT( "[" + checkerName +"]" + " \tvisiting array operation " + e_array->ident_);
-  auto & frame = globalContext.currentFrame();
-  if(!frame.isExistVar(e_array->ident_)){
-    std::cerr << "ERROR: variable array " << e_array->ident_ << " is not declared\n";
-    exit(1);
-  }
-
-  temp_type = frame.getVarType(e_array->ident_);
-  visitIdent(e_array->ident_);
-  if (e_array->expr_) e_array->expr_->accept(this);
-=======
 void JLCTypeChecker::visitEArrayNew(EArrayNew *e_array_new)
 {
   /* Code For EArrayNew Goes Here */
@@ -578,12 +514,20 @@ void JLCTypeChecker::visitEArrayLen(EArrayLen *e_array_len)
 {
   /* Code For EArrayLen Goes Here */
 
-  if (e_array_len->expr_) e_array_len->expr_->accept(this);
+  if (e_array_len->expr_1) e_array_len->expr_1->accept(this);
   auto temp_type_2 = temp_type;
   if(temp_type_2!= INTARRAY && temp_type_2 != DOUBARRAY && temp_type_2 != BOOLARRAY ){
     std::cerr << "ERROR: Array Variable  is not declared.\n";
     exit(1);
   }
+  auto &frame = globalContext.currentFrame();
+  frame.newBlock();
+  if(!frame.isExistVar("length")){
+    frame.addVar("length",UNDEFINED);
+  }
+  
+  if (e_array_len->expr_2) e_array_len->expr_2->accept(this);
+  frame.releaseBlock();
   temp_type = INT;
 
 }
@@ -597,21 +541,17 @@ void JLCTypeChecker::visitEArray(EArray *e_array)
   if (e_array->expr_1) e_array->expr_1->accept(this);
   auto temp_type_2 = temp_type;
   if (e_array->expr_2) e_array->expr_2->accept(this);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/typechecker/JLCTypeChecker.C
   if(temp_type!=INT){
     std::cerr << "ERROR: type for operation [] can just be int\n";
     exit(1);
   }
 
-<<<<<<< HEAD:src/front_end/JLCTypeChecker.C
-=======
   temp_type = temp_type_2;
   if(temp_type == INTARRAY) temp_type = INT;
   if(temp_type == DOUBARRAY) temp_type = DOUB;
   if(temp_type == BOOLARRAY) temp_type = BOOL;
  
 
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/typechecker/JLCTypeChecker.C
 }
 
 

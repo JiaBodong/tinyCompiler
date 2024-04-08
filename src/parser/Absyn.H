@@ -41,11 +41,7 @@ class BStmt;
 class Decl;
 class NoInit;
 class Init;
-<<<<<<< HEAD:src/front_end/Absyn.H
-class InitArray;
-=======
 class InitElem;
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.H
 class Ass;
 class ArrayAss;
 class Incr;
@@ -55,10 +51,7 @@ class VRet;
 class Cond;
 class CondElse;
 class While;
-<<<<<<< HEAD:src/front_end/Absyn.H
-=======
 class ForBlk;
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.H
 class ForLoop;
 class SExp;
 class Int;
@@ -70,7 +63,6 @@ class DoubArray;
 class BoolArray;
 class Fun;
 class EVar;
-class EArray;
 class ELitInt;
 class ELitDoub;
 class ELitTrue;
@@ -131,11 +123,7 @@ public:
   virtual void visitDecl(Decl *p) = 0;
   virtual void visitNoInit(NoInit *p) = 0;
   virtual void visitInit(Init *p) = 0;
-<<<<<<< HEAD:src/front_end/Absyn.H
-  virtual void visitInitArray(InitArray *p) = 0;
-=======
   virtual void visitInitElem(InitElem *p) = 0;
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.H
   virtual void visitAss(Ass *p) = 0;
   virtual void visitArrayAss(ArrayAss *p) = 0;
   virtual void visitIncr(Incr *p) = 0;
@@ -145,10 +133,7 @@ public:
   virtual void visitCond(Cond *p) = 0;
   virtual void visitCondElse(CondElse *p) = 0;
   virtual void visitWhile(While *p) = 0;
-<<<<<<< HEAD:src/front_end/Absyn.H
-=======
   virtual void visitForBlk(ForBlk *p) = 0;
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.H
   virtual void visitForLoop(ForLoop *p) = 0;
   virtual void visitSExp(SExp *p) = 0;
   virtual void visitInt(Int *p) = 0;
@@ -160,7 +145,6 @@ public:
   virtual void visitBoolArray(BoolArray *p) = 0;
   virtual void visitFun(Fun *p) = 0;
   virtual void visitEVar(EVar *p) = 0;
-  virtual void visitEArray(EArray *p) = 0;
   virtual void visitELitInt(ELitInt *p) = 0;
   virtual void visitELitDoub(ELitDoub *p) = 0;
   virtual void visitELitTrue(ELitTrue *p) = 0;
@@ -527,14 +511,6 @@ public:
   void swap(While &);
 };
 
-<<<<<<< HEAD:src/front_end/Absyn.H
-class ForLoop : public Stmt
-{
-public:
-  Type *type_;
-  Expr *expr_1;
-  Expr *expr_2;
-=======
 class ForBlk : public Stmt
 {
 public:
@@ -554,16 +530,11 @@ public:
 class ForLoop : public Stmt
 {
 public:
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.H
   Stmt *stmt_;
 
   ForLoop(const ForLoop &);
   ForLoop &operator=(const ForLoop &);
-<<<<<<< HEAD:src/front_end/Absyn.H
-  ForLoop(Type *p1, Expr *p2, Expr *p3, Stmt *p4);
-=======
   ForLoop(Stmt *p1);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.H
   ~ForLoop();
   virtual void accept(Visitor *v);
   virtual ForLoop *clone() const;
@@ -613,22 +584,6 @@ public:
   void swap(Init &);
 };
 
-<<<<<<< HEAD:src/front_end/Absyn.H
-class InitArray : public Item
-{
-public:
-  Ident ident_;
-  Type *type_;
-  Expr *expr_;
-
-  InitArray(const InitArray &);
-  InitArray &operator=(const InitArray &);
-  InitArray(Ident p1, Type *p2, Expr *p3);
-  ~InitArray();
-  virtual void accept(Visitor *v);
-  virtual InitArray *clone() const;
-  void swap(InitArray &);
-=======
 class InitElem : public Item
 {
 public:
@@ -642,7 +597,6 @@ public:
   virtual void accept(Visitor *v);
   virtual InitElem *clone() const;
   void swap(InitElem &);
->>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Absyn.H
 };
 
 class Int : public Type
@@ -765,21 +719,6 @@ public:
   void swap(EVar &);
 };
 
-class EArray : public Expr
-{
-public:
-  Ident ident_;
-  Expr *expr_;
-
-  EArray(const EArray &);
-  EArray &operator=(const EArray &);
-  EArray(Ident p1, Expr *p2);
-  ~EArray();
-  virtual void accept(Visitor *v);
-  virtual EArray *clone() const;
-  void swap(EArray &);
-};
-
 class ELitInt : public Expr
 {
 public:
@@ -881,11 +820,12 @@ public:
 class EArrayLen : public Expr
 {
 public:
-  Expr *expr_;
+  Expr *expr_1;
+  Expr *expr_2;
 
   EArrayLen(const EArrayLen &);
   EArrayLen &operator=(const EArrayLen &);
-  EArrayLen(Expr *p1);
+  EArrayLen(Expr *p1, Expr *p2);
   ~EArrayLen();
   virtual void accept(Visitor *v);
   virtual EArrayLen *clone() const;
