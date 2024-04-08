@@ -20,60 +20,89 @@ LLVM_LD_CONFIG = `llvm-config --ldflags --libs --system-libs`
 
 BUILD_DIR := build
 SRC_DIR := src
-FRONT_END_DIR := $(SRC_DIR)/front_end
+
+PARSER_DIR := parser
+TYPECHECKER_DIR := typechecker
+LLVM_DIR := llvm
+COMMON_DIR := common
 
 
-FRONT_END_DIR_CC_FILES := $(wildcard $(FRONT_END_DIR)/*.C)
-# FRONT_END_DIR_cc_FILES will be like: 
-# src/front_end/Absyn.C src/front_end/Buffer.C ...
+PARSER_DIR_H_FILES := $(wildcard $(SRC_DIR)/$(PARSER_DIR)/*.H)
+PARSER_DIR_CC_FILES := $(wildcard $(SRC_DIR)/$(PARSER_DIR)/*.C)
+PARSER_DIR_OBJS := $(patsubst $(SRC_DIR)/$(PARSER_DIR)/%.C, $(BUILD_DIR)/$(PARSER_DIR)/%.o, $(PARSER_DIR_CC_FILES))
 
-FRONT_END_DIR_H_FILES := $(wildcard $(FRONT_END_DIR)/*.H)
-# FRONT_END_DIR_H_FILES will be like:
-# src/front_end/Absyn.H src/front_end/Buffer.H ...
+TYPECHECKER_DIR_H_FILES := $(wildcard $(SRC_DIR)/$(TYPECHECKER_DIR)/*.H)
+TYPECHECKER_DIR_CC_FILES := $(wildcard $(SRC_DIR)/$(TYPECHECKER_DIR)/*.C)
+TYPECHECKER_DIR_OBJS := $(patsubst $(SRC_DIR)/$(TYPECHECKER_DIR)/%.C, $(BUILD_DIR)/$(TYPECHECKER_DIR)/%.o, $(TYPECHECKER_DIR_CC_FILES))
 
-# generate the object files under the build directory
-FRONT_END_DIR_OBJS := $(patsubst $(FRONT_END_DIR)/%.C, $(BUILD_DIR)/%.o, $(FRONT_END_DIR_CC_FILES))
-# FRONT_END_DIR_OBJS will be like:
-# build/Absyn.o build/Buffer.o ...
+LLVM_DIR_H_FILES := $(wildcard $(SRC_DIR)/$(LLVM_DIR)/*.H)
+LLVM_DIR_CC_FILES := $(wildcard $(SRC_DIR)/$(LLVM_DIR)/*.C)
+LLVM_DIR_OBJS := $(patsubst $(SRC_DIR)/$(LLVM_DIR)/%.C, $(BUILD_DIR)/$(LLVM_DIR)/%.o, $(LLVM_DIR_CC_FILES))
 
-UTILS_DIR := $(SRC_DIR)/utils
-UTILS_DIR_H_FILES := $(wildcard $(UTILS_DIR)/*.h)
-UTILS_DIR_CC_FILES := $(wildcard $(UTILS_DIR)/*.cpp)
-UTILS_DIR_OBJS := $(patsubst $(UTILS_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(UTILS_DIR_CC_FILES))
+COMMON_DIR_H_FILES := $(wildcard $(SRC_DIR)/$(COMMON_DIR)/*.H)
+COMMON_DIR_CC_FILES := $(wildcard $(SRC_DIR)/$(COMMON_DIR)/*.C)
+COMMON_DIR_OBJS := $(patsubst $(SRC_DIR)/$(COMMON_DIR)/%.C, $(BUILD_DIR)/$(COMMON_DIR)/%.o, $(COMMON_DIR_CC_FILES))
 
-HEADERS := $(FRONT_END_DIR_H_FILES) $(UTILS_DIR_H_FILES)
 
-OBJS := $(FRONT_END_DIR_OBJS) $(UTILS_DIR_OBJS)
+HEADERS := $(PARSER_DIR_H_FILES) \
+		   $(TYPECHECKER_DIR_H_FILES) \
+		   $(LLVM_DIR_H_FILES) \
+		   $(COMMON_DIR_H_FILES)
 
-CC_INCLUDES := -I$(FRONT_END_DIR) -I$(UTILS_DIR)
+OBJS := $(PARSER_DIR_OBJS) \
+		$(TYPECHECKER_DIR_OBJS) \
+		$(LLVM_DIR_OBJS) \
+		$(COMMON_DIR_OBJS)
 
+# debug 
+# run with DEBUG flag: make DEBUG=1
+ifdef DETAIL
+$(info "PARSER_DIR_OBJS:"$(PARSER_DIR_OBJS))
+$(info "TYPECHECKER_DIR_OBJS:"$(TYPECHECKER_DIR_OBJS))
+$(info "LLVM_DIR_OBJS:"$(LLVM_DIR_OBJS))
+$(info "COMMON_DIR_OBJS:"$(COMMON_DIR_OBJS))
+endif
+
+
+
+CC_INCLUDES := -I$(SRC_DIR) \
+			   -I$(SRC_DIR)/$(PARSER_DIR) \
+			   -I$(SRC_DIR)/$(TYPECHECKER_DIR) \
+			   -I$(SRC_DIR)/$(LLVM_DIR) \
+			   -I$(SRC_DIR)/$(COMMON_DIR)
 
 .PHONY : clean all
 
 all: clean jlc
 
 clean:
-	mkdir -p $(BUILD_DIR)
 	rm -rf $(BUILD_DIR)/*
 	rm -rf jlc
+	mkdir -p $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)/$(PARSER_DIR)
+	mkdir -p $(BUILD_DIR)/$(TYPECHECKER_DIR)
+	mkdir -p $(BUILD_DIR)/$(LLVM_DIR)
+	mkdir -p $(BUILD_DIR)/$(COMMON_DIR)
 
-
-
-run_parser_test: TestJavalette
-	./$(BUILD_DIR)/TestJavalette test/parser/test_1.jl
-
-# special c flag for Lexer.o
-$(BUILD_DIR)/Lexer.o : $(FRONT_END_DIR)/Lexer.C $(FRONT_END_DIR)/Bison.H 
-	$(CC) $(CCFLAGS) -Wno-sign-conversion $(CC_INCLUDES) -c $< -o $@;
-
-$(BUILD_DIR)/JLCLLVMGenerator.o : $(FRONT_END_DIR)/JLCLLVMGenerator.C $(FRONT_END_DIR)/JLCLLVMGenerator.H
-	$(CC) $(CCFLAGS) $(CC_INCLUDES) $(LLVM_CC_CONFIG) -c $< -o $@;
 
 # generate the object files
-$(BUILD_DIR)/%.o: $(FRONT_END_DIR)/%.C $(HEADERS) 
-	$(CC) $(CCFLAGS) $(CC_INCLUDES) -c $< -o $@; \
+$(BUILD_DIR)/$(COMMON_DIR)/%.o: $(SRC_DIR)/$(COMMON_DIR)/%.C $(HEADERS) 
+	$(CC) $(CCFLAGS) $(CC_INCLUDES) -c $< -o $@;
+
+$(BUILD_DIR)/$(PARSER_DIR)/%.o: $(SRC_DIR)/$(PARSER_DIR)/%.C $(HEADERS)
+	$(CC) $(CCFLAGS) $(CC_INCLUDES) -c $< -o $@;
+
+# special c flag for Lexer.o
+$(BUILD_DIR)/$(PARSER_DIR)/Lexer.o : $(SRC_DIR)/$(PARSER_DIR)/Lexer.C $(SRC_DIR)/$(PARSER_DIR)/Bison.H 
+	$(CC) $(CCFLAGS) -Wno-sign-conversion $(CC_INCLUDES) -c $< -o $@;
+
+$(BUILD_DIR)/$(TYPECHECKER_DIR)/%.o: $(SRC_DIR)/$(TYPECHECKER_DIR)/%.C $(HEADERS)
+	$(CC) $(CCFLAGS) $(CC_INCLUDES) -c $< -o $@;
+
+$(BUILD_DIR)/$(LLVM_DIR)/%.o: $(SRC_DIR)/$(LLVM_DIR)/%.C $(HEADERS)
+	$(CC) $(CCFLAGS) $(CC_INCLUDES) $(LLVM_CC_CONFIG) -c $< -o $@;
 	
-	
+
 # this target is used to generate the jlc executable, 
 # output to the root directory directly.
 jlc: $(OBJS) $(SRC_DIR)/jlc.cpp
