@@ -67,31 +67,39 @@ extern int javalette_debug;
     _COMMA = 268,                  /* _COMMA  */
     _MINUS = 269,                  /* _MINUS  */
     _DMINUS = 270,                 /* _DMINUS  */
-    _SLASH = 271,                  /* _SLASH  */
-    _SEMI = 272,                   /* _SEMI  */
-    _LT = 273,                     /* _LT  */
-    _LDARROW = 274,                /* _LDARROW  */
-    _EQ = 275,                     /* _EQ  */
-    _DEQ = 276,                    /* _DEQ  */
-    _GT = 277,                     /* _GT  */
-    _GTEQ = 278,                   /* _GTEQ  */
-    _KW_boolean = 279,             /* _KW_boolean  */
-    _KW_double = 280,              /* _KW_double  */
-    _KW_else = 281,                /* _KW_else  */
-    _KW_false = 282,               /* _KW_false  */
-    _KW_if = 283,                  /* _KW_if  */
-    _KW_int = 284,                 /* _KW_int  */
-    _KW_return = 285,              /* _KW_return  */
-    _KW_true = 286,                /* _KW_true  */
-    _KW_void = 287,                /* _KW_void  */
-    _KW_while = 288,               /* _KW_while  */
-    _LBRACE = 289,                 /* _LBRACE  */
-    _DBAR = 290,                   /* _DBAR  */
-    _RBRACE = 291,                 /* _RBRACE  */
-    _STRING_ = 292,                /* _STRING_  */
-    _INTEGER_ = 293,               /* _INTEGER_  */
-    _DOUBLE_ = 294,                /* _DOUBLE_  */
-    _IDENT_ = 295                  /* _IDENT_  */
+    _DOT = 271,                    /* _DOT  */
+    _SLASH = 272,                  /* _SLASH  */
+    _COLON = 273,                  /* _COLON  */
+    _SEMI = 274,                   /* _SEMI  */
+    _LT = 275,                     /* _LT  */
+    _LDARROW = 276,                /* _LDARROW  */
+    _EQ = 277,                     /* _EQ  */
+    _DEQ = 278,                    /* _DEQ  */
+    _GT = 279,                     /* _GT  */
+    _GTEQ = 280,                   /* _GTEQ  */
+    _LBRACK = 281,                 /* _LBRACK  */
+    _EMPTYBRACK = 282,             /* _EMPTYBRACK  */
+    _RBRACK = 283,                 /* _RBRACK  */
+    _KW_boolean = 284,             /* _KW_boolean  */
+    _KW_double = 285,              /* _KW_double  */
+    _KW_else = 286,                /* _KW_else  */
+    _KW_false = 287,               /* _KW_false  */
+    _KW_for = 288,                 /* _KW_for  */
+    _KW_if = 289,                  /* _KW_if  */
+    _KW_int = 290,                 /* _KW_int  */
+    _KW_length = 291,              /* _KW_length  */
+    _KW_new = 292,                 /* _KW_new  */
+    _KW_return = 293,              /* _KW_return  */
+    _KW_true = 294,                /* _KW_true  */
+    _KW_void = 295,                /* _KW_void  */
+    _KW_while = 296,               /* _KW_while  */
+    _LBRACE = 297,                 /* _LBRACE  */
+    _DBAR = 298,                   /* _DBAR  */
+    _RBRACE = 299,                 /* _RBRACE  */
+    _STRING_ = 300,                /* _STRING_  */
+    _INTEGER_ = 301,               /* _INTEGER_  */
+    _DOUBLE_ = 302,                /* _DOUBLE_  */
+    _IDENT_ = 303                  /* _IDENT_  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -124,7 +132,7 @@ union YYSTYPE
   MulOp* mulop_;
   RelOp* relop_;
 
-#line 128 "Bison.H"
+#line 136 "Bison.H"
 
 };
 typedef union YYSTYPE YYSTYPE;

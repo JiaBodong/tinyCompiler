@@ -28,11 +28,13 @@ NoInit.    Item ::= Ident ;
 
 Init.      Item ::= Ident "=" Expr ;
 
-InitArray. Item ::= Ident "=" "new" Type "[" [Expr] "]" ; 
+InitElem.  Item ::= Ident ":" Expr ;
 
 separator nonempty Item "," ;
 
 Ass.       Stmt ::= Ident "=" Expr  ";" ;
+
+ArrayAss.  Stmt ::= Expr  "=" Expr  ";" ;
 
 Incr.      Stmt ::= Ident "++"  ";" ;
 
@@ -48,7 +50,9 @@ CondElse.  Stmt ::= "if" "(" Expr ")" Stmt "else" Stmt  ;
 
 While.     Stmt ::= "while" "(" Expr ")" Stmt ;
 
-ForLoop.   Stmt ::= "for" "(" Type Expr ":" Expr ")" Stmt ;
+ForBlk.    Stmt ::= "(" Type Item ")" Stmt ;
+
+ForLoop.   Stmt ::= "for" Stmt ;
 
 SExp.      Stmt ::= Expr  ";" ;
 
@@ -62,11 +66,11 @@ Bool.      Type ::= "boolean" ;
 
 Void.      Type ::= "void" ;
 
-IntArray.  Type ::= "int[]" ;
+IntArray.  Type ::= "int []" ;
 
-DoubArray. Type ::= "double[]" ;
+DoubArray. Type ::= "double []" ;
 
-BoolArray. Type ::= "boolean[]" ;
+BoolArray. Type ::= "boolean []" ;
 
 internal   Fun. Type ::= Type "(" [Type] ")" ;
 
@@ -80,7 +84,7 @@ EArray.    Expr6 ::= Ident "[" [Expr] "]";
 
 ELitInt.   Expr6 ::= Integer ;
 
-ELitDoub.  Expr6 ::= Double;
+ELitDoub.  Expr6 ::= Double ;
 
 ELitTrue.  Expr6 ::= "true" ;
 
@@ -89,6 +93,12 @@ ELitFalse. Expr6 ::= "false" ;
 EApp.      Expr6 ::= Ident "(" [Expr] ")" ;
 
 EString.   Expr6 ::= String ;
+
+EArrayNew. Expr6 ::= "new" Type "[" Expr6 "]" ;
+
+EArrayLen. Expr6 ::= Expr6 "." "length" ;
+
+EArray.    Expr5 ::= Expr6 "[" Expr "]" ;
 
 Neg.       Expr5 ::= "-" Expr6 ;
 

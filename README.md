@@ -1,4 +1,8 @@
 # Javalette Compiler
+# how to update submodule
+```
+git submodule update --init
+```
 
 # For test
 we don't use git submodule here, just clone: https://github.com/TDA283-compiler-construction/project.git
