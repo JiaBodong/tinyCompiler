@@ -65,9 +65,9 @@ int main(int argc, char ** argv)
     JLCTypeChecker *jlcvc = new JLCTypeChecker();
     parse_tree->accept(jlcvc);
     delete(jlcvc);
-    // //JLCLLVMGenerator *jlcg = new JLCLLVMGenerator();
-    // parse_tree->accept(jlcg);
-    // delete(jlcg);
+    JLCLLVMGenerator *jlcg = new JLCLLVMGenerator();
+    parse_tree->accept(jlcg);
+    delete(jlcg);
     delete(parse_tree);
     std::cerr << "OK" << std::endl;
     return 0;
