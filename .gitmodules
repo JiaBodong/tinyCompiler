@@ -1,0 +1,3 @@
+[submodule "submodules/project"]
+	path = submodules/project
+	url = https://github.com/TDA283-compiler-construction/project.git
