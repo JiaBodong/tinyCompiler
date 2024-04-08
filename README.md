@@ -96,9 +96,10 @@ python3 testing.py path/to/submission
 - [x] add return 
   - [x] return
   - [x] void return
-- [ ] if, if/else, while
-  - [ ] if
-
+- [x] if, if/else, while
+  - [x] if
+  - [x] if else
+  - [x] while
 
 - [x] add debug script to generate linked bc file
 

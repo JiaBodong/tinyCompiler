@@ -1,7 +1,8 @@
-int main() {
-    p();
-    printInt(1);
-    return 0;
+int main () {
+int i = 0 ;
+while (i < 10) {
+i++ ;
 }
-
-void p() {}
+printInt(i);
+return 0 ;
+}

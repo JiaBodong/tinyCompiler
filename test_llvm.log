@@ -19,13 +19,13 @@ About to run tests with these settings:
 [ 11/123] testsuite/good/assignedargument ... OK
 [ 12/123] testsuite/good/core020    ... OK
 [ 13/123] testsuite/good/core018    ... OK
-[ 14/123] testsuite/good/core019    ... FAILED
+[ 14/123] testsuite/good/core019    ... OK
 [ 15/123] testsuite/good/registers1 ... OK
-[ 16/123] testsuite/good/core010    ... FAILED
+[ 16/123] testsuite/good/core010    ... OK
 [ 17/123] testsuite/good/core028    ... OK
 [ 18/123] testsuite/good/core007    ... OK
 [ 19/123] testsuite/good/intarith5  ... OK
-[ 20/123] testsuite/good/intarith4  ... FAILED
+[ 20/123] testsuite/good/intarith4  ... OK
 [ 21/123] testsuite/good/core006    ... OK
 [ 22/123] testsuite/good/core029    ... OK
 [ 23/123] testsuite/good/core011    ... OK
@@ -36,16 +36,16 @@ About to run tests with these settings:
 [ 28/123] testsuite/good/order_binop ... OK
 [ 29/123] testsuite/good/core012    ... OK
 [ 30/123] testsuite/good/order_binop2 ... OK
-[ 31/123] testsuite/good/core001    ... FAILED
-[ 32/123] testsuite/good/intarith3  ... FAILED
-[ 33/123] testsuite/good/core016    ... FAILED
+[ 31/123] testsuite/good/core001    ... OK
+[ 32/123] testsuite/good/intarith3  ... OK
+[ 33/123] testsuite/good/core016    ... OK
 [ 34/123] testsuite/good/core017    ... OK
 [ 35/123] testsuite/good/stack1     ... OK
-[ 36/123] testsuite/good/intarith   ... FAILED
-[ 37/123] testsuite/good/intarith2  ... FAILED
+[ 36/123] testsuite/good/intarith   ... OK
+[ 37/123] testsuite/good/intarith2  ... OK
 [ 38/123] testsuite/good/core002    ... OK
 [ 39/123] testsuite/good/core015    ... OK
-[ 40/123] testsuite/good/core014    ... FAILED
+[ 40/123] testsuite/good/core014    ... OK
 [ 41/123] testsuite/good/stack2     ... OK
 [ 42/123] testsuite/good/order_fun  ... OK
 [ 43/123] testsuite/bad/bad022      ... OK
@@ -131,152 +131,5 @@ About to run tests with these settings:
 [123/123] testsuite/bad/bad063      ... OK
 
 
-Some tests failed:
----------- !!! testsuite/good/core019.jl failed !!! ----------
-
-- stdout expected:
-    1
-    78
-    77
-    84
-    76
-    83
-    76
-    4
-    76
-- stdout actual:
-    1
-    78
-    77
-    84
-    77
-    4
-    77
-
----------- !!! testsuite/good/core010.jl failed !!! ----------
-
-- stdout expected:
-    120
-- stdout actual:
-    5
-
----------- !!! testsuite/good/intarith4.jl failed !!! ----------
-
-- stdout expected:
-    5040
-    5040
-- stdout actual:
-    1
-    5040
-
----------- !!! testsuite/good/core001.jl failed !!! ----------
-
-- stdout expected:
-    3628800
-    3628800
-    3628800
-    3628800
-    3628800
-    3628800.0
-    hello */
-    /* world
-- stdout actual:
-    10
-    3628800
-    3628800
-    3628800
-    10
-    3628800.0
-    hello */
-    /* world
-
----------- !!! testsuite/good/intarith3.jl failed !!! ----------
-
-- stdout expected:
-    0
-    2
-    4
-    6
-    8
-- stdout actual:
-    0
-
----------- !!! testsuite/good/core016.jl failed !!! ----------
-
-- stdout expected:
-    0
-- stdout actual:
-    1
-
----------- !!! testsuite/good/intarith.jl failed !!! ----------
-
-- stdout expected:
-    5
-    4
-    3
-    2
-    1
-    0
-- stdout actual:
-    5
-    4
-
----------- !!! testsuite/good/intarith2.jl failed !!! ----------
-
-- stdout expected:
-    10
-    9
-    8
-    7
-    6
-    5
-    4
-    3
-    2
-    1
-    0
-- stdout actual:
-    10
-    0
-
----------- !!! testsuite/good/core014.jl failed !!! ----------
-
-- stdout expected:
-    1
-    1
-    2
-    3
-    5
-    8
-    13
-    21
-    34
-    55
-    89
-    144
-    233
-    377
-    610
-    987
-    1597
-    2584
-    4181
-    6765
-    10946
-    17711
-    28657
-    46368
-    75025
-    121393
-    196418
-    317811
-    514229
-    832040
-    1346269
-    2178309
-    3524578
-- stdout actual:
-    1
-    1
-
+All tests succeeded.
 /chalmers/users/chenhon/lab-group-22

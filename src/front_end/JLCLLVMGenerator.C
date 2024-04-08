@@ -434,10 +434,34 @@ void JLCLLVMGenerator::visitCondElse(CondElse *cond_else)
 void JLCLLVMGenerator::visitWhile(While *while_)
 {
   /* Code For While Goes Here */
+  auto current_block = LLVM_builder_->GetInsertBlock();
+  auto parent = current_block->getParent();
+  auto cond_block = llvm::BasicBlock::Create(
+      *LLVM_Context_, "while.cond", parent);
+  auto loop_block = llvm::BasicBlock::Create(
+      *LLVM_Context_, "while.loop", parent);
+  auto end_block = llvm::BasicBlock::Create(
+      *LLVM_Context_, "while.end", parent);
 
+  // jump to the cond block
+  LLVM_builder_->CreateBr(cond_block);
+  LLVM_builder_->SetInsertPoint(cond_block);
   if (while_->expr_) while_->expr_->accept(this);
+  auto expr_llvm_value = llvm_temp_value_;
+  // jump to the loop block or end block
+  LLVM_builder_->CreateCondBr(expr_llvm_value, loop_block, end_block);
+  LLVM_builder_->SetInsertPoint(loop_block);
+  // create a new block for the loop
+  auto func = globalContext.currentFrame();
+  func.newBlock(); // just logic block, no need to create a label
+  addBlockVarMap();// just logic block, no need to create a label
   if (while_->stmt_) while_->stmt_->accept(this);
-
+  auto stmt_llvm_value = llvm_temp_value_;
+  LLVM_builder_->CreateBr(cond_block);
+  func.releaseBlock(); // release the logic block
+  removeBlockVarMap(); // release the logic block
+  // end block
+  LLVM_builder_->SetInsertPoint(end_block);
 }
 
 void JLCLLVMGenerator::visitSExp(SExp *s_exp)
