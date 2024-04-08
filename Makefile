@@ -114,8 +114,23 @@ jlc: $(OBJS) $(SRC_DIR)/jlc.cpp
 # thus, we generate it manually.
 # also we have to modify the generated files to make it work.
 # complie .Cf files
+FLEX = flex
+FLEX_OPTS = -Pjavalette_
+BISON = bison
+BISON_OPTS = -t -pjavalette_
+
 CF_FILE=$(SRC_DIR)/Javalette.cf
 generate_parser:
-	bnfc -m --cpp $(CF_FILE) -o $(BUILD_DIR)
-	cd $(BUILD_DIR) && make
-	cd -
+	@echo "clean the parser directory..."
+	rm -rf $(SRC_DIR)/$(PARSER_DIR)/*
+	@echo "Generating parser..."
+	bnfc -m --cpp $(CF_FILE) -o $(SRC_DIR)/$(PARSER_DIR)
+	@echo "Generating parser done."
+
+	@echo "generate the Lexer.C and Parser.C files..."
+	cd $(SRC_DIR)/$(PARSER_DIR) && \
+	${FLEX} ${FLEX_OPTS} -oLexer.C Javalette.l && \
+	${BISON} ${BISON_OPTS} Javalette.y \
+		-o Parser.C
+	# remove the Test.C file
+	rm -f $(SRC_DIR)/$(PARSER_DIR)/Test.C
