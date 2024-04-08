@@ -23,7 +23,6 @@ class JLCLLVMGenerator : public Skeleton
 public:
   Context globalContext;
   type_enum temp_type;
-  bool isReturnStmt;
   op_enum temp_op;
   std::string temp_ident;
 
@@ -47,13 +46,29 @@ private:
 
   llvm::Value * llvm_temp_value_;
 
-  int block_id = 0;
-  std::vector<std::map<std::string, llvm::Value *>> block_var_map_list;
+  // for saving the block of the value
+  // @TODO: there are should be a better way to do this
+  std::map<std::string,llvm::BasicBlock *> value_block_map_; 
 
-  std::string getBlockName(){
-    if (block_id == 0) return "entry";
-    return "l" + std::to_string(block_id++);
+  void setLLVMTempValue(llvm::Value * value){
+    llvm_temp_value_ = value;
+    // add the block of the value to the map
+    value_block_map_[std::string(value->getName())] = LLVM_builder_->GetInsertBlock();
   }
+  
+  llvm::BasicBlock * getBlockOfValue(llvm::Value * & value){
+    if (value_block_map_.find(std::string(value->getName())) != value_block_map_.end()){
+      return value_block_map_[std::string(value->getName())];
+    }
+    // should not reach here
+    std::cerr << "Error: block of value not found" << std::endl;
+    exit(1);
+    return nullptr;
+  }
+
+  // for saving the variable in the block, the last element is the current block
+  // mapping from original variable name to llvm variable 
+  std::vector<std::map<std::string, llvm::Value *>> block_var_map_list;
 
   void addBlockVarMap(){
     block_var_map_list.push_back(std::map<std::string, llvm::Value *>());
@@ -85,7 +100,6 @@ private:
   void addExternalFunc();
 
   void addFuncDeclearation(Frame &frame);
-
 
 public:
   // void visitProg(Prog *p);

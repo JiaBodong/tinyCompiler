@@ -6,19 +6,19 @@ About to run tests with these settings:
   Backends:   ['llvm']
   Extensions: None
 
-[  1/123] testsuite/good/core032    ... FAILED
+[  1/123] testsuite/good/core032    ... OK
 [  2/123] testsuite/good/core024    ... OK
-[  3/123] testsuite/good/core031    ... FAILED
+[  3/123] testsuite/good/core031    ... OK
 [  4/123] testsuite/good/core009    ... OK
 [  5/123] testsuite/good/core008    ... OK
-[  6/123] testsuite/good/core027    ... FAILED
-[  7/123] testsuite/good/core030    ... FAILED
-[  8/123] testsuite/good/core023    ... FAILED
-[  9/123] testsuite/good/registers2 ... FAILED
+[  6/123] testsuite/good/core027    ... OK
+[  7/123] testsuite/good/core030    ... OK
+[  8/123] testsuite/good/core023    ... OK
+[  9/123] testsuite/good/registers2 ... OK
 [ 10/123] testsuite/good/core022    ... OK
 [ 11/123] testsuite/good/assignedargument ... OK
 [ 12/123] testsuite/good/core020    ... OK
-[ 13/123] testsuite/good/core018    ... FAILED
+[ 13/123] testsuite/good/core018    ... OK
 [ 14/123] testsuite/good/core019    ... FAILED
 [ 15/123] testsuite/good/registers1 ... OK
 [ 16/123] testsuite/good/core010    ... FAILED
@@ -27,19 +27,19 @@ About to run tests with these settings:
 [ 19/123] testsuite/good/intarith5  ... OK
 [ 20/123] testsuite/good/intarith4  ... FAILED
 [ 21/123] testsuite/good/core006    ... OK
-[ 22/123] testsuite/good/core029    ... FAILED
+[ 22/123] testsuite/good/core029    ... OK
 [ 23/123] testsuite/good/core011    ... OK
-[ 24/123] testsuite/good/core013    ... FAILED
-[ 25/123] testsuite/good/core004    ... FAILED
-[ 26/123] testsuite/good/core005    ... FAILED
+[ 24/123] testsuite/good/core013    ... OK
+[ 25/123] testsuite/good/core004    ... OK
+[ 26/123] testsuite/good/core005    ... OK
 [ 27/123] testsuite/good/shadowedfunction ... OK
 [ 28/123] testsuite/good/order_binop ... OK
-[ 29/123] testsuite/good/core012    ... FAILED
+[ 29/123] testsuite/good/core012    ... OK
 [ 30/123] testsuite/good/order_binop2 ... OK
 [ 31/123] testsuite/good/core001    ... FAILED
 [ 32/123] testsuite/good/intarith3  ... FAILED
 [ 33/123] testsuite/good/core016    ... FAILED
-[ 34/123] testsuite/good/core017    ... FAILED
+[ 34/123] testsuite/good/core017    ... OK
 [ 35/123] testsuite/good/stack1     ... OK
 [ 36/123] testsuite/good/intarith   ... FAILED
 [ 37/123] testsuite/good/intarith2  ... FAILED
@@ -132,86 +132,33 @@ About to run tests with these settings:
 
 
 Some tests failed:
----------- !!! testsuite/good/core032.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
-
----------- !!! testsuite/good/core031.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    jlc: /chalmers/sw/sup64/llvm-16.0.5/dist/llvm-project-16/llvm/lib/IR/Instructions.cpp:2908: void llvm::BinaryOperator::AssertOK(): Assertion `getType()->isIntOrIntVectorTy() && "Incorrect operand type (not integer) for S/UDIV"' failed.
-- compiler return code info:
-    compiler return code: -6, 0 expected
-
----------- !!! testsuite/good/core027.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
-
----------- !!! testsuite/good/core030.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    jlc: /chalmers/sw/sup64/llvm-16.0.5/dist/llvm-project-16/llvm/lib/IR/Instructions.cpp:2893: void llvm::BinaryOperator::AssertOK(): Assertion `getType()->isIntOrIntVectorTy() && "Tried to create an integer operation on a non-integer type!"' failed.
-- compiler return code info:
-    compiler return code: -6, 0 expected
-
----------- !!! testsuite/good/core023.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
-
----------- !!! testsuite/good/registers2.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    jlc: /chalmers/sw/sup64/llvm-16.0.5/dist/llvm-project-16/llvm/lib/IR/Instructions.cpp:2908: void llvm::BinaryOperator::AssertOK(): Assertion `getType()->isIntOrIntVectorTy() && "Incorrect operand type (not integer) for S/UDIV"' failed.
-- compiler return code info:
-    compiler return code: -6, 0 expected
-
----------- !!! testsuite/good/core018.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    jlc: /nfs4/sol.ita.chalmers.se/ufs/groups/manual20/sup_de/sup64/llvm-16.0.5/include/llvm/IR/Instructions.h:1204: void llvm::ICmpInst::AssertOK(): Assertion `(getOperand(0)->getType()->isIntOrIntVectorTy() || getOperand(0)->getType()->isPtrOrPtrVectorTy()) && "Invalid operand types for ICmp instruction"' failed.
-- compiler return code info:
-    compiler return code: -6, 0 expected
-
 ---------- !!! testsuite/good/core019.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
+- stdout expected:
+    1
+    78
+    77
+    84
+    76
+    83
+    76
+    4
+    76
+- stdout actual:
+    1
+    78
+    77
+    7
+    77
+    4
+    77
 
 ---------- !!! testsuite/good/core010.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
+- stdout expected:
+    120
+- stdout actual:
+    5
 
 ---------- !!! testsuite/good/intarith4.jl failed !!! ----------
 
@@ -221,42 +168,6 @@ Some tests failed:
     Error: function block does not have a return statement
 - compiler return code info:
     compiler return code: 1, 0 expected
-
----------- !!! testsuite/good/core029.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    jlc: /nfs4/sol.ita.chalmers.se/ufs/groups/manual20/sup_de/sup64/llvm-16.0.5/include/llvm/IR/Instructions.h:1204: void llvm::ICmpInst::AssertOK(): Assertion `(getOperand(0)->getType()->isIntOrIntVectorTy() || getOperand(0)->getType()->isPtrOrPtrVectorTy()) && "Invalid operand types for ICmp instruction"' failed.
-- compiler return code info:
-    compiler return code: -6, 0 expected
-
----------- !!! testsuite/good/core004.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
-
----------- !!! testsuite/good/core005.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
-
----------- !!! testsuite/good/core012.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    jlc: /chalmers/sw/sup64/llvm-16.0.5/dist/llvm-project-16/llvm/lib/IR/Constants.cpp:2282: static llvm::Constant* llvm::ConstantExpr::get(unsigned int, llvm::Constant*, llvm::Constant*, unsigned int, llvm::Type*): Assertion `C1->getType()->isIntOrIntVectorTy() && "Tried to create an integer operation on a non-integer type!"' failed.
-- compiler return code info:
-    compiler return code: -6, 0 expected
 
 ---------- !!! testsuite/good/core001.jl failed !!! ----------
 
@@ -269,14 +180,16 @@ Some tests failed:
 
 ---------- !!! testsuite/good/intarith3.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
+- stdout expected:
+    0
+    2
+    4
+    6
+    8
+- stdout actual:
+    0
 
----------- !!! testsuite/good/core017.jl failed !!! ----------
+---------- !!! testsuite/good/core016.jl failed !!! ----------
 
 - stderr expected:
     OK
@@ -287,15 +200,37 @@ Some tests failed:
 
 ---------- !!! testsuite/good/intarith.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
+- stdout expected:
+    5
+    4
+    3
+    2
+    1
+    0
+- stdout actual:
+    5
+    4
 
 ---------- !!! testsuite/good/intarith2.jl failed !!! ----------
 
+- stdout expected:
+    10
+    9
+    8
+    7
+    6
+    5
+    4
+    3
+    2
+    1
+    0
+- stdout actual:
+    10
+    0
+
+---------- !!! testsuite/good/core015.jl failed !!! ----------
+
 - stderr expected:
     OK
 - stderr actual:
@@ -303,42 +238,51 @@ Some tests failed:
 - compiler return code info:
     compiler return code: 1, 0 expected
 
----------- !!! testsuite/good/core015.jl failed !!! ----------
+---------- !!! testsuite/good/core014.jl failed !!! ----------
+
+- stdout expected:
+    1
+    1
+    2
+    3
+    5
+    8
+    13
+    21
+    34
+    55
+    89
+    144
+    233
+    377
+    610
+    987
+    1597
+    2584
+    4181
+    6765
+    10946
+    17711
+    28657
+    46368
+    75025
+    121393
+    196418
+    317811
+    514229
+    832040
+    1346269
+    2178309
+    3524578
+- stdout actual:
+    1
+    1
+
+---------- !!! testsuite/good/stack2.jl failed !!! ----------
 
 - stdout expected:
     0
 - stdout actual:
-
-
----------- !!! testsuite/good/core014.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
-
-Some tests caused build failures:
----------- !!! testsuite/good/core013.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:117:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/core016.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:26:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
-
----------- !!! testsuite/good/stack2.jl failed !!! ----------
-
-    llvm-as failed with:
-    llvm-as: <stdin>:41:1: error: expected instruction opcode
-    l1:                                               ; No predecessors!
-    ^
+    -1005149776
 
 /chalmers/users/chenhon/lab-group-22
