@@ -1,4 +1,8 @@
 # Javalette Compiler
+# how to update submodule
+```
+git submodule update --init
+```
 
 # For test
 we don't use git submodule here, just clone: https://github.com/TDA283-compiler-construction/project.git
@@ -80,5 +84,41 @@ python3 testing.py path/to/submission
 - [x] bad012: return check
 
 
+# LLVM Backend
+- [x] variable definition and initialization
+- [x] sting
+- [x] add basic operation
+  - [x] add, sub
+  - [x] mul, mod, div
+  - [x] Neg
+  - [x] Not ?@TODO, have to double check the result. 
+  - [x] Incre, Decre
+  - [x] logic op
+    - [x] others 
+    - [x] and , or : short-circui evaluation @TODO
+- [x] add function call
+- [x] add return 
+  - [x] return
+  - [x] void return
+- [x] if, if/else, while
+  - [x] if
+  - [x] if else
+  - [x] while
 
-qa: what about  variable name is equal to function name
+- [x] add debug script to generate linked bc file
+
+# QA:
+
+## undefined operation: 
+- [ ] printInt(x++);
+- [x] what about variable name is same as a function name -> see core020.jl
+
+- [x] Short-circui evaluation:
+```c
+int main () {
+  int a =1,b =2;
+  if(a<0 && b>0){
+    a = 1;
+  }
+}
+```

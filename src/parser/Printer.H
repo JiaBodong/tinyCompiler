@@ -54,6 +54,7 @@ class PrintAbsyn : public Visitor
   void visitBStmt(BStmt *p);
   void visitDecl(Decl *p);
   void visitAss(Ass *p);
+  void visitArrayAss(ArrayAss *p);
   void visitIncr(Incr *p);
   void visitDecr(Decr *p);
   void visitRet(Ret *p);
@@ -61,12 +62,20 @@ class PrintAbsyn : public Visitor
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
   void visitWhile(While *p);
+<<<<<<< HEAD:src/front_end/Printer.H
+=======
+  void visitForBlk(ForBlk *p);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.H
   void visitForLoop(ForLoop *p);
   void visitSExp(SExp *p);
   void visitItem(Item *p); /* abstract class */
   void visitNoInit(NoInit *p);
   void visitInit(Init *p);
+<<<<<<< HEAD:src/front_end/Printer.H
   void visitInitArray(InitArray *p);
+=======
+  void visitInitElem(InitElem *p);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.H
   void visitListItem(ListItem *p);
   void iterListItem(ListItem::const_iterator i, ListItem::const_iterator j);
   void visitType(Type *p); /* abstract class */
@@ -89,6 +98,9 @@ class PrintAbsyn : public Visitor
   void visitELitFalse(ELitFalse *p);
   void visitEApp(EApp *p);
   void visitEString(EString *p);
+  void visitEArrayNew(EArrayNew *p);
+  void visitEArrayLen(EArrayLen *p);
+  void visitEArray(EArray *p);
   void visitNeg(Neg *p);
   void visitNot(Not *p);
   void visitEMul(EMul *p);
@@ -199,6 +211,7 @@ class ShowAbsyn : public Visitor
   void visitBStmt(BStmt *p);
   void visitDecl(Decl *p);
   void visitAss(Ass *p);
+  void visitArrayAss(ArrayAss *p);
   void visitIncr(Incr *p);
   void visitDecr(Decr *p);
   void visitRet(Ret *p);
@@ -206,12 +219,20 @@ class ShowAbsyn : public Visitor
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
   void visitWhile(While *p);
+<<<<<<< HEAD:src/front_end/Printer.H
+=======
+  void visitForBlk(ForBlk *p);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.H
   void visitForLoop(ForLoop *p);
   void visitSExp(SExp *p);
   void visitItem(Item *p); /* abstract class */
   void visitNoInit(NoInit *p);
   void visitInit(Init *p);
+<<<<<<< HEAD:src/front_end/Printer.H
   void visitInitArray(InitArray *p);
+=======
+  void visitInitElem(InitElem *p);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.H
   void visitListItem(ListItem *p);
   void iterListItem(ListItem::const_iterator i, ListItem::const_iterator j);
   void visitType(Type *p); /* abstract class */
@@ -234,6 +255,9 @@ class ShowAbsyn : public Visitor
   void visitELitFalse(ELitFalse *p);
   void visitEApp(EApp *p);
   void visitEString(EString *p);
+  void visitEArrayNew(EArrayNew *p);
+  void visitEArrayLen(EArrayLen *p);
+  void visitEArray(EArray *p);
   void visitNeg(Neg *p);
   void visitNot(Not *p);
   void visitEMul(EMul *p);

@@ -67,6 +67,7 @@ extern int javalette_debug;
     _COMMA = 268,                  /* _COMMA  */
     _MINUS = 269,                  /* _MINUS  */
     _DMINUS = 270,                 /* _DMINUS  */
+<<<<<<< HEAD:src/front_end/Bison.H
     _SLASH = 271,                  /* _SLASH  */
     _COLON = 272,                  /* _COLON  */
     _SEMI = 273,                   /* _SEMI  */
@@ -82,12 +83,33 @@ extern int javalette_debug;
     _SYMB_14 = 283,                /* _SYMB_14  */
     _KW_double = 284,              /* _KW_double  */
     _SYMB_13 = 285,                /* _SYMB_13  */
+=======
+    _DOT = 271,                    /* _DOT  */
+    _SLASH = 272,                  /* _SLASH  */
+    _COLON = 273,                  /* _COLON  */
+    _SEMI = 274,                   /* _SEMI  */
+    _LT = 275,                     /* _LT  */
+    _LDARROW = 276,                /* _LDARROW  */
+    _EQ = 277,                     /* _EQ  */
+    _DEQ = 278,                    /* _DEQ  */
+    _GT = 279,                     /* _GT  */
+    _GTEQ = 280,                   /* _GTEQ  */
+    _LBRACK = 281,                 /* _LBRACK  */
+    _EMPTYBRACK = 282,             /* _EMPTYBRACK  */
+    _RBRACK = 283,                 /* _RBRACK  */
+    _KW_boolean = 284,             /* _KW_boolean  */
+    _KW_double = 285,              /* _KW_double  */
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Bison.H
     _KW_else = 286,                /* _KW_else  */
     _KW_false = 287,               /* _KW_false  */
     _KW_for = 288,                 /* _KW_for  */
     _KW_if = 289,                  /* _KW_if  */
     _KW_int = 290,                 /* _KW_int  */
+<<<<<<< HEAD:src/front_end/Bison.H
     _SYMB_12 = 291,                /* _SYMB_12  */
+=======
+    _KW_length = 291,              /* _KW_length  */
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Bison.H
     _KW_new = 292,                 /* _KW_new  */
     _KW_return = 293,              /* _KW_return  */
     _KW_true = 294,                /* _KW_true  */

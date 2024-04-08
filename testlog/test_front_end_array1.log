@@ -1,0 +1,156 @@
+- Running make in /chalmers/users/chenhon/lab-group-22 ... Ok.
+- Checking for executable(s) ...Ok.
+- Checking for runtime(s) ... Ok.
+About to run tests with these settings:
+  Prefix:     jlc
+  Backends:   None (type checking only)
+  Extensions: ['arrays1']
+
+[  1/135] testsuite/good/core032    ... OK
+[  2/135] testsuite/good/core024    ... OK
+[  3/135] testsuite/good/core031    ... OK
+[  4/135] testsuite/good/core009    ... OK
+[  5/135] testsuite/good/core008    ... OK
+[  6/135] testsuite/good/core027    ... OK
+[  7/135] testsuite/good/core030    ... OK
+[  8/135] testsuite/good/core023    ... OK
+[  9/135] testsuite/good/registers2 ... OK
+[ 10/135] testsuite/good/core022    ... OK
+[ 11/135] testsuite/good/assignedargument ... OK
+[ 12/135] testsuite/good/core020    ... OK
+[ 13/135] testsuite/good/core018    ... OK
+[ 14/135] testsuite/good/core019    ... OK
+[ 15/135] testsuite/good/registers1 ... OK
+[ 16/135] testsuite/good/core010    ... OK
+[ 17/135] testsuite/good/core028    ... OK
+[ 18/135] testsuite/good/core007    ... OK
+[ 19/135] testsuite/good/intarith5  ... OK
+[ 20/135] testsuite/good/intarith4  ... OK
+[ 21/135] testsuite/good/core006    ... OK
+[ 22/135] testsuite/good/core029    ... OK
+[ 23/135] testsuite/good/core011    ... OK
+[ 24/135] testsuite/good/core013    ... OK
+[ 25/135] testsuite/good/core004    ... OK
+[ 26/135] testsuite/good/core005    ... OK
+[ 27/135] testsuite/good/shadowedfunction ... OK
+[ 28/135] testsuite/good/order_binop ... OK
+[ 29/135] testsuite/good/core012    ... OK
+[ 30/135] testsuite/good/order_binop2 ... OK
+[ 31/135] testsuite/good/core001    ... OK
+[ 32/135] testsuite/good/intarith3  ... OK
+[ 33/135] testsuite/good/core016    ... OK
+[ 34/135] testsuite/good/core017    ... OK
+[ 35/135] testsuite/good/stack1     ... OK
+[ 36/135] testsuite/good/intarith   ... OK
+[ 37/135] testsuite/good/intarith2  ... OK
+[ 38/135] testsuite/good/core002    ... OK
+[ 39/135] testsuite/good/core015    ... OK
+[ 40/135] testsuite/good/core014    ... OK
+[ 41/135] testsuite/good/stack2     ... OK
+[ 42/135] testsuite/good/order_fun  ... OK
+[ 43/135] testsuite/bad/bad022      ... OK
+[ 44/135] testsuite/bad/bad052      ... OK
+[ 45/135] testsuite/bad/bad045      ... OK
+[ 46/135] testsuite/bad/bad035      ... OK
+[ 47/135] testsuite/bad/array04     ... OK
+[ 48/135] testsuite/bad/array05     ... OK
+[ 49/135] testsuite/bad/bad034      ... OK
+[ 50/135] testsuite/bad/bad044      ... OK
+[ 51/135] testsuite/bad/bad053      ... OK
+[ 52/135] testsuite/bad/bad023      ... OK
+[ 53/135] testsuite/bad/bad051      ... OK
+[ 54/135] testsuite/bad/bad021      ... OK
+[ 55/135] testsuite/bad/bad036      ... OK
+[ 56/135] testsuite/bad/bad069      ... OK
+[ 57/135] testsuite/bad/array07     ... OK
+[ 58/135] testsuite/bad/bad046      ... OK
+[ 59/135] testsuite/bad/bad019      ... OK
+[ 60/135] testsuite/bad/assignedfunction ... OK
+[ 61/135] testsuite/bad/bad018      ... OK
+[ 62/135] testsuite/bad/bad047      ... OK
+[ 63/135] testsuite/bad/array06     ... OK
+[ 64/135] testsuite/bad/bad068      ... OK
+[ 65/135] testsuite/bad/bad037      ... OK
+[ 66/135] testsuite/bad/bad020      ... OK
+[ 67/135] testsuite/bad/bad050      ... OK
+[ 68/135] testsuite/bad/bad033      ... OK
+[ 69/135] testsuite/bad/bad043      ... OK
+[ 70/135] testsuite/bad/bad054      ... OK
+[ 71/135] testsuite/bad/bad025      ... OK
+[ 72/135] testsuite/bad/bad055      ... OK
+[ 73/135] testsuite/bad/bad042      ... OK
+[ 74/135] testsuite/bad/array03     ... OK
+[ 75/135] testsuite/bad/bad032      ... OK
+[ 76/135] testsuite/bad/bad040      ... OK
+[ 77/135] testsuite/bad/array01     ... OK
+[ 78/135] testsuite/bad/bad027      ... OK
+[ 79/135] testsuite/bad/bad008      ... OK
+[ 80/135] testsuite/bad/bad056      ... OK
+[ 81/135] testsuite/bad/bad009      ... OK
+[ 82/135] testsuite/bad/bad026      ... OK
+[ 83/135] testsuite/bad/bad031      ... OK
+[ 84/135] testsuite/bad/bad041      ... OK
+[ 85/135] testsuite/bad/struct04    ... OK
+[ 86/135] testsuite/bad/bad070      ... OK
+[ 87/135] testsuite/bad/bad038      ... OK
+[ 88/135] testsuite/bad/bad067      ... OK
+[ 89/135] testsuite/bad/bad048      ... OK
+[ 90/135] testsuite/bad/bad017      ... OK
+[ 91/135] testsuite/bad/bad016      ... OK
+[ 92/135] testsuite/bad/bad049      ... OK
+[ 93/135] testsuite/bad/bad066      ... OK
+[ 94/135] testsuite/bad/bad039      ... OK
+[ 95/135] testsuite/bad/bad071      ... OK
+[ 96/135] testsuite/bad/bad001      ... OK
+[ 97/135] testsuite/bad/struct05    ... OK
+[ 98/135] testsuite/bad/bad073      ... OK
+[ 99/135] testsuite/bad/bad003      ... OK
+[100/135] testsuite/bad/bad064      ... OK
+[101/135] testsuite/bad/bad065      ... OK
+[102/135] testsuite/bad/bad015      ... OK
+[103/135] testsuite/bad/bad002      ... OK
+[104/135] testsuite/bad/bad072      ... OK
+[105/135] testsuite/bad/bad011      ... OK
+[106/135] testsuite/bad/bad061      ... OK
+[107/135] testsuite/bad/bad029      ... OK
+[108/135] testsuite/bad/bad006      ... OK
+[109/135] testsuite/bad/struct02    ... OK
+[110/135] testsuite/bad/bad059      ... OK
+[111/135] testsuite/bad/bad058      ... OK
+[112/135] testsuite/bad/struct03    ... OK
+[113/135] testsuite/bad/bad007      ... OK
+[114/135] testsuite/bad/bad028      ... OK
+[115/135] testsuite/bad/bad060      ... OK
+[116/135] testsuite/bad/bad010      ... OK
+[117/135] testsuite/bad/bad062      ... OK
+[118/135] testsuite/bad/bad012      ... OK
+[119/135] testsuite/bad/bad005      ... OK
+[120/135] testsuite/bad/bad074      ... OK
+[121/135] testsuite/bad/bad004      ... OK
+[122/135] testsuite/bad/bad013      ... OK
+[123/135] testsuite/bad/bad063      ... OK
+[124/135] testsuite/extensions/arrays1/array006 ... FAILED
+[125/135] testsuite/extensions/arrays1/array_default ... OK
+[126/135] testsuite/extensions/arrays1/array005 ... OK
+[127/135] testsuite/extensions/arrays1/array004 ... OK
+[128/135] testsuite/extensions/arrays1/array001 ... OK
+[129/135] testsuite/extensions/arrays1/array003 ... OK
+[130/135] testsuite/extensions/arrays1/array002 ... OK
+[131/135] testsuite/extensions/arrays1/array008 ... OK
+[132/135] testsuite/extensions/arrays1/array009 ... OK
+[133/135] testsuite/extensions/arrays1/bad/parentheses ... OK
+[134/135] testsuite/extensions/arrays1/bad/bad002 ... OK
+[135/135] testsuite/extensions/arrays1/bad/bad001 ... OK
+
+Some tests failed:
+---------- !!! testsuite/extensions/arrays1/array006.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    error: 2,8: syntax error at length
+    ERROR
+- compiler return code info:
+    compiler return code: 1, 0 expected
+
+/chalmers/users/chenhon/lab-group-22

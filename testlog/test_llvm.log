@@ -3,7 +3,7 @@
 - Checking for runtime(s) ... Ok.
 About to run tests with these settings:
   Prefix:     jlc
-  Backends:   None (type checking only)
+  Backends:   ['llvm']
   Extensions: None
 
 [  1/123] testsuite/good/core032    ... OK
@@ -129,6 +129,7 @@ About to run tests with these settings:
 [121/123] testsuite/bad/bad004      ... OK
 [122/123] testsuite/bad/bad013      ... OK
 [123/123] testsuite/bad/bad063      ... OK
+
 
 All tests succeeded.
 /chalmers/users/chenhon/lab-group-22

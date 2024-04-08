@@ -75,6 +75,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"}"      	 return _RBRACE;
 <INITIAL>";"      	 return _SEMI;
 <INITIAL>"="      	 return _EQ;
+<<<<<<< HEAD:src/front_end/Javalette.l
 <INITIAL>"["      	 return _LBRACK;
 <INITIAL>"]"      	 return _RBRACK;
 <INITIAL>"++"      	 return _DPLUS;
@@ -83,6 +84,15 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"int[]"      	 return _SYMB_12;
 <INITIAL>"double[]"      	 return _SYMB_13;
 <INITIAL>"boolean[]"      	 return _SYMB_14;
+=======
+<INITIAL>":"      	 return _COLON;
+<INITIAL>"++"      	 return _DPLUS;
+<INITIAL>"--"      	 return _DMINUS;
+<INITIAL>"[]"      	 return _EMPTYBRACK;
+<INITIAL>"["      	 return _LBRACK;
+<INITIAL>"]"      	 return _RBRACK;
+<INITIAL>"."      	 return _DOT;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Javalette.l
 <INITIAL>"-"      	 return _MINUS;
 <INITIAL>"!"      	 return _BANG;
 <INITIAL>"&&"      	 return _DAMP;
@@ -104,6 +114,10 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"for"      	 return _KW_for;
 <INITIAL>"if"      	 return _KW_if;
 <INITIAL>"int"      	 return _KW_int;
+<<<<<<< HEAD:src/front_end/Javalette.l
+=======
+<INITIAL>"length"      	 return _KW_length;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Javalette.l
 <INITIAL>"new"      	 return _KW_new;
 <INITIAL>"return"      	 return _KW_return;
 <INITIAL>"true"      	 return _KW_true;

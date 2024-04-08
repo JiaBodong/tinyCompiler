@@ -96,6 +96,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _COMMA       /* , */
 %token          _MINUS       /* - */
 %token          _DMINUS      /* -- */
+%token          _DOT         /* . */
 %token          _SLASH       /* / */
 %token          _COLON       /* : */
 %token          _SEMI        /* ; */
@@ -106,6 +107,10 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _GT          /* > */
 %token          _GTEQ        /* >= */
 %token          _LBRACK      /* [ */
+<<<<<<< HEAD:src/front_end/Javalette.y
+=======
+%token          _EMPTYBRACK  /* [] */
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Javalette.y
 %token          _RBRACK      /* ] */
 %token          _KW_boolean  /* boolean */
 %token          _SYMB_14     /* boolean[] */
@@ -116,7 +121,11 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _KW_for      /* for */
 %token          _KW_if       /* if */
 %token          _KW_int      /* int */
+<<<<<<< HEAD:src/front_end/Javalette.y
 %token          _SYMB_12     /* int[] */
+=======
+%token          _KW_length   /* length */
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Javalette.y
 %token          _KW_new      /* new */
 %token          _KW_return   /* return */
 %token          _KW_true     /* true */
@@ -180,6 +189,7 @@ Stmt : _SEMI { $$ = new Empty(); }
   | Blk { $$ = new BStmt($1); }
   | Type ListItem _SEMI { std::reverse($2->begin(),$2->end()) ;$$ = new Decl($1, $2); }
   | _IDENT_ _EQ Expr _SEMI { $$ = new Ass($1, $3); }
+  | Expr _EQ Expr _SEMI { $$ = new ArrayAss($1, $3); }
   | _IDENT_ _DPLUS _SEMI { $$ = new Incr($1); }
   | _IDENT_ _DMINUS _SEMI { $$ = new Decr($1); }
   | _KW_return Expr _SEMI { $$ = new Ret($2); }
@@ -187,12 +197,21 @@ Stmt : _SEMI { $$ = new Empty(); }
   | _KW_if _LPAREN Expr _RPAREN Stmt { $$ = new Cond($3, $5); }
   | _KW_if _LPAREN Expr _RPAREN Stmt _KW_else Stmt { $$ = new CondElse($3, $5, $7); }
   | _KW_while _LPAREN Expr _RPAREN Stmt { $$ = new While($3, $5); }
+<<<<<<< HEAD:src/front_end/Javalette.y
   | _KW_for _LPAREN Type Expr _COLON Expr _RPAREN Stmt { $$ = new ForLoop($3, $4, $6, $8); }
+=======
+  | _LPAREN Type Item _RPAREN Stmt { $$ = new ForBlk($2, $3, $5); }
+  | _KW_for Stmt { $$ = new ForLoop($2); }
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Javalette.y
   | Expr _SEMI { $$ = new SExp($1); }
 ;
 Item : _IDENT_ { $$ = new NoInit($1); }
   | _IDENT_ _EQ Expr { $$ = new Init($1, $3); }
+<<<<<<< HEAD:src/front_end/Javalette.y
   | _IDENT_ _EQ _KW_new Type _LBRACK Expr _RBRACK { $$ = new InitArray($1, $4, $6); }
+=======
+  | _IDENT_ _COLON Expr { $$ = new InitElem($1, $3); }
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Javalette.y
 ;
 ListItem : Item { $$ = new ListItem(); $$->push_back($1); }
   | Item _COMMA ListItem { $3->push_back($1); $$ = $3; }
@@ -201,9 +220,15 @@ Type : _KW_int { $$ = new Int(); }
   | _KW_double { $$ = new Doub(); }
   | _KW_boolean { $$ = new Bool(); }
   | _KW_void { $$ = new Void(); }
+<<<<<<< HEAD:src/front_end/Javalette.y
   | _SYMB_12 { $$ = new IntArray(); }
   | _SYMB_13 { $$ = new DoubArray(); }
   | _SYMB_14 { $$ = new BoolArray(); }
+=======
+  | _KW_int _EMPTYBRACK { $$ = new IntArray(); }
+  | _KW_double _EMPTYBRACK { $$ = new DoubArray(); }
+  | _KW_boolean _EMPTYBRACK { $$ = new BoolArray(); }
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Javalette.y
 ;
 ListType : /* empty */ { $$ = new ListType(); }
   | Type { $$ = new ListType(); $$->push_back($1); }
@@ -217,9 +242,12 @@ Expr6 : _IDENT_ { $$ = new EVar($1); }
   | _KW_false { $$ = new ELitFalse(); }
   | _IDENT_ _LPAREN ListExpr _RPAREN { std::reverse($3->begin(),$3->end()) ;$$ = new EApp($1, $3); }
   | _STRING_ { $$ = new EString($1); }
+  | _KW_new Type _LBRACK Expr6 _RBRACK { $$ = new EArrayNew($2, $4); }
+  | Expr6 _DOT _KW_length { $$ = new EArrayLen($1); }
   | _LPAREN Expr _RPAREN { $$ = $2; }
 ;
-Expr5 : _MINUS Expr6 { $$ = new Neg($2); }
+Expr5 : Expr6 _LBRACK Expr _RBRACK { $$ = new EArray($1, $3); }
+  | _MINUS Expr6 { $$ = new Neg($2); }
   | _BANG Expr6 { $$ = new Not($2); }
   | Expr6 { $$ = $1; }
 ;

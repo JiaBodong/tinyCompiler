@@ -294,6 +294,20 @@ void PrintAbsyn::visitAss(Ass *p)
   _i_ = oldi;
 }
 
+void PrintAbsyn::visitArrayAss(ArrayAss *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->expr_1->accept(this);
+  render('=');
+  _i_ = 0; p->expr_2->accept(this);
+  render(';');
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
 void PrintAbsyn::visitIncr(Incr *p)
 {
   int oldi = _i_;
@@ -392,17 +406,27 @@ void PrintAbsyn::visitWhile(While *p)
   _i_ = oldi;
 }
 
+<<<<<<< HEAD:src/front_end/Printer.C
 void PrintAbsyn::visitForLoop(ForLoop *p)
+=======
+void PrintAbsyn::visitForBlk(ForBlk *p)
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
+<<<<<<< HEAD:src/front_end/Printer.C
   render("for");
   render('(');
   _i_ = 0; p->type_->accept(this);
   _i_ = 0; p->expr_1->accept(this);
   render(':');
   _i_ = 0; p->expr_2->accept(this);
+=======
+  render('(');
+  _i_ = 0; p->type_->accept(this);
+  _i_ = 0; p->item_->accept(this);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
   render(')');
   _i_ = 0; p->stmt_->accept(this);
 
@@ -410,6 +434,21 @@ void PrintAbsyn::visitForLoop(ForLoop *p)
   _i_ = oldi;
 }
 
+<<<<<<< HEAD:src/front_end/Printer.C
+=======
+void PrintAbsyn::visitForLoop(ForLoop *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("for");
+  _i_ = 0; p->stmt_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
 void PrintAbsyn::visitSExp(SExp *p)
 {
   int oldi = _i_;
@@ -448,18 +487,27 @@ void PrintAbsyn::visitInit(Init *p)
   _i_ = oldi;
 }
 
+<<<<<<< HEAD:src/front_end/Printer.C
 void PrintAbsyn::visitInitArray(InitArray *p)
+=======
+void PrintAbsyn::visitInitElem(InitElem *p)
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
   visitIdent(p->ident_);
+<<<<<<< HEAD:src/front_end/Printer.C
   render('=');
   render("new");
   _i_ = 0; p->type_->accept(this);
   render('[');
   _i_ = 0; p->expr_->accept(this);
   render(']');
+=======
+  render(':');
+  _i_ = 0; p->expr_->accept(this);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -534,7 +582,12 @@ void PrintAbsyn::visitIntArray(IntArray *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
+<<<<<<< HEAD:src/front_end/Printer.C
   render("int[]");
+=======
+  render("int");
+  render("[]");
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -545,7 +598,12 @@ void PrintAbsyn::visitDoubArray(DoubArray *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
+<<<<<<< HEAD:src/front_end/Printer.C
   render("double[]");
+=======
+  render("double");
+  render("[]");
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -556,7 +614,12 @@ void PrintAbsyn::visitBoolArray(BoolArray *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
+<<<<<<< HEAD:src/front_end/Printer.C
   render("boolean[]");
+=======
+  render("boolean");
+  render("[]");
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -687,6 +750,48 @@ void PrintAbsyn::visitEString(EString *p)
   visitString(p->string_);
 
   if (oldi > 6) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitEArrayNew(EArrayNew *p)
+{
+  int oldi = _i_;
+  if (oldi > 6) render(_L_PAREN);
+
+  render("new");
+  _i_ = 0; p->type_->accept(this);
+  render('[');
+  _i_ = 6; p->expr_->accept(this);
+  render(']');
+
+  if (oldi > 6) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitEArrayLen(EArrayLen *p)
+{
+  int oldi = _i_;
+  if (oldi > 6) render(_L_PAREN);
+
+  _i_ = 6; p->expr_->accept(this);
+  render('.');
+  render("length");
+
+  if (oldi > 6) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitEArray(EArray *p)
+{
+  int oldi = _i_;
+  if (oldi > 5) render(_L_PAREN);
+
+  _i_ = 6; p->expr_1->accept(this);
+  render('[');
+  _i_ = 0; p->expr_2->accept(this);
+  render(']');
+
+  if (oldi > 5) render(_R_PAREN);
   _i_ = oldi;
 }
 
@@ -1107,6 +1212,17 @@ void ShowAbsyn::visitAss(Ass *p)
   bufAppend(' ');
   bufAppend(')');
 }
+void ShowAbsyn::visitArrayAss(ArrayAss *p)
+{
+  bufAppend('(');
+  bufAppend("ArrayAss");
+  bufAppend(' ');
+  p->expr_1->accept(this);
+  bufAppend(' ');
+  p->expr_2->accept(this);
+  bufAppend(' ');
+  bufAppend(')');
+}
 void ShowAbsyn::visitIncr(Incr *p)
 {
   bufAppend('(');
@@ -1182,18 +1298,41 @@ void ShowAbsyn::visitWhile(While *p)
   bufAppend(']');
   bufAppend(')');
 }
+<<<<<<< HEAD:src/front_end/Printer.C
 void ShowAbsyn::visitForLoop(ForLoop *p)
 {
   bufAppend('(');
   bufAppend("ForLoop");
+=======
+void ShowAbsyn::visitForBlk(ForBlk *p)
+{
+  bufAppend('(');
+  bufAppend("ForBlk");
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
   bufAppend(' ');
   bufAppend('[');
   if (p->type_)  p->type_->accept(this);
   bufAppend(']');
   bufAppend(' ');
+<<<<<<< HEAD:src/front_end/Printer.C
   p->expr_1->accept(this);
   bufAppend(' ');
   p->expr_2->accept(this);
+=======
+  bufAppend('[');
+  if (p->item_)  p->item_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->stmt_)  p->stmt_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+void ShowAbsyn::visitForLoop(ForLoop *p)
+{
+  bufAppend('(');
+  bufAppend("ForLoop");
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
   bufAppend(' ');
   bufAppend('[');
   if (p->stmt_)  p->stmt_->accept(this);
@@ -1233,14 +1372,22 @@ void ShowAbsyn::visitInit(Init *p)
   bufAppend(']');
   bufAppend(')');
 }
+<<<<<<< HEAD:src/front_end/Printer.C
 void ShowAbsyn::visitInitArray(InitArray *p)
 {
   bufAppend('(');
   bufAppend("InitArray");
+=======
+void ShowAbsyn::visitInitElem(InitElem *p)
+{
+  bufAppend('(');
+  bufAppend("InitElem");
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
   bufAppend(' ');
   visitIdent(p->ident_);
   bufAppend(' ');
   bufAppend('[');
+<<<<<<< HEAD:src/front_end/Printer.C
   if (p->type_)  p->type_->accept(this);
   bufAppend(']');
   bufAppend(' ');
@@ -1248,6 +1395,10 @@ void ShowAbsyn::visitInitArray(InitArray *p)
   if (p->expr_)  p->expr_->accept(this);
   bufAppend(']');
   bufAppend(' ');
+=======
+  if (p->expr_)  p->expr_->accept(this);
+  bufAppend(']');
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Printer.C
   bufAppend(')');
 }
 void ShowAbsyn::visitListItem(ListItem *listitem)
@@ -1379,6 +1530,43 @@ void ShowAbsyn::visitEString(EString *p)
   bufAppend("EString");
   bufAppend(' ');
   visitString(p->string_);
+  bufAppend(')');
+}
+void ShowAbsyn::visitEArrayNew(EArrayNew *p)
+{
+  bufAppend('(');
+  bufAppend("EArrayNew");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->type_)  p->type_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->expr_)  p->expr_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend(')');
+}
+void ShowAbsyn::visitEArrayLen(EArrayLen *p)
+{
+  bufAppend('(');
+  bufAppend("EArrayLen");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->expr_)  p->expr_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend(')');
+}
+void ShowAbsyn::visitEArray(EArray *p)
+{
+  bufAppend('(');
+  bufAppend("EArray");
+  bufAppend(' ');
+  p->expr_1->accept(this);
+  bufAppend(' ');
+  p->expr_2->accept(this);
+  bufAppend(' ');
   bufAppend(')');
 }
 void ShowAbsyn::visitNeg(Neg *p)

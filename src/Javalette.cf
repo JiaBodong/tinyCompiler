@@ -28,11 +28,17 @@ NoInit.    Item ::= Ident ;
 
 Init.      Item ::= Ident "=" Expr ;
 
+<<<<<<< HEAD
 InitArray. Item ::= Ident "=" "new" Type "[" Expr "]" ; 
+=======
+InitElem.  Item ::= Ident ":" Expr ;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674
 
 separator nonempty Item "," ;
 
 Ass.       Stmt ::= Ident "=" Expr  ";" ;
+
+ArrayAss.  Stmt ::= Expr  "=" Expr  ";" ;
 
 Incr.      Stmt ::= Ident "++"  ";" ;
 
@@ -48,7 +54,13 @@ CondElse.  Stmt ::= "if" "(" Expr ")" Stmt "else" Stmt  ;
 
 While.     Stmt ::= "while" "(" Expr ")" Stmt ;
 
+<<<<<<< HEAD
 ForLoop.   Stmt ::= "for" "(" Type Expr ":" Expr ")" Stmt ;
+=======
+ForBlk.    Stmt ::= "(" Type Item ")" Stmt ;
+
+ForLoop.   Stmt ::= "for" Stmt ;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674
 
 SExp.      Stmt ::= Expr  ";" ;
 
@@ -62,11 +74,19 @@ Bool.      Type ::= "boolean" ;
 
 Void.      Type ::= "void" ;
 
+<<<<<<< HEAD
 IntArray.  Type ::= "int[]" ;
 
 DoubArray. Type ::= "double[]" ;
 
 BoolArray. Type ::= "boolean[]" ;
+=======
+IntArray.  Type ::= "int []" ;
+
+DoubArray. Type ::= "double []" ;
+
+BoolArray. Type ::= "boolean []" ;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674
 
 internal   Fun. Type ::= Type "(" [Type] ")" ;
 
@@ -76,11 +96,15 @@ separator  Type "," ;
 
 EVar.      Expr6 ::= Ident ;
 
+<<<<<<< HEAD
 EArray.    Expr6 ::= Ident "[" Expr "]";
+=======
+EArray.    Expr6 ::= Ident "[" [Expr] "]";
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674
 
 ELitInt.   Expr6 ::= Integer ;
 
-ELitDoub.  Expr6 ::= Double;
+ELitDoub.  Expr6 ::= Double ;
 
 ELitTrue.  Expr6 ::= "true" ;
 
@@ -89,6 +113,12 @@ ELitFalse. Expr6 ::= "false" ;
 EApp.      Expr6 ::= Ident "(" [Expr] ")" ;
 
 EString.   Expr6 ::= String ;
+
+EArrayNew. Expr6 ::= "new" Type "[" Expr6 "]" ;
+
+EArrayLen. Expr6 ::= Expr6 "." "length" ;
+
+EArray.    Expr5 ::= Expr6 "[" Expr "]" ;
 
 Neg.       Expr5 ::= "-" Expr6 ;
 

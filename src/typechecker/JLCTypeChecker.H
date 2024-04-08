@@ -6,8 +6,10 @@
 
 #include "Absyn.H"
 #include "context.H"
+#include "Skeleton.H"
 
-class JLCTypeChecker : public Visitor
+
+class JLCTypeChecker : public Skeleton
 {
 public:
   Context globalContext;
@@ -21,28 +23,34 @@ public:
   JLCTypeChecker(): temp_exp_type("DEFAULT"), isReturnStmt(false){}
 
 public:
-  void visitProg(Prog *p);
-  void visitTopDef(TopDef *p);
-  void visitArg(Arg *p);
-  void visitBlk(Blk *p);
-  void visitStmt(Stmt *p);
-  void visitItem(Item *p);
-  void visitType(Type *p);
-  void visitExpr(Expr *p);
-  void visitAddOp(AddOp *p);
-  void visitMulOp(MulOp *p);
-  void visitRelOp(RelOp *p);
+  // void visitProg(Prog *p);
+  // void visitTopDef(TopDef *p);
+  // void visitArg(Arg *p);
+  // void visitBlk(Blk *p);
+  // void visitStmt(Stmt *p);
+  // void visitItem(Item *p);
+  // void visitType(Type *p);
+  // void visitExpr(Expr *p);
+  // void visitAddOp(AddOp *p);
+  // void visitMulOp(MulOp *p);
+  // void visitRelOp(RelOp *p);
+  
   void visitProgram(Program *p);
   void visitFnDef(FnDef *p);
   void visitArgument(Argument *p);
   void visitBlock(Block *p);
-  void visitEmpty(Empty *p);
-  void visitBStmt(BStmt *p);
+  // void visitEmpty(Empty *p);
+  // void visitBStmt(BStmt *p);
   void visitDecl(Decl *p);
   void visitNoInit(NoInit *p);
   void visitInit(Init *p);
+<<<<<<< HEAD:src/front_end/JLCTypeChecker.H
   void visitInitArray(InitArray *p);
+=======
+  void visitInitElem(InitElem *p);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/typechecker/JLCTypeChecker.H
   void visitAss(Ass *p);
+  void visitArrayAss(ArrayAss *p);
   void visitIncr(Incr *p);
   void visitDecr(Decr *p);
   void visitRet(Ret *p);
@@ -50,6 +58,10 @@ public:
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
   void visitWhile(While *p);
+<<<<<<< HEAD:src/front_end/JLCTypeChecker.H
+=======
+  void visitForBlk(ForBlk *p);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/typechecker/JLCTypeChecker.H
   void visitForLoop(ForLoop *p);
   void visitSExp(SExp *p);
   void visitInt(Int *p);
@@ -61,6 +73,11 @@ public:
   void visitBoolArray(BoolArray *p);
   void visitFun(Fun *p);
   void visitEVar(EVar *p);
+<<<<<<< HEAD:src/front_end/JLCTypeChecker.H
+=======
+  void visitEArrayLen(EArrayLen *p);
+  void visitEArrayNew(EArrayNew *p);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/typechecker/JLCTypeChecker.H
   void visitEArray(EArray *p);
   void visitELitInt(ELitInt *p);
   void visitELitDoub(ELitDoub *p);
@@ -75,8 +92,8 @@ public:
   void visitERel(ERel *p);
   void visitEAnd(EAnd *p);
   void visitEOr(EOr *p);
-  void visitPlus(Plus *p);
-  void visitMinus(Minus *p);
+  // void visitPlus(Plus *p);
+  // void visitMinus(Minus *p);
   void visitTimes(Times *p);
   void visitDiv(Div *p);
   void visitMod(Mod *p);
@@ -86,18 +103,18 @@ public:
   void visitGE(GE *p);
   void visitEQU(EQU *p);
   void visitNE(NE *p);
-  void visitListTopDef(ListTopDef *p);
-  void visitListArg(ListArg *p);
+  // void visitListTopDef(ListTopDef *p);
+  // void visitListArg(ListArg *p);
   void visitListStmt(ListStmt *p);
-  void visitListItem(ListItem *p);
-  void visitListType(ListType *p);
-  void visitListExpr(ListExpr *p);
+  // void visitListItem(ListItem *p);
+  // void visitListType(ListType *p);
+  // void visitListExpr(ListExpr *p);
 
-  void visitInteger(Integer x);
-  void visitChar(Char x);
-  void visitDouble(Double x);
-  void visitString(String x);
-  void visitIdent(Ident x);
+  // void visitInteger(Integer x);
+  // void visitChar(Char x);
+  // void visitDouble(Double x);
+  // void visitString(String x);
+  // void visitIdent(Ident x);
 
 };
 

@@ -582,6 +582,7 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
+<<<<<<< HEAD:src/front_end/Lexer.C
 static const flex_int16_t yy_accept[134] =
     {   0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
@@ -599,6 +600,25 @@ static const flex_int16_t yy_accept[134] =
        61,    0,   61,   39,   40,   61,    0,   59,   61,   61,
        33,   13,   61,   41,   61,   31,   38,   30,    0,    0,
        14,   15,    0
+=======
+static const flex_int16_t yy_accept[136] =
+    {   0,
+        0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+        0,    0,    0,    0,   65,   63,   62,   62,   16,   48,
+       42,   22,   63,    1,    2,   20,   19,    3,   15,   14,
+       21,   60,    8,    6,   23,    7,   25,   61,   12,   13,
+       61,   61,   61,   61,   61,   61,   61,   61,   61,   61,
+       61,    4,   63,    5,   64,   51,   50,   49,   58,   56,
+       57,   52,   53,   54,   55,   46,   47,   46,   28,   42,
+       17,    9,   10,   44,   43,    0,   60,   24,   27,   26,
+       61,   11,   61,   61,   61,   61,   61,   34,   61,   61,
+       61,   61,   61,   61,   61,   18,   45,   43,   59,   61,
+
+       61,   61,   61,   33,   35,   61,   37,   61,   61,   61,
+       61,    0,   61,   61,   31,   61,   61,   61,   39,   40,
+       61,    0,   59,   61,   61,   32,   61,   61,   41,   61,
+       30,   36,   38,   29,    0
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -614,9 +634,15 @@ static const YY_CHAR yy_ec[256] =
        24,   24,   24,   24,   24,   24,   24,   24,   24,   24,
        25,   26,   27,    1,    9,    1,   28,   29,   24,   30,
 
+<<<<<<< HEAD:src/front_end/Lexer.C
        31,   32,   24,   33,   34,   24,   24,   35,   24,   36,
        37,   24,   24,   38,   39,   40,   41,   42,   43,   24,
        24,   24,   44,   45,   46,    1,    1,    1,    1,    1,
+=======
+       31,   32,   33,   34,   35,   24,   24,   36,   24,   37,
+       38,   24,   24,   39,   40,   41,   42,   43,   44,   24,
+       24,   24,   45,   46,   47,    1,    1,    1,    1,    1,
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -633,12 +659,17 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
+<<<<<<< HEAD:src/front_end/Lexer.C
 static const YY_CHAR yy_meta[47] =
+=======
+static const YY_CHAR yy_meta[48] =
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
     {   0,
         1,    1,    2,    1,    1,    1,    1,    1,    3,    1,
         1,    1,    1,    1,    1,    1,    1,    3,    1,    1,
         1,    1,    1,    3,    1,    1,    1,    3,    3,    3,
         3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+<<<<<<< HEAD:src/front_end/Lexer.C
         3,    3,    3,    1,    1,    1
     } ;
 
@@ -709,11 +740,85 @@ static const flex_int16_t yy_nxt[213] =
     } ;
 
 static const flex_int16_t yy_chk[213] =
+=======
+        3,    3,    3,    3,    1,    1,    1
+    } ;
+
+static const flex_int16_t yy_base[143] =
+    {   0,
+        0,    0,    0,    0,    0,    0,    0,    0,   45,   46,
+       49,   50,   53,   54,  157,  158,  158,  158,  134,  158,
+        0,  158,  147,  158,  158,  158,  141,  158,  138,  158,
+       46,   43,  158,  158,  130,  129,  128,    0,  122,  158,
+      110,  109,  110,   32,   30,  114,  113,  112,  103,  103,
+      106,  158,   93,  158,  158,  158,  158,  158,  158,  158,
+      158,  158,  158,  158,  158,  158,  158,  121,  158,    0,
+      158,  158,  158,  158,    0,  119,   61,  158,  158,  158,
+        0,  158,   98,   93,   94,   97,   93,    0,   90,   93,
+       85,   87,   85,   91,   90,  158,  158,    0,   62,   88,
+
+       94,   91,   81,    0,    0,   87,    0,   77,   87,   87,
+       80,   77,   84,   78,    0,   81,   68,   55,    0,    0,
+       54,   66,   65,   50,   43,    0,   39,   32,    0,   31,
+        0,    0,    0,    0,  158,   95,   98,  101,  104,  107,
+       61,  110
+    } ;
+
+static const flex_int16_t yy_def[143] =
+    {   0,
+      135,    1,  136,  136,  136,  136,  136,  136,  137,  137,
+      138,  138,  139,  139,  135,  135,  135,  135,  135,  135,
+      140,  135,  135,  135,  135,  135,  135,  135,  135,  135,
+      135,  135,  135,  135,  135,  135,  135,  141,  135,  135,
+      141,  141,  141,  141,  141,  141,  141,  141,  141,  141,
+      141,  135,  135,  135,  135,  135,  135,  135,  135,  135,
+      135,  135,  135,  135,  135,  135,  135,  135,  135,  140,
+      135,  135,  135,  135,  142,  135,  135,  135,  135,  135,
+      141,  135,  141,  141,  141,  141,  141,  141,  141,  141,
+      141,  141,  141,  141,  141,  135,  135,  142,  135,  141,
+
+      141,  141,  141,  141,  141,  141,  141,  141,  141,  141,
+      141,  135,  141,  141,  141,  141,  141,  141,  141,  141,
+      141,  135,  135,  141,  141,  141,  141,  141,  141,  141,
+      141,  141,  141,  141,    0,  135,  135,  135,  135,  135,
+      135,  135
+    } ;
+
+static const flex_int16_t yy_nxt[206] =
+    {   0,
+       16,   17,   18,   19,   20,   21,   22,   23,   16,   24,
+       25,   26,   27,   28,   29,   30,   31,   32,   33,   34,
+       35,   36,   37,   38,   39,   16,   40,   38,   41,   42,
+       43,   44,   38,   38,   45,   46,   47,   38,   48,   38,
+       49,   38,   50,   51,   52,   53,   54,   55,   55,   57,
+       57,   55,   55,   60,   60,   67,   67,   74,   76,   86,
+       77,   88,   75,   81,   68,   68,   89,  134,  133,   87,
+       58,   58,  132,  131,   61,   61,   76,  130,   77,   99,
+       62,   62,  123,  123,  129,   63,   63,   64,   64,   65,
+       65,  122,  112,  128,  123,   55,   55,   55,   56,   56,
+
+       56,   59,   59,   59,   66,   66,   66,   70,  127,   70,
+       98,  126,   98,  125,  124,  121,  120,  119,  118,  117,
+      116,  115,  114,  113,  111,  110,  109,  108,  107,  106,
+      105,  104,  103,  102,  101,  100,   99,   97,   96,   95,
+       94,   93,   92,   91,   90,   85,   84,   83,   82,   80,
+       79,   78,   73,   72,   71,   69,  135,   15,  135,  135,
+      135,  135,  135,  135,  135,  135,  135,  135,  135,  135,
+      135,  135,  135,  135,  135,  135,  135,  135,  135,  135,
+      135,  135,  135,  135,  135,  135,  135,  135,  135,  135,
+      135,  135,  135,  135,  135,  135,  135,  135,  135,  135,
+
+      135,  135,  135,  135,  135
+    } ;
+
+static const flex_int16_t yy_chk[206] =
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+<<<<<<< HEAD:src/front_end/Lexer.C
         1,    1,    1,    1,    1,    1,    9,   10,    9,   10,
        13,   14,   30,   31,   43,   31,  139,   30,   44,   13,
        14,   95,   44,   43,   75,  107,   75,  130,  107,    9,
@@ -734,6 +839,27 @@ static const flex_int16_t yy_chk[213] =
 
       133,  133,  133,  133,  133,  133,  133,  133,  133,  133,
       133,  133
+=======
+        1,    1,    1,    1,    1,    1,    1,    9,   10,    9,
+       10,   11,   12,   11,   12,   13,   14,   31,   32,   44,
+       32,   45,   31,  141,   13,   14,   45,  130,  128,   44,
+        9,   10,  127,  125,   11,   12,   77,  124,   77,   99,
+       11,   12,  123,  122,  121,   11,   12,   11,   12,   11,
+       12,  112,   99,  118,  112,  136,  136,  136,  137,  137,
+
+      137,  138,  138,  138,  139,  139,  139,  140,  117,  140,
+      142,  116,  142,  114,  113,  111,  110,  109,  108,  106,
+      103,  102,  101,  100,   95,   94,   93,   92,   91,   90,
+       89,   87,   86,   85,   84,   83,   76,   68,   53,   51,
+       50,   49,   48,   47,   46,   43,   42,   41,   39,   37,
+       36,   35,   29,   27,   23,   19,   15,  135,  135,  135,
+      135,  135,  135,  135,  135,  135,  135,  135,  135,  135,
+      135,  135,  135,  135,  135,  135,  135,  135,  135,  135,
+      135,  135,  135,  135,  135,  135,  135,  135,  135,  135,
+      135,  135,  135,  135,  135,  135,  135,  135,  135,  135,
+
+      135,  135,  135,  135,  135
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1115,13 +1241,21 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
+<<<<<<< HEAD:src/front_end/Lexer.C
 				if ( yy_current_state >= 134 )
+=======
+				if ( yy_current_state >= 136 )
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
+<<<<<<< HEAD:src/front_end/Lexer.C
 		while ( yy_base[yy_current_state] != 166 );
+=======
+		while ( yy_base[yy_current_state] != 158 );
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -1183,147 +1317,263 @@ return _EQ;
 case 8:
 YY_RULE_SETUP
 #line 78 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _LBRACK;
+=======
+return _COLON;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 79 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _RBRACK;
+=======
+return _DPLUS;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 80 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _DPLUS;
+=======
+return _DMINUS;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 81 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _DMINUS;
+=======
+return _EMPTYBRACK;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 82 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _COLON;
+=======
+return _LBRACK;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 83 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _SYMB_12;
+=======
+return _RBRACK;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 84 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _SYMB_13;
+=======
+return _DOT;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 85 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _SYMB_14;
+=======
+return _MINUS;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 86 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _MINUS;
+=======
+return _BANG;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 87 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _BANG;
+=======
+return _DAMP;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 88 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _DAMP;
+=======
+return _DBAR;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 89 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _DBAR;
+=======
+return _PLUS;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 90 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _PLUS;
+=======
+return _STAR;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 91 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _STAR;
+=======
+return _SLASH;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 92 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _SLASH;
+=======
+return _PERCENT;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 93 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _PERCENT;
+=======
+return _LT;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 94 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _LT;
+=======
+return _LDARROW;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 95 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _LDARROW;
+=======
+return _GT;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 96 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _GT;
+=======
+return _GTEQ;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 97 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _GTEQ;
+=======
+return _DEQ;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 98 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _DEQ;
+=======
+return _BANGEQ;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 99 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _BANGEQ;
+=======
+return _KW_boolean;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 100 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _KW_boolean;
+=======
+return _KW_double;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 101 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _KW_double;
+=======
+return _KW_else;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 102 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _KW_else;
+=======
+return _KW_false;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 103 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _KW_false;
+=======
+return _KW_for;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 104 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _KW_for;
+=======
+return _KW_if;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
 #line 105 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _KW_if;
+=======
+return _KW_int;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 106 "Javalette.l"
+<<<<<<< HEAD:src/front_end/Lexer.C
 return _KW_int;
+=======
+return _KW_length;
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
@@ -1775,7 +2025,11 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
+<<<<<<< HEAD:src/front_end/Lexer.C
 			if ( yy_current_state >= 134 )
+=======
+			if ( yy_current_state >= 136 )
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1804,11 +2058,19 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
+<<<<<<< HEAD:src/front_end/Lexer.C
 		if ( yy_current_state >= 134 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 	yy_is_jam = (yy_current_state == 133);
+=======
+		if ( yy_current_state >= 136 )
+			yy_c = yy_meta[yy_c];
+		}
+	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
+	yy_is_jam = (yy_current_state == 135);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Lexer.C
 
 	(void)yyg;
 	return yy_is_jam ? 0 : yy_current_state;

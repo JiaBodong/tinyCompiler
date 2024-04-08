@@ -91,6 +91,15 @@ void Skeleton::visitAss(Ass *ass)
 
 }
 
+void Skeleton::visitArrayAss(ArrayAss *array_ass)
+{
+  /* Code For ArrayAss Goes Here */
+
+  if (array_ass->expr_1) array_ass->expr_1->accept(this);
+  if (array_ass->expr_2) array_ass->expr_2->accept(this);
+
+}
+
 void Skeleton::visitIncr(Incr *incr)
 {
   /* Code For Incr Goes Here */
@@ -150,13 +159,29 @@ void Skeleton::visitWhile(While *while_)
 
 }
 
+<<<<<<< HEAD:src/front_end/Skeleton.C
+=======
+void Skeleton::visitForBlk(ForBlk *for_blk)
+{
+  /* Code For ForBlk Goes Here */
+
+  if (for_blk->type_) for_blk->type_->accept(this);
+  if (for_blk->item_) for_blk->item_->accept(this);
+  if (for_blk->stmt_) for_blk->stmt_->accept(this);
+
+}
+
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Skeleton.C
 void Skeleton::visitForLoop(ForLoop *for_loop)
 {
   /* Code For ForLoop Goes Here */
 
+<<<<<<< HEAD:src/front_end/Skeleton.C
   if (for_loop->type_) for_loop->type_->accept(this);
   if (for_loop->expr_1) for_loop->expr_1->accept(this);
   if (for_loop->expr_2) for_loop->expr_2->accept(this);
+=======
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Skeleton.C
   if (for_loop->stmt_) for_loop->stmt_->accept(this);
 
 }
@@ -186,6 +211,7 @@ void Skeleton::visitInit(Init *init)
 
 }
 
+<<<<<<< HEAD:src/front_end/Skeleton.C
 void Skeleton::visitInitArray(InitArray *init_array)
 {
   /* Code For InitArray Goes Here */
@@ -193,6 +219,14 @@ void Skeleton::visitInitArray(InitArray *init_array)
   visitIdent(init_array->ident_);
   if (init_array->type_) init_array->type_->accept(this);
   if (init_array->expr_) init_array->expr_->accept(this);
+=======
+void Skeleton::visitInitElem(InitElem *init_elem)
+{
+  /* Code For InitElem Goes Here */
+
+  visitIdent(init_elem->ident_);
+  if (init_elem->expr_) init_elem->expr_->accept(this);
+>>>>>>> 1b2fdd941e7a321bd86a9faa0138c25544289674:src/parser/Skeleton.C
 
 }
 
@@ -315,6 +349,32 @@ void Skeleton::visitEString(EString *e_string)
   /* Code For EString Goes Here */
 
   visitString(e_string->string_);
+
+}
+
+void Skeleton::visitEArrayNew(EArrayNew *e_array_new)
+{
+  /* Code For EArrayNew Goes Here */
+
+  if (e_array_new->type_) e_array_new->type_->accept(this);
+  if (e_array_new->expr_) e_array_new->expr_->accept(this);
+
+}
+
+void Skeleton::visitEArrayLen(EArrayLen *e_array_len)
+{
+  /* Code For EArrayLen Goes Here */
+
+  if (e_array_len->expr_) e_array_len->expr_->accept(this);
+
+}
+
+void Skeleton::visitEArray(EArray *e_array)
+{
+  /* Code For EArray Goes Here */
+
+  if (e_array->expr_1) e_array->expr_1->accept(this);
+  if (e_array->expr_2) e_array->expr_2->accept(this);
 
 }
 

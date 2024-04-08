@@ -3,9 +3,12 @@
 #ifndef __JLC_LLVM_GENERATOR__
 #define __JLC_LLVM_GENERATOR__
 /* You might want to change the above name. */
+#include <iostream>
 
 #include "Absyn.H"
 #include "context.H"
+
+#include "Skeleton.H"
 
 // llvm dependencies
 #include "llvm/IR/LLVMContext.h"
@@ -15,14 +18,12 @@
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Type.h"
 
-class JLCLLVMGenerator : public Visitor
+class JLCLLVMGenerator : public Skeleton
 {
 public:
   Context globalContext;
   type_enum temp_type;
   op_enum temp_op;
-  std::string temp_ident;
-
 
   JLCLLVMGenerator(): LLVM_Context_(std::make_unique<llvm::LLVMContext>()),
                       LLVM_module_(std::make_unique<llvm::Module>("JLC_llvm", *LLVM_Context_)),
@@ -32,7 +33,7 @@ public:
   };
 
   ~JLCLLVMGenerator(){
-    LLVM_module_->print(llvm::errs(), nullptr);
+    LLVM_module_->print(llvm::outs(), nullptr);
   };
   // std::vector<std::string> global_declear_segment;
 
@@ -42,13 +43,53 @@ private:
   std::unique_ptr<llvm::Module> LLVM_module_;
   std::unique_ptr<llvm::IRBuilder<>> LLVM_builder_;
 
-  llvm::Function * current_func_;
+  llvm::Value * llvm_temp_value_;
 
-  int block_id = 0;
+  // for saving the block of the value
+  // @TODO: there are should be a better way to do this
+  std::map<std::string,llvm::BasicBlock *> value_block_map_; 
 
-  std::string getBlockName(){
-    if (block_id == 0) return "entry";
-    return "l" + std::to_string(block_id++);
+  void setLLVMTempValue(llvm::Value * value){
+    llvm_temp_value_ = value;
+    // add the block of the value to the map
+    value_block_map_[std::string(value->getName())] = LLVM_builder_->GetInsertBlock();
+  }
+  
+  llvm::BasicBlock * getBlockOfValue(llvm::Value * & value){
+    if (value_block_map_.find(std::string(value->getName())) != value_block_map_.end()){
+      return value_block_map_[std::string(value->getName())];
+    }
+    // should not reach here
+    std::cerr << "Error: block of value not found" << std::endl;
+    exit(1);
+    return nullptr;
+  }
+
+  // for saving the variable in the block, the last element is the current block
+  // mapping from original variable name to llvm variable 
+  std::vector<std::map<std::string, llvm::Value *>> block_var_map_list;
+
+  void addBlockVarMap(){
+    block_var_map_list.push_back(std::map<std::string, llvm::Value *>());
+  }
+
+  void removeBlockVarMap(){
+    block_var_map_list.pop_back();
+  }
+
+  void addVarToBlockMap(std::string var_name, llvm::Value * var_value){
+    block_var_map_list.back()[var_name] = var_value;
+  }
+
+  llvm::Value * getVarFromBlockMap(std::string var_name){
+    for (int i = block_var_map_list.size() - 1; i >= 0; i--){
+      if (block_var_map_list[i].find(var_name) != block_var_map_list[i].end()){
+        return block_var_map_list[i][var_name];
+      }
+    }
+    // it should not reach here
+    std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
+    return nullptr;
   }
 
   // type conversion
@@ -59,19 +100,19 @@ private:
 
   void addFuncDeclearation(Frame &frame);
 
-
 public:
-  void visitProg(Prog *p);
-  void visitTopDef(TopDef *p);
-  void visitArg(Arg *p);
-  void visitBlk(Blk *p);
-  void visitStmt(Stmt *p);
-  void visitItem(Item *p);
-  void visitType(Type *p);
-  void visitExpr(Expr *p);
-  void visitAddOp(AddOp *p);
-  void visitMulOp(MulOp *p);
-  void visitRelOp(RelOp *p);
+  // void visitProg(Prog *p);
+  // void visitTopDef(TopDef *p);
+  // void visitArg(Arg *p);
+  // void visitBlk(Blk *p);
+  // void visitStmt(Stmt *p);
+  // void visitItem(Item *p);
+  // void visitType(Type *p);
+  // void visitExpr(Expr *p);
+  // void visitAddOp(AddOp *p);
+  // void visitMulOp(MulOp *p);
+  // void visitRelOp(RelOp *p);
+  
   void visitProgram(Program *p);
   void visitFnDef(FnDef *p);
   void visitArgument(Argument *p);
@@ -120,18 +161,18 @@ public:
   void visitGE(GE *p);
   void visitEQU(EQU *p);
   void visitNE(NE *p);
-  void visitListTopDef(ListTopDef *p);
-  void visitListArg(ListArg *p);
-  void visitListStmt(ListStmt *p);
-  void visitListItem(ListItem *p);
-  void visitListType(ListType *p);
-  void visitListExpr(ListExpr *p);
+  // void visitListTopDef(ListTopDef *p);
+  // void visitListArg(ListArg *p);
+  // void visitListStmt(ListStmt *p);
+  // void visitListItem(ListItem *p);
+  // void visitListType(ListType *p);
+  // void visitListExpr(ListExpr *p);
 
-  void visitInteger(Integer x);
-  void visitChar(Char x);
-  void visitDouble(Double x);
-  void visitString(String x);
-  void visitIdent(Ident x);
+  // void visitInteger(Integer x);
+  // void visitChar(Char x);
+  // void visitDouble(Double x);
+  // void visitString(String x);
+  // void visitIdent(Ident x);
 
 };
 
