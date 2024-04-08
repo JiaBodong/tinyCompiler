@@ -44,9 +44,9 @@ About to run tests with these settings:
 [ 36/123] testsuite/good/intarith   ... FAILED
 [ 37/123] testsuite/good/intarith2  ... FAILED
 [ 38/123] testsuite/good/core002    ... OK
-[ 39/123] testsuite/good/core015    ... FAILED
+[ 39/123] testsuite/good/core015    ... OK
 [ 40/123] testsuite/good/core014    ... FAILED
-[ 41/123] testsuite/good/stack2     ... FAILED
+[ 41/123] testsuite/good/stack2     ... OK
 [ 42/123] testsuite/good/order_fun  ... OK
 [ 43/123] testsuite/bad/bad022      ... OK
 [ 44/123] testsuite/bad/bad052      ... OK
@@ -148,7 +148,7 @@ Some tests failed:
     1
     78
     77
-    7
+    84
     77
     4
     77
@@ -162,21 +162,33 @@ Some tests failed:
 
 ---------- !!! testsuite/good/intarith4.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
+- stdout expected:
+    5040
+    5040
+- stdout actual:
+    1
+    5040
 
 ---------- !!! testsuite/good/core001.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
+- stdout expected:
+    3628800
+    3628800
+    3628800
+    3628800
+    3628800
+    3628800.0
+    hello */
+    /* world
+- stdout actual:
+    10
+    3628800
+    3628800
+    3628800
+    10
+    3628800.0
+    hello */
+    /* world
 
 ---------- !!! testsuite/good/intarith3.jl failed !!! ----------
 
@@ -191,12 +203,10 @@ Some tests failed:
 
 ---------- !!! testsuite/good/core016.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
+- stdout expected:
+    0
+- stdout actual:
+    1
 
 ---------- !!! testsuite/good/intarith.jl failed !!! ----------
 
@@ -228,15 +238,6 @@ Some tests failed:
 - stdout actual:
     10
     0
-
----------- !!! testsuite/good/core015.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: function block does not have a return statement
-- compiler return code info:
-    compiler return code: 1, 0 expected
 
 ---------- !!! testsuite/good/core014.jl failed !!! ----------
 
@@ -277,12 +278,5 @@ Some tests failed:
 - stdout actual:
     1
     1
-
----------- !!! testsuite/good/stack2.jl failed !!! ----------
-
-- stdout expected:
-    0
-- stdout actual:
-    -1005149776
 
 /chalmers/users/chenhon/lab-group-22

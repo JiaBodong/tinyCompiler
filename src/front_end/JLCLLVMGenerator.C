@@ -357,8 +357,14 @@ void JLCLLVMGenerator::visitCond(Cond *cond)
   func.releaseBlock(); // release the logic block
   removeBlockVarMap(); // release the logic block
 
-  LLVM_builder_->CreateBr(cond_end_block);
-  LLVM_builder_->SetInsertPoint(cond_end_block);
+  // if the block is not terminated, we need to jump to the end block
+  if (LLVM_builder_->GetInsertBlock()->getTerminator() == nullptr)
+  {
+    LLVM_builder_->CreateBr(cond_end_block); 
+    DEBUG_PRINT("Branch:" + std::string(LLVM_builder_->GetInsertBlock()->getName()) 
+      +" is not terminated by return" );
+  }
+  LLVM_builder_->SetInsertPoint(cond_end_block); 
 }
 
 void JLCLLVMGenerator::visitCondElse(CondElse *cond_else)
@@ -388,7 +394,16 @@ void JLCLLVMGenerator::visitCondElse(CondElse *cond_else)
   func.releaseBlock(); // release the logic block
   removeBlockVarMap(); // release the logic block
 
-  LLVM_builder_->CreateBr(cond_end_block);
+  bool need_end_block = false;
+  // if the block is not terminated, we need to jump to the end block
+  if (cond_true_block->getTerminator() == nullptr)
+  {
+    LLVM_builder_->CreateBr(cond_end_block);
+    need_end_block = true;
+    DEBUG_PRINT("Branch IF:" + std::string(cond_true_block->getName()) 
+      +" is not terminated by return" );
+  }
+
   LLVM_builder_->SetInsertPoint(cond_else_block);
 
   func.newBlock(); // just logic block, no need to create a label
@@ -398,8 +413,22 @@ void JLCLLVMGenerator::visitCondElse(CondElse *cond_else)
   func.releaseBlock(); // release the logic block
   removeBlockVarMap(); // release the logic block
 
-  LLVM_builder_->CreateBr(cond_end_block);
-  LLVM_builder_->SetInsertPoint(cond_end_block); 
+  // if the block is not terminated, we need to jump to the end block
+  if (cond_else_block->getTerminator() == nullptr)
+  {
+    LLVM_builder_->CreateBr(cond_end_block);
+    need_end_block = true;
+    DEBUG_PRINT("Branch ELSE:" + std::string(cond_else_block->getName()) 
+      +" is not terminated by return" );
+  } 
+  if (need_end_block){ 
+    // if one of the block is not terminated, we need to jump to the end block
+    LLVM_builder_->SetInsertPoint(cond_end_block);
+  } else{
+    // remove the end block
+    cond_end_block->eraseFromParent();
+  }
+  
 }
 
 void JLCLLVMGenerator::visitWhile(While *while_)
@@ -463,13 +492,18 @@ void JLCLLVMGenerator::visitInit(Init *init)
   visitIdent(init->ident_);
   auto temp_decl_type = temp_type; // !this type is passed from top level
   auto & frame = globalContext.currentFrame();
+  
+
+  if (init->expr_) init->expr_->accept(this);
+  
+  // why we add the var after xx->accept(this)?
+  // consider the case:  int x=1; {int x = x;}
   frame.addVar(init->ident_, temp_decl_type);
   
   auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_decl_type), nullptr, init->ident_);
   // add the variable to the block map
   addVarToBlockMap(init->ident_, alloca);
 
-  if (init->expr_) init->expr_->accept(this);
   // store a constant value to the memory
   LLVM_builder_->CreateStore(llvm_temp_value_, alloca);
 }
