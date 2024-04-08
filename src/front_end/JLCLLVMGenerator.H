@@ -24,7 +24,6 @@ public:
   Context globalContext;
   type_enum temp_type;
   op_enum temp_op;
-  std::string temp_ident;
 
   JLCLLVMGenerator(): LLVM_Context_(std::make_unique<llvm::LLVMContext>()),
                       LLVM_module_(std::make_unique<llvm::Module>("JLC_llvm", *LLVM_Context_)),
@@ -162,12 +161,12 @@ public:
   void visitGE(GE *p);
   void visitEQU(EQU *p);
   void visitNE(NE *p);
-  void visitListTopDef(ListTopDef *p);
-  void visitListArg(ListArg *p);
-  void visitListStmt(ListStmt *p);
-  void visitListItem(ListItem *p);
-  void visitListType(ListType *p);
-  void visitListExpr(ListExpr *p);
+  // void visitListTopDef(ListTopDef *p);
+  // void visitListArg(ListArg *p);
+  // void visitListStmt(ListStmt *p);
+  // void visitListItem(ListItem *p);
+  // void visitListType(ListType *p);
+  // void visitListExpr(ListExpr *p);
 
   // void visitInteger(Integer x);
   // void visitChar(Char x);
