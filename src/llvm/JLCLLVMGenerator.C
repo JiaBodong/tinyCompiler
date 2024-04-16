@@ -85,6 +85,46 @@ void JLCLLVMGenerator::addFuncDeclearation(Frame &frame){
   DEBUG_PRINT("Add function declearation: " + ss);
 }
 
+// void JLCLLVMGenerator::x86CodeGen(auto F){
+//   std::string Error;
+//   auto *Target = TargetRegistry::lookupTarget("x86_64", Triple(), Error);
+//   TargetOptions Options;
+//   auto *TM = Target->createTargetMachine("x86_64", "generic", "", Options, None, None);
+//   TM->setOptLevel(Reloc::Static);
+
+//   // 
+//   MachineModuleInfo MMI(TM);
+
+//   // 
+//   MachineFunction MF(F, *TM, 0, MMI);
+//   MachineRegisterInfo MRI(MF);
+//   MachineFrameInfo MFI(MF);
+//   GISelKnownBits KB;
+//   MachineIRBuilder MIRBuilder(MF);
+//   RegisterBankInfo RBI;
+//   CombinerHelper Helper(MIRBuilder, RBI, KB);
+
+//   // 
+//   InstructionSelector IS(*TM, MF, RBI, Helper, KB, MIRBuilder);
+
+//   //  X86 
+//   auto *TII = TM->getSubtargetImpl(MF.getSubtarget()).getInstrInfo();
+//   auto *TRI = TM->getSubtargetImpl(MF.getSubtarget()).getRegisterInfo();
+//   auto *TLI = TM->getSubtargetImpl(MF.getSubtarget()).getTargetLowering();
+
+//   // LLVM IR X86 DAG
+//   std::vector<MachineInstr *> SelectSeq;
+//   if (!IS.selectInstructions(MF, SelectSeq, MF.getBlockNumbered(0)->begin(), MF.getBlockNumbered(0)->end()))
+//     llvm_unreachable("Instruction selection failed");
+
+//   //  X86 
+//   for (auto *MI : SelectSeq) {
+//     //  X86 X86 
+//     MI->dump();
+//     // ...
+//   }
+// }
+
 
 void JLCLLVMGenerator::visitProgram(Program *program)
 {
@@ -141,6 +181,7 @@ void JLCLLVMGenerator::visitProgram(Program *program)
   }
   
   if (program->listtopdef_) program->listtopdef_->accept(this);
+
 
 }
 
@@ -271,6 +312,15 @@ void JLCLLVMGenerator::visitAss(Ass *ass)
   // llvm_temp_value_ is set by next level (accept)
   auto var = getVarFromBlockMap(ass->ident_);
   LLVM_builder_->CreateStore(llvm_temp_value_, var);
+}
+
+void JLCLLVMGenerator::visitArrayAss(ArrayAss *array_ass)
+{
+  /* Code For ArrayAss Goes Here */
+
+  if (array_ass->expr_1) array_ass->expr_1->accept(this);
+  if (array_ass->expr_2) array_ass->expr_2->accept(this);
+
 }
 
 void JLCLLVMGenerator::visitIncr(Incr *incr)
@@ -464,6 +514,26 @@ void JLCLLVMGenerator::visitWhile(While *while_)
   LLVM_builder_->SetInsertPoint(end_block);
 }
 
+
+void JLCLLVMGenerator::visitForBlk(ForBlk *for_blk)
+{
+  /* Code For ForBlk Goes Here */
+
+  if (for_blk->type_) for_blk->type_->accept(this);
+  if (for_blk->item_) for_blk->item_->accept(this);
+  if (for_blk->stmt_) for_blk->stmt_->accept(this);
+
+}
+
+
+void JLCLLVMGenerator::visitForLoop(ForLoop *for_loop)
+{
+  /* Code For ForLoop Goes Here */
+
+  if (for_loop->stmt_) for_loop->stmt_->accept(this);
+
+}
+
 void JLCLLVMGenerator::visitSExp(SExp *s_exp)
 {
   /* Code For SExp Goes Here */
@@ -523,13 +593,50 @@ void JLCLLVMGenerator::visitInit(Init *init)
   // why we add the var after xx->accept(this)?
   // consider the case:  int x=1; {int x = x;}
   frame.addVar(init->ident_, temp_decl_type);
-  
-  auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_decl_type), nullptr, init->ident_);
-  // add the variable to the block map
-  addVarToBlockMap(init->ident_, alloca);
+  if(temp_decl_type==INTARRAY||temp_decl_type==DOUBARRAY||temp_decl_type==BOOLARRAY){
+    auto elemType =temp_decl_type;
+    if(temp_decl_type==INTARRAY) elemType = INT;
+    if(temp_decl_type==DOUBARRAY) elemType = DOUB;
+    if(temp_decl_type==BOOLARRAY) elemType = BOOL;
 
-  // store a constant value to the memory
-  LLVM_builder_->CreateStore(llvm_temp_value_, alloca);
+    llvm::Value* a_size = llvm_temp_value_;
+    uint32_t arraySize;
+    if (llvm::ConstantInt* CI = llvm::dyn_cast<llvm::ConstantInt>(a_size)) {
+      if (CI->getBitWidth() <= 32) {
+        arraySize = CI->getZExtValue();
+      }
+    } else{
+  
+    }
+
+
+    llvm::Type* arrayElementType = convertType(elemType);
+    llvm::Type* aType = llvm::ArrayType::get(arrayElementType, arraySize);
+    llvm::AllocaInst* arrayAlloca = LLVM_builder_->CreateAlloca(aType, nullptr, init->ident_);
+    addVarToBlockMap(init->ident_, arrayAlloca);
+    
+
+  }
+
+  else{
+    auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_decl_type), nullptr, init->ident_);
+    // add the variable to the block map
+    addVarToBlockMap(init->ident_, alloca);
+
+    // store a constant value to the memory
+    LLVM_builder_->CreateStore(llvm_temp_value_, alloca);
+  }
+
+
+}
+
+void JLCLLVMGenerator::visitInitElem(InitElem *init_elem)
+{
+  /* Code For InitElem Goes Here */
+
+  visitIdent(init_elem->ident_);
+  if (init_elem->expr_) init_elem->expr_->accept(this);
+
 }
 
 void JLCLLVMGenerator::visitInt(Int *int_)
@@ -557,6 +664,27 @@ void JLCLLVMGenerator::visitVoid(Void *void_)
   temp_type = VOID;
 }
 
+void JLCLLVMGenerator::visitIntArray(IntArray *int_array)
+{
+  /* Code For IntArray Goes Here */
+  temp_type = INTARRAY;
+
+}
+
+void JLCLLVMGenerator::visitDoubArray(DoubArray *doub_array)
+{
+  /* Code For DoubArray Goes Here */
+  temp_type = DOUBARRAY;
+
+}
+
+void JLCLLVMGenerator::visitBoolArray(BoolArray *bool_array)
+{
+  /* Code For BoolArray Goes Here */
+  temp_type = BOOLARRAY;
+
+}
+
 void JLCLLVMGenerator::visitFun(Fun *fun)
 {
   /* Code For Fun Goes Here */
@@ -578,6 +706,48 @@ void JLCLLVMGenerator::visitEVar(EVar *e_var)
   llvm::Value* var = getVarFromBlockMap(e_var->ident_);
   setLLVMTempValue( LLVM_builder_->CreateLoad(convertType(temp_type), var, e_var->ident_));
 }
+
+void JLCLLVMGenerator::visitEArrayNew(EArrayNew *e_array_new)
+{
+  /* Code For EArrayNew Goes Here */
+
+  if (e_array_new->expr_) e_array_new->expr_->accept(this);
+  if(temp_type != INT){
+    std::cerr << "ERROR: can just declare a array of [] int type\n";
+    exit(1);
+  }
+  llvm::Value* var = llvm_temp_value_;
+  
+  //setLLVMTempValue( LLVM_builder_->CreateLoad(convertType(INT), var, "tmp"));
+  setLLVMTempValue( var);
+  if (e_array_new->type_) e_array_new->type_->accept(this);
+  if(temp_type == VOID){
+    std::cerr << "ERROR: cannot declare a array variable with void type\n";
+    exit(1);
+  }
+  if(temp_type == INT) temp_type = INTARRAY;
+  if(temp_type == DOUB) temp_type = DOUBARRAY;
+  if(temp_type == BOOL) temp_type = BOOLARRAY;
+}
+
+void JLCLLVMGenerator::visitEArrayLen(EArrayLen *e_array_len)
+{
+  /* Code For EArrayLen Goes Here */
+
+  if (e_array_len->expr_1) e_array_len->expr_1->accept(this);
+  if (e_array_len->expr_2) e_array_len->expr_2->accept(this);
+
+}
+
+void JLCLLVMGenerator::visitEArray(EArray *e_array)
+{
+  /* Code For EArray Goes Here */
+
+  if (e_array->expr_1) e_array->expr_1->accept(this);
+  if (e_array->expr_2) e_array->expr_2->accept(this);
+
+}
+
 
 void JLCLLVMGenerator::visitELitInt(ELitInt *e_lit_int)
 {

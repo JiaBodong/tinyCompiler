@@ -10,6 +10,7 @@
 
 #include "Skeleton.H"
 
+
 // llvm dependencies
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
@@ -17,6 +18,11 @@
 #include "llvm/IR/Value.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Type.h"
+
+
+// #include "llvm/Passes/PassBuilder.h"
+// #include "llvm/Passes/PassPlugin.h"
+
 
 class JLCLLVMGenerator : public Skeleton
 {
@@ -34,6 +40,17 @@ public:
 
   ~JLCLLVMGenerator(){
     LLVM_module_->print(llvm::outs(), nullptr);
+    //after the module is printed, store the llvm ir the output.s
+    // llvm pass
+
+    // llvm::PassManager PM;
+
+    // llvm::PassBuilder PB;
+
+    // PB.registerFunctionAnalyses(PM);
+
+    // PM.run(*LLVM_module_);
+
   };
   // std::vector<std::string> global_declear_segment;
 
@@ -45,6 +62,12 @@ private:
 
   llvm::Value * llvm_temp_value_;
 
+
+  // GET _CONTEXT()
+  llvm::LLVMContext &GET_CONTEXT(){
+    return *LLVM_Context_;
+  }
+  
   // for saving the block of the value
   // @TODO: there are should be a better way to do this
   std::map<std::string,llvm::BasicBlock *> value_block_map_; 
@@ -54,8 +77,8 @@ private:
     // add the block of the value to the map
     value_block_map_[std::string(value->getName())] = LLVM_builder_->GetInsertBlock();
   }
-  
-  llvm::BasicBlock * getBlockOfValue(llvm::Value * & value){
+
+  llvm::BasicBlock * getBlockOfValue(llvm::Value* &value){
     if (value_block_map_.find(std::string(value->getName())) != value_block_map_.end()){
       return value_block_map_[std::string(value->getName())];
     }
@@ -100,6 +123,8 @@ private:
 
   void addFuncDeclearation(Frame &frame);
 
+  
+
 public:
   // void visitProg(Prog *p);
   // void visitTopDef(TopDef *p);
@@ -122,21 +147,31 @@ public:
   void visitDecl(Decl *p);
   void visitNoInit(NoInit *p);
   void visitInit(Init *p);
+  void visitInitElem(InitElem *p);
   void visitAss(Ass *p);
+  void visitArrayAss(ArrayAss *p);
   void visitIncr(Incr *p);
   void visitDecr(Decr *p);
   void visitRet(Ret *p);
   void visitVRet(VRet *p);
   void visitCond(Cond *p);
   void visitCondElse(CondElse *p);
+  void visitForBlk(ForBlk *p);
+  void visitForLoop(ForLoop *p);
   void visitWhile(While *p);
   void visitSExp(SExp *p);
   void visitInt(Int *p);
   void visitDoub(Doub *p);
   void visitBool(Bool *p);
   void visitVoid(Void *p);
+  void visitIntArray(IntArray *p);
+  void visitDoubArray(DoubArray *p);
+  void visitBoolArray(BoolArray *p);
   void visitFun(Fun *p);
   void visitEVar(EVar *p);
+  void visitEArrayLen(EArrayLen *p);
+  void visitEArrayNew(EArrayNew *p);
+  void visitEArray(EArray *p);
   void visitELitInt(ELitInt *p);
   void visitELitDoub(ELitDoub *p);
   void visitELitTrue(ELitTrue *p);
@@ -173,6 +208,7 @@ public:
   // void visitDouble(Double x);
   // void visitString(String x);
   // void visitIdent(Ident x);
+  // void x86CodeGen(auto F);
 
 };
 
