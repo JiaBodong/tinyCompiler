@@ -67,8 +67,6 @@ int main(int argc, char ** argv)
     delete(jlcvc);
     JLCLLVMGenerator *jlcg = new JLCLLVMGenerator();
     parse_tree->accept(jlcg);
-    auto context = jlcg->getLLVMContext();
-    
     delete(jlcg);
     delete(parse_tree);
     std::cerr << "OK" << std::endl;

@@ -9,7 +9,7 @@ llvm-as lib/runtime.ll  -o build/llvm/runtime.bc
 
 # link the generated llvm ir code to bc file
 llvm-link build/llvm/jlc_generated.bc build/llvm/runtime.bc -o build/llvm/jlc_generated_linked.bc
-opt -load src/llvm-pass/BaseRegAlloc.so -mypass < build/llvm/jlc_generated_linked.bc > build/llvm/jlc_generated_linked.bc
+# opt -load src/llvm-pass/BaseRegAlloc.so -mypass < build/llvm/jlc_generated_linked.bc > build/llvm/jlc_generated_linked.bc
 
 
 # run the generated llvm ir code

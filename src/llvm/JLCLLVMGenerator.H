@@ -20,9 +20,6 @@
 #include "llvm/IR/Type.h"
 
 
-// #include "llvm/Passes/PassBuilder.h"
-// #include "llvm/Passes/PassPlugin.h"
-
 
 class JLCLLVMGenerator : public Skeleton
 {
@@ -40,19 +37,8 @@ public:
 
   ~JLCLLVMGenerator(){
     LLVM_module_->print(llvm::outs(), nullptr);
-    //after the module is printed, store the llvm ir the output.s
-    // llvm pass
-
-    // llvm::PassManager PM;
-
-    // llvm::PassBuilder PB;
-
-    // PB.registerFunctionAnalyses(PM);
-
-    // PM.run(*LLVM_module_);
-
   };
-  // std::vector<std::string> global_declear_segment;
+  
 
 private:
   /* serving for generating llvm code*/
@@ -61,7 +47,7 @@ private:
   std::unique_ptr<llvm::IRBuilder<>> LLVM_builder_;
 
   llvm::Value * llvm_temp_value_;
-
+  std::string x86_temp_value;
 
   // GET _CONTEXT()
   llvm::LLVMContext &GET_CONTEXT(){
@@ -114,6 +100,77 @@ private:
     std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
     return nullptr;
   }
+
+
+  // write some functions to simulate the x86 stack. mapping stack location to variable name and value.
+  //  each stack correspond a local block(function). when a new block is created, a new stack is created.
+  // for using of function call. each time a int/float is pushed to the stack, the stack pointer will be increased by 4/8
+  // for example, two init variables, a and b, a is int, b is double, then the stack will be like this:
+  // [rbp-4]: a, 1
+  // [rbp-(4+8)]: b, 2.0
+  // record the stack top pointer
+  // for saving the stack of the block
+  std::vector<std::map<int, std::pair<std::string, llvm::Value *>>> block_stack_map_list;
+
+  void addBlockStackMap(){
+    block_stack_map_list.push_back(std::map<int, std::pair<std::string, llvm::Value *>>());
+  }
+
+  void removeBlockStackMap(){
+    block_stack_map_list.pop_back();
+  } 
+
+
+  void addVarToStackMap(std::string var_name, llvm::Value * var_value){
+    int stack_top = 0;
+    if (block_stack_map_list.back().size() > 0){
+      stack_top = block_stack_map_list.back().rbegin()->first;
+    }
+    //if type is int, then stack_top - 4, if type is double, then stack_top - 8
+    int stack_offset = 4;
+    if (var_value->getType()->isDoubleTy()){
+      stack_offset = 8;
+    }
+    block_stack_map_list.back()[stack_top - stack_offset] = std::make_pair(var_name, var_value);
+  }
+
+  llvm::Value * getVarFromStackMap(std::string var_name){
+    for (int i = block_stack_map_list.size() - 1; i >= 0; i--){
+      for (auto it = block_stack_map_list[i].begin(); it != block_stack_map_list[i].end(); it++){
+        if (it->second.first == var_name){
+          return it->second.second;
+        }
+      }
+    }
+    // it should not reach here
+    std::cerr << "Error: variable " << var_name << " not found in llvm block stack map" << std::endl;
+    return nullptr;
+  }
+
+  // get the stack top pointer
+  int getStackTop(){
+    if (block_stack_map_list.back().size() > 0){
+      return block_stack_map_list.back().rbegin()->first;
+    }
+    return 0;
+  }
+
+  //get the stack location of the variable through value*
+  int getStackLocation(llvm::Value * value){
+    for (auto it = block_stack_map_list.back().begin(); it != block_stack_map_list.back().end(); it++){
+      if (it->second.second == value){
+        return it->first;
+      }
+    }
+    // it should not reach here
+    std::cerr << "Error: value not found in llvm block stack map" << std::endl;
+    return -1;
+  }
+
+
+
+
+
 
   // type conversion
   llvm::Type *convertType(type_enum type);

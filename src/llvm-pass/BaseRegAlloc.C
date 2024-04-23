@@ -1,36 +1,55 @@
+#include "llvm/IR/PassManager.h"
 #include "llvm/Pass.h"
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/Passes/PassPlugin.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Value.h"
-#include "llvm/IR/LegacyPassManager.h"
+
 #include <map>
 #include <vector>
 
 using namespace llvm;
 
-namespace {
+//for build interference graph
+std::map<std::string, std::set<std::string>> InterferenceGraph;
+// store virtual register info, including the live interval start and end
+std::map<Value *, std::pair<Instruction *, Instruction *>> LiveIntervals;
+std::map<std::string, std::string> RegisterAllocation;
+// x86 physical registers
+std::set<std::string> AvailableRegisters = {"%rax", "%rbx", "%rcx", "%rdx", "%rsi", "%rdi", "%rbp", "%rsp"};
+// traverse, find the virtual register with degree less than 8, push it to stack, and remove it from the graph
+std::vector<std::string> Stack;
 
-class MyPass : public FunctionPass {
+struct MyPass : public llvm:: PassInfoMixin<MyPass> {
 public:
-  static char ID;
-  MyPass() : FunctionPass(ID) {}
+  MyPass();
 
-  bool runOnFunction(Function &F) override {
+
+  void analyzeInstruction(Instruction &Inst);
+  void buildInterferenceGraph();
+  void registerAllocation();
+
+  PreservedAnalyses run(Function &F, FunctionAnalysisManager &) {
     for (BasicBlock &BB : F) {
       for (Instruction &Inst : BB) {
         // analyze instruction
         analyzeInstruction(Inst);
       }
     }
-    // print results
-    return false;
+    
+    buildInterferenceGraph();
+    registerAllocation();
+    
+    return PreservedAnalyses::all();
   }
+  
+  
+};
 
-private:
-  void analyzeInstruction(Instruction &Inst) {
-    // store virtual register info, including the live interval start and end
-    std::map<Value *, std::pair<Instruction *, Instruction *>> LiveIntervals;
+void analyzeInstruction(Instruction &Inst) {
+
 
     // update live interval of each virtual register
     
@@ -64,10 +83,9 @@ private:
             }
         }
     }
+  }
 
-    // build interference graph
-    std::map<std::string, std::set<std::string>> InterferenceGraph;
-
+  void buildInterferenceGraph() {
     for (auto &u : LiveIntervals) {
         for (auto &v : LiveIntervals) {
             if (&u != &v) {
@@ -93,15 +111,13 @@ private:
       }
       outs() << "\n";
     }
+  }
 
     // start register allocation
     // traverse the interference graph, and assign physical registers to virtual registers
     // using graph coloring algorithm
-    std::map<std::string, std::string> RegisterAllocation;
-    // x86 physical registers
-    std::set<std::string> AvailableRegisters = {"%rax", "%rbx", "%rcx", "%rdx", "%rsi", "%rdi", "%rbp", "%rsp"};
-    // traverse, find the virtual register with degree less than 8, push it to stack, and remove it from the graph
-    std::vector<std::string> Stack;
+
+  void registerAllocation() {
     while (!InterferenceGraph.empty()) {
         std::string MinDegreeNode;
         int MinDegree = 8;
@@ -112,28 +128,41 @@ private:
             }
         }
         Stack.push_back(MinDegreeNode);
-        InterferenceGraph.erase(MinDegreeNode);
+        // break off edges
+        for (auto &Neighbor : InterferenceGraph[MinDegreeNode]) {
+            InterferenceGraph[Neighbor].erase(MinDegreeNode);
+        }
+        // InterferenceGraph.erase(MinDegreeNode);
     }
     
     
-    // traverse the stack, and assign physical registers to virtual registers
+    // every time pop the top of stack, restore its place and edges(maybe not complete,because some of neighbors are still in stack)
+    // then assign physical registers to this virtual registers
     while (!Stack.empty()) {
         std::string Node = Stack.back();
         Stack.pop_back();
-        std::set<std::string> Neighbors = InterferenceGraph[Node];
-        std::set<std::string> AssignedRegisters;
-        for (auto &Neighbor : Neighbors) {
-            if (RegisterAllocation.find(Neighbor) != RegisterAllocation.end()) {
-                AssignedRegisters.insert(RegisterAllocation[Neighbor]);
-            }
+        // restore edges
+        for (auto &Neighbor : InterferenceGraph[Node]) {
+            InterferenceGraph[Neighbor].emplace(Node);
         }
+        // assign physical register
         for (auto &Reg : AvailableRegisters) {
-            if (AssignedRegisters.find(Reg) == AssignedRegisters.end()) {
+            bool IsAvailable = true;
+            for (auto &Neighbor : InterferenceGraph[Node]) {
+                if (RegisterAllocation[Neighbor] == Reg) {
+                    IsAvailable = false;
+                    break;
+                }
+            }
+            if (IsAvailable) {
                 RegisterAllocation[Node] = Reg;
                 break;
             }
         }
     }
+    
+
+
 
     // print register allocation
     for (auto &Node : RegisterAllocation) {
@@ -143,10 +172,4 @@ private:
 
   }
 
-};
-
-} // namespace
-
-char MyPass::ID = 0;
-static RegisterPass<MyPass> X("mypass", "My custom LLVM pass",false,false);
 

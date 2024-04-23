@@ -85,45 +85,6 @@ void JLCLLVMGenerator::addFuncDeclearation(Frame &frame){
   DEBUG_PRINT("Add function declearation: " + ss);
 }
 
-// void JLCLLVMGenerator::x86CodeGen(auto F){
-//   std::string Error;
-//   auto *Target = TargetRegistry::lookupTarget("x86_64", Triple(), Error);
-//   TargetOptions Options;
-//   auto *TM = Target->createTargetMachine("x86_64", "generic", "", Options, None, None);
-//   TM->setOptLevel(Reloc::Static);
-
-//   // 
-//   MachineModuleInfo MMI(TM);
-
-//   // 
-//   MachineFunction MF(F, *TM, 0, MMI);
-//   MachineRegisterInfo MRI(MF);
-//   MachineFrameInfo MFI(MF);
-//   GISelKnownBits KB;
-//   MachineIRBuilder MIRBuilder(MF);
-//   RegisterBankInfo RBI;
-//   CombinerHelper Helper(MIRBuilder, RBI, KB);
-
-//   // 
-//   InstructionSelector IS(*TM, MF, RBI, Helper, KB, MIRBuilder);
-
-//   //  X86 
-//   auto *TII = TM->getSubtargetImpl(MF.getSubtarget()).getInstrInfo();
-//   auto *TRI = TM->getSubtargetImpl(MF.getSubtarget()).getRegisterInfo();
-//   auto *TLI = TM->getSubtargetImpl(MF.getSubtarget()).getTargetLowering();
-
-//   // LLVM IR X86 DAG
-//   std::vector<MachineInstr *> SelectSeq;
-//   if (!IS.selectInstructions(MF, SelectSeq, MF.getBlockNumbered(0)->begin(), MF.getBlockNumbered(0)->end()))
-//     llvm_unreachable("Instruction selection failed");
-
-//   //  X86 
-//   for (auto *MI : SelectSeq) {
-//     //  X86 X86 
-//     MI->dump();
-//     // ...
-//   }
-// }
 
 
 void JLCLLVMGenerator::visitProgram(Program *program)
@@ -198,12 +159,19 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
   auto & func = globalContext.currentFrame();
   func.newBlock();
   addBlockVarMap();
+  addBlockStackMap();
   // add a new block to the function
   auto llvm_func = LLVM_module_->getFunction(func.name);
   llvm::BasicBlock* entry = 
     llvm::BasicBlock::Create(*LLVM_Context_, "entry", llvm_func);
   LLVM_builder_->SetInsertPoint(entry);
   
+      //for x86 assembly generator
+  std::cout << globalContext.currentFrameName << ":" << std::endl;
+  std::cout << "  push rbp" << std::endl;
+  std::cout << "  mov rbp, rsp" << std::endl;
+  std::cout << "  sub rsp, 16" << std::endl;
+
   DEBUG_PRINT("init args");
   // if the block is the function body, we need to add the arguments to the block
   if (func.blk->parent == nullptr)
@@ -225,6 +193,31 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
     }
   }
 
+  //for x86 assembly generator of args
+  int arg_num = 0;
+  for (auto & arg : func.args)
+  {
+    //if args is int
+    if (arg.second == INT)
+    {
+      std::cout << "  mov DWORD PTR [rbp-" <<16+ 4 * arg_num << "], " << "edi" << std::endl;
+      //map the args to the stack frame
+      
+
+    }
+    //if args is double
+    else if (arg.second == DOUB)
+    {
+      std::cout << "  movsd QWORD PTR [rbp-" << 8 * arg_num << "], " << "xmm0" << std::endl;
+      //map the args to the stack frame
+     
+    }
+    arg_num++;
+  }
+
+
+
+
   // cotinue to iterate the function body
   if (fn_def->blk_) fn_def->blk_->accept(this);
 
@@ -242,10 +235,13 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
     }
   }
 
+
+
   // release the block
   DEBUG_PRINT("release the entry block");
   func.releaseBlock();
   removeBlockVarMap();
+  removeBlockStackMap();
 }
 
 void JLCLLVMGenerator::visitArgument(Argument *argument)
@@ -273,7 +269,8 @@ void JLCLLVMGenerator::visitBlock(Block *block)
 void JLCLLVMGenerator::visitEmpty(Empty *empty)
 {
   /* Code For Empty Goes Here */
-
+  //x86 assembly generator for empty
+  std::cout << "  nop" << std::endl;
 
 }
 
@@ -301,6 +298,8 @@ void JLCLLVMGenerator::visitDecl(Decl *decl)
     temp_type = temp_decl_type; // !! this is important, as the type will pase to the next level
     item->accept(this);
   }
+  
+
 }
 
 void JLCLLVMGenerator::visitAss(Ass *ass)
@@ -312,6 +311,8 @@ void JLCLLVMGenerator::visitAss(Ass *ass)
   // llvm_temp_value_ is set by next level (accept)
   auto var = getVarFromBlockMap(ass->ident_);
   LLVM_builder_->CreateStore(llvm_temp_value_, var);
+  
+
 }
 
 void JLCLLVMGenerator::visitArrayAss(ArrayAss *array_ass)
@@ -593,41 +594,31 @@ void JLCLLVMGenerator::visitInit(Init *init)
   // why we add the var after xx->accept(this)?
   // consider the case:  int x=1; {int x = x;}
   frame.addVar(init->ident_, temp_decl_type);
-  if(temp_decl_type==INTARRAY||temp_decl_type==DOUBARRAY||temp_decl_type==BOOLARRAY){
-    auto elemType =temp_decl_type;
-    if(temp_decl_type==INTARRAY) elemType = INT;
-    if(temp_decl_type==DOUBARRAY) elemType = DOUB;
-    if(temp_decl_type==BOOLARRAY) elemType = BOOL;
-
-    llvm::Value* a_size = llvm_temp_value_;
-    uint32_t arraySize;
-    if (llvm::ConstantInt* CI = llvm::dyn_cast<llvm::ConstantInt>(a_size)) {
-      if (CI->getBitWidth() <= 32) {
-        arraySize = CI->getZExtValue();
-      }
-    } else{
   
-    }
+  
+  auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_decl_type), nullptr, init->ident_);
+  // add the variable to the block map
+  addVarToBlockMap(init->ident_, alloca);
+  addVarToStackMap(init->ident_, alloca);
+  // store a constant value to the memory
+  LLVM_builder_->CreateStore(llvm_temp_value_, alloca);
+  
+  //for x86 assembly generator
+  // update the stack frame space change after each variable init
+  if (temp_decl_type == INT)
+  {
 
-
-    llvm::Type* arrayElementType = convertType(elemType);
-    llvm::Type* aType = llvm::ArrayType::get(arrayElementType, arraySize);
-    llvm::AllocaInst* arrayAlloca = LLVM_builder_->CreateAlloca(aType, nullptr, init->ident_);
-    addVarToBlockMap(init->ident_, arrayAlloca);
-    
+    //get the stack top
+    int stkptr = getStackTop();
+    std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << x86_temp_value<< std::endl;
 
   }
+  else if (temp_decl_type == DOUB)
+  {
+    int stkptr = getStackTop();
+    std::cout << "  movsd QWORD PTR [rbp" << stkptr<< "], " << x86_temp_value << std::endl;
 
-  else{
-    auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_decl_type), nullptr, init->ident_);
-    // add the variable to the block map
-    addVarToBlockMap(init->ident_, alloca);
-
-    // store a constant value to the memory
-    LLVM_builder_->CreateStore(llvm_temp_value_, alloca);
   }
-
-
 }
 
 void JLCLLVMGenerator::visitInitElem(InitElem *init_elem)
@@ -755,7 +746,7 @@ void JLCLLVMGenerator::visitELitInt(ELitInt *e_lit_int)
 
   visitInteger(e_lit_int->integer_);
   temp_type = INT;
-  
+  x86_temp_value = std::to_string(e_lit_int->integer_);
   // llvm constant
   setLLVMTempValue( llvm::ConstantInt::get(*LLVM_Context_, llvm::APInt(32, e_lit_int->integer_)));
 
@@ -799,6 +790,18 @@ void JLCLLVMGenerator::visitEApp(EApp *e_app)
   {
     expr->accept(this);
     args.push_back(llvm_temp_value_);
+
+    //for x86 func call
+    if (temp_type == INT)
+    {
+      int stkloc = getStackLocation(llvm_temp_value_);
+      std::cout << "  mov edi, DWORD PTR [rbp" << stkloc << "]" << std::endl;
+    }
+    else if (temp_type == DOUB)
+    {
+      int stkloc = getStackLocation(llvm_temp_value_);
+      std::cout << "  movsd xmm0, QWORD PTR [rbp" << stkloc << "]" << std::endl;
+    }
   }
   // add llvm function call
   auto llvm_func = LLVM_module_->getFunction(e_app->ident_);
