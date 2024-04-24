@@ -20,6 +20,76 @@
 #include "llvm/IR/Type.h"
 
 
+struct RegisterInfo{
+  bool available;     //check if the register is available
+  llvm:Value * value; //the value in the register
+};
+// x86-64 gcc register info
+std::map<std::string, RegisterInfo> register_map ={
+  {"%rax", {true, nullptr}},
+  {"%rbx", {true, nullptr}},
+  {"%rcx", {true, nullptr}},
+  {"%rdx", {true, nullptr}},
+  {"%rsi", {true, nullptr}},
+  {"%rdi", {true, nullptr}},
+  {"%r8", {true, nullptr}},
+  {"%r9", {true, nullptr}},
+  {"%r10", {true, nullptr}},
+  {"%r11", {true, nullptr}},
+  {"%r12", {true, nullptr}},
+  {"%r13", {true, nullptr}},
+  {"%r14", {true, nullptr}},
+  {"%r15", {true, nullptr}},
+  {"%rbp", {true, nullptr}},
+  {"%rsp", {true, nullptr}},
+  {"%rip", {true, nullptr}},
+  {"%rflags", {true, nullptr}},
+  {"%xmm0", {true, nullptr}},
+  {"%xmm1", {true, nullptr}},
+  {"%xmm2", {true, nullptr}},
+  {"%xmm3", {true, nullptr}},
+  {"%xmm4", {true, nullptr}},
+  {"%xmm5", {true, nullptr}},
+  {"%xmm6", {true, nullptr}},
+  {"%xmm7", {true, nullptr}},
+  {"%xmm8", {true, nullptr}},
+  {"%xmm9", {true, nullptr}},
+  {"%xmm10", {true, nullptr}},
+  {"%xmm11", {true, nullptr}},
+  {"%xmm12", {true, nullptr}},
+  {"%xmm13", {true, nullptr}},
+  {"%xmm14", {true, nullptr}},
+  {"%xmm15", {true, nullptr}},
+  // 32 bits
+  {"%eax", {true, nullptr}},
+  {"%ebx", {true, nullptr}},
+  {"%ecx", {true, nullptr}},
+  {"%edx", {true, nullptr}},
+  {"%esi", {true, nullptr}},
+  {"%edi", {true, nullptr}},
+  {"%r8d", {true, nullptr}},
+  {"%r9d", {true, nullptr}},
+  {"%r10d", {true, nullptr}},
+  {"%r11d", {true, nullptr}},
+  {"%r12d", {true, nullptr}},
+  {"%r13d", {true, nullptr}},
+  {"%r14d", {true, nullptr}},
+  {"%r15d", {true, nullptr}},
+  {"%ebp", {true, nullptr}},
+  {"%esp", {true, nullptr}},
+  {"%eip", {true, nullptr}},
+  {"%eflags", {true, nullptr}},
+
+};
+
+struct VariableInfo{
+  std::string name;
+  llvm::Value * value;
+  int stack_location;
+  std::string register_name;//current coorsponding register name
+};
+
+
 
 class JLCLLVMGenerator : public Skeleton
 {
@@ -101,8 +171,39 @@ private:
     return nullptr;
   }
 
+  // for saving the VariableInfo in the block, the last element is the current block
 
-  // write some functions to simulate the x86 stack. mapping stack location to variable name and value.
+  std::vector<std::map<std::string, VariableInfo>> block_var_info_map_list;
+
+  void addBlockVarInfoMap(){
+    block_var_info_map_list.push_back(std::map<std::string, VariableInfo>());
+  }
+
+  void removeBlockVarInfoMap(){
+    block_var_info_map_list.pop_back();
+  }
+
+  void addVarInfoToBlockMap(std::string var_name, llvm::Value * var_value, int stack_location, std::string register_name){
+    block_var_info_map_list.back()[var_name] = {var_name, var_value, stack_location, register_name};
+  }
+
+  VariableInfo getVarInfoFromBlockMap(std::string var_name){
+    for (int i = block_var_info_map_list.size() - 1; i >= 0; i--){
+      if (block_var_info_map_list[i].find(var_name) != block_var_info_map_list[i].end()){
+        return block_var_info_map_list[i][var_name];
+      }
+    }
+    // it should not reach here
+    std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
+    return {"", nullptr, -1, ""};
+  }
+
+  
+
+
+
+
+  // mapping stack location to variable name and value.
   //  each stack correspond a local block(function). when a new block is created, a new stack is created.
   // for using of function call. each time a int/float is pushed to the stack, the stack pointer will be increased by 4/8
   // for example, two init variables, a and b, a is int, b is double, then the stack will be like this:
@@ -166,8 +267,6 @@ private:
     std::cerr << "Error: value not found in llvm block stack map" << std::endl;
     return -1;
   }
-
-
 
 
 
