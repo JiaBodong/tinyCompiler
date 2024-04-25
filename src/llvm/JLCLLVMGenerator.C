@@ -160,6 +160,7 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
   func.newBlock();
   addBlockVarMap();
   addBlockStackMap();
+  addBlockVarInfoMap (); // this is used to store the arguments
   // add a new block to the function
   auto llvm_func = LLVM_module_->getFunction(func.name);
   llvm::BasicBlock* entry = 
@@ -242,6 +243,7 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
   func.releaseBlock();
   removeBlockVarMap();
   removeBlockStackMap();
+  removeBlockVarInfoMap();
 }
 
 void JLCLLVMGenerator::visitArgument(Argument *argument)
@@ -310,9 +312,29 @@ void JLCLLVMGenerator::visitAss(Ass *ass)
   if (ass->expr_) ass->expr_->accept(this);
   // llvm_temp_value_ is set by next level (accept)
   auto var = getVarFromBlockMap(ass->ident_);
+
   LLVM_builder_->CreateStore(llvm_temp_value_, var);
   
+  auto varInfo = getVarInfoFromBlockMap(ass->ident_);
 
+  //change the Value* of varInfo
+  varInfo->value = var;
+
+  //get the stack location from varInfo
+  auto stkptr = varInfo->stack_location;
+
+  
+  if(x86_temp_value_type == "Imm"){
+    std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << x86_temp_value<< std::endl;
+  } else if(x86_temp_value_type == "Var"){
+    //get the varInfo
+
+    auto subvarInfo = getVarInfoFromBlockMap(x86_temp_value);
+    //find the coorsponding reg of this var
+    std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << subvarInfo->register_name<< std::endl;
+  }
+  
+  
 }
 
 void JLCLLVMGenerator::visitArrayAss(ArrayAss *array_ass)
@@ -600,9 +622,12 @@ void JLCLLVMGenerator::visitInit(Init *init)
   // add the variable to the block map
   addVarToBlockMap(init->ident_, alloca);
   addVarToStackMap(init->ident_, alloca);
+  
   // store a constant value to the memory
   LLVM_builder_->CreateStore(llvm_temp_value_, alloca);
-  
+
+ 
+
   //for x86 assembly generator
   // update the stack frame space change after each variable init
   if (temp_decl_type == INT)
@@ -611,13 +636,13 @@ void JLCLLVMGenerator::visitInit(Init *init)
     //get the stack top
     int stkptr = getStackTop();
     std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << x86_temp_value<< std::endl;
-
+    addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
   }
   else if (temp_decl_type == DOUB)
   {
     int stkptr = getStackTop();
     std::cout << "  movsd QWORD PTR [rbp" << stkptr<< "], " << x86_temp_value << std::endl;
-
+    addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
   }
 }
 
@@ -696,6 +721,52 @@ void JLCLLVMGenerator::visitEVar(EVar *e_var)
   // llvm load 
   llvm::Value* var = getVarFromBlockMap(e_var->ident_);
   setLLVMTempValue( LLVM_builder_->CreateLoad(convertType(temp_type), var, e_var->ident_));
+
+  x86_temp_value = e_var->ident_;
+  x86_temp_value_type = "Var";
+  //for x86 assembly generator
+  auto varInfo = getVarInfoFromBlockMap(e_var->ident_);
+  // get the location from varInfo
+  auto stkloc = varInfo->stack_location;
+
+  //check
+  // allocate the stack location to one register, for example, eax , and update the the status from true to false in register_map
+  if (temp_type == INT)
+  {
+    auto reg = checkIntRegisterAvailability();
+
+    if (reg =="")
+    {
+      std::cerr << "ERROR: no available register for int type\n";
+      exit(1);
+    }
+    else
+    {
+      std::cout << "  mov " << reg << ", DWORD PTR [rbp" << stkloc << "]" << std::endl;
+      updateRegisterAvailability(reg, false);
+      updateVarInfoRegisterName(e_var->ident_, reg);
+    }
+  }
+  else if (temp_type == DOUB)
+  {
+    auto reg = checkDoubleRegisterAvailability();
+
+    if (reg == "")
+    {
+      std::cerr << "ERROR: no available register for double type\n";
+      exit(1);
+    }
+    else
+    {
+      std::cout << "  movsd " << reg << ", QWORD PTR [rbp" << stkloc << "]" << std::endl;
+      updateRegisterAvailability(reg, false);
+      updateVarInfoRegisterName(e_var->ident_, reg);
+    }
+  }
+
+
+
+
 }
 
 void JLCLLVMGenerator::visitEArrayNew(EArrayNew *e_array_new)
@@ -747,6 +818,7 @@ void JLCLLVMGenerator::visitELitInt(ELitInt *e_lit_int)
   visitInteger(e_lit_int->integer_);
   temp_type = INT;
   x86_temp_value = std::to_string(e_lit_int->integer_);
+  x86_temp_value_type = "Imm";
   // llvm constant
   setLLVMTempValue( llvm::ConstantInt::get(*LLVM_Context_, llvm::APInt(32, e_lit_int->integer_)));
 

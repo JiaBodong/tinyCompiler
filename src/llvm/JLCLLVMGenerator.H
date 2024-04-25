@@ -22,65 +22,9 @@
 
 struct RegisterInfo{
   bool available;     //check if the register is available
-  llvm:Value * value; //the value in the register
+  llvm::Value * value; //the value in the register
 };
-// x86-64 gcc register info
-std::map<std::string, RegisterInfo> register_map ={
-  {"%rax", {true, nullptr}},
-  {"%rbx", {true, nullptr}},
-  {"%rcx", {true, nullptr}},
-  {"%rdx", {true, nullptr}},
-  {"%rsi", {true, nullptr}},
-  {"%rdi", {true, nullptr}},
-  {"%r8", {true, nullptr}},
-  {"%r9", {true, nullptr}},
-  {"%r10", {true, nullptr}},
-  {"%r11", {true, nullptr}},
-  {"%r12", {true, nullptr}},
-  {"%r13", {true, nullptr}},
-  {"%r14", {true, nullptr}},
-  {"%r15", {true, nullptr}},
-  {"%rbp", {true, nullptr}},
-  {"%rsp", {true, nullptr}},
-  {"%rip", {true, nullptr}},
-  {"%rflags", {true, nullptr}},
-  {"%xmm0", {true, nullptr}},
-  {"%xmm1", {true, nullptr}},
-  {"%xmm2", {true, nullptr}},
-  {"%xmm3", {true, nullptr}},
-  {"%xmm4", {true, nullptr}},
-  {"%xmm5", {true, nullptr}},
-  {"%xmm6", {true, nullptr}},
-  {"%xmm7", {true, nullptr}},
-  {"%xmm8", {true, nullptr}},
-  {"%xmm9", {true, nullptr}},
-  {"%xmm10", {true, nullptr}},
-  {"%xmm11", {true, nullptr}},
-  {"%xmm12", {true, nullptr}},
-  {"%xmm13", {true, nullptr}},
-  {"%xmm14", {true, nullptr}},
-  {"%xmm15", {true, nullptr}},
-  // 32 bits
-  {"%eax", {true, nullptr}},
-  {"%ebx", {true, nullptr}},
-  {"%ecx", {true, nullptr}},
-  {"%edx", {true, nullptr}},
-  {"%esi", {true, nullptr}},
-  {"%edi", {true, nullptr}},
-  {"%r8d", {true, nullptr}},
-  {"%r9d", {true, nullptr}},
-  {"%r10d", {true, nullptr}},
-  {"%r11d", {true, nullptr}},
-  {"%r12d", {true, nullptr}},
-  {"%r13d", {true, nullptr}},
-  {"%r14d", {true, nullptr}},
-  {"%r15d", {true, nullptr}},
-  {"%ebp", {true, nullptr}},
-  {"%esp", {true, nullptr}},
-  {"%eip", {true, nullptr}},
-  {"%eflags", {true, nullptr}},
 
-};
 
 struct VariableInfo{
   std::string name;
@@ -118,12 +62,75 @@ private:
 
   llvm::Value * llvm_temp_value_;
   std::string x86_temp_value;
+  std::string x86_temp_value_type;
 
   // GET _CONTEXT()
   llvm::LLVMContext &GET_CONTEXT(){
     return *LLVM_Context_;
   }
   
+  // x86-64 gcc register info, 32 bit registers, dont add %
+std::map<std::string, RegisterInfo> register_map_32{
+  {"eax", {true, nullptr}},
+  {"ebx", {true, nullptr}},
+  {"ecx", {true, nullptr}},
+  {"edx", {true, nullptr}},
+  {"esi", {true, nullptr}},
+  {"edi", {true, nullptr}},
+  {"ebp", {true, nullptr}},
+  {"esp", {true, nullptr}},
+  {"eip", {true, nullptr}},
+  {"r8d", {true, nullptr}},
+  {"r9d", {true, nullptr}},
+  {"r10d", {true, nullptr}},
+  {"r11d", {true, nullptr}},
+  {"r12d", {true, nullptr}},
+  {"r13d", {true, nullptr}},
+  {"r14d", {true, nullptr}},
+  {"r15d", {true, nullptr}},
+};
+
+// x86-64 gcc register info, 64 bit registers
+std::map<std::string, RegisterInfo> register_map_64{
+  {"rax", {true, nullptr}},
+  {"rbx", {true, nullptr}},
+  {"rcx", {true, nullptr}},
+  {"rdx", {true, nullptr}},
+  {"rsi", {true, nullptr}},
+  {"rdi", {true, nullptr}},
+  {"rbp", {true, nullptr}},
+  {"rsp", {true, nullptr}},
+  {"rip", {true, nullptr}},
+  {"r8", {true, nullptr}},
+  {"r9", {true, nullptr}},
+  {"r10", {true, nullptr}},
+  {"r11", {true, nullptr}},
+  {"r12", {true, nullptr}},
+  {"r13", {true, nullptr}},
+  {"r14", {true, nullptr}},
+  {"r15", {true, nullptr}},
+};
+
+// x86-64 gcc register info, 128 bit registers
+std::map<std::string, RegisterInfo> register_map_128{
+  {"xmm0", {true, nullptr}},
+  {"xmm1", {true, nullptr}},
+  {"xmm2", {true, nullptr}},
+  {"xmm3", {true, nullptr}},
+  {"xmm4", {true, nullptr}},
+  {"xmm5", {true, nullptr}},
+  {"xmm6", {true, nullptr}},
+  {"xmm7", {true, nullptr}},
+  {"xmm8", {true, nullptr}},
+  {"xmm9", {true, nullptr}},
+  {"xmm10", {true, nullptr}},
+  {"xmm11", {true, nullptr}},
+  {"xmm12", {true, nullptr}},
+  {"xmm13", {true, nullptr}},
+  {"xmm14", {true, nullptr}},
+  {"xmm15", {true, nullptr}},
+};
+
   // for saving the block of the value
   // @TODO: there are should be a better way to do this
   std::map<std::string,llvm::BasicBlock *> value_block_map_; 
@@ -187,15 +194,16 @@ private:
     block_var_info_map_list.back()[var_name] = {var_name, var_value, stack_location, register_name};
   }
 
-  VariableInfo getVarInfoFromBlockMap(std::string var_name){
+  // get the VariableInfo address from the block map, so that I can change some information of the variable
+  VariableInfo * getVarInfoFromBlockMap(std::string var_name){
     for (int i = block_var_info_map_list.size() - 1; i >= 0; i--){
       if (block_var_info_map_list[i].find(var_name) != block_var_info_map_list[i].end()){
-        return block_var_info_map_list[i][var_name];
+        return &block_var_info_map_list[i][var_name];
       }
     }
     // it should not reach here
     std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
-    return {"", nullptr, -1, ""};
+    return nullptr;
   }
 
   
@@ -221,18 +229,8 @@ private:
     block_stack_map_list.pop_back();
   } 
 
-
   void addVarToStackMap(std::string var_name, llvm::Value * var_value){
-    int stack_top = 0;
-    if (block_stack_map_list.back().size() > 0){
-      stack_top = block_stack_map_list.back().rbegin()->first;
-    }
-    //if type is int, then stack_top - 4, if type is double, then stack_top - 8
-    int stack_offset = 4;
-    if (var_value->getType()->isDoubleTy()){
-      stack_offset = 8;
-    }
-    block_stack_map_list.back()[stack_top - stack_offset] = std::make_pair(var_name, var_value);
+    block_stack_map_list.back()[getStackTop() - 4] = {var_name, var_value};
   }
 
   llvm::Value * getVarFromStackMap(std::string var_name){
@@ -248,13 +246,19 @@ private:
     return nullptr;
   }
 
+
   // get the stack top pointer
-  int getStackTop(){
-    if (block_stack_map_list.back().size() > 0){
-      return block_stack_map_list.back().rbegin()->first;
-    }
-    return 0;
+  int getStackTop() {
+      int stack_top = 0;
+      if (!block_stack_map_list.empty()) {
+          auto& current_map = block_stack_map_list.back();
+          if (!current_map.empty()) {
+              stack_top = current_map.begin()->first;
+          }
+      }
+      return stack_top;
   }
+
 
   //get the stack location of the variable through value*
   int getStackLocation(llvm::Value * value){
@@ -266,6 +270,67 @@ private:
     // it should not reach here
     std::cerr << "Error: value not found in llvm block stack map" << std::endl;
     return -1;
+  }
+
+
+
+
+  // check register availability from the register map
+  //Int : just check the register availability in register_map, first check all the 32 bit Int registers, and then all the 64 bit Int registers
+  // if no register is available, return nullptr
+  std::string checkIntRegisterAvailability(){
+    for (auto it = register_map_32.begin(); it != register_map_32.end(); it++){
+      if (it->second.available){
+        return it->first;
+      }
+    }
+    for (auto it = register_map_64.begin(); it != register_map_64.end(); it++){
+      if (it->second.available){
+        return it->first;
+      }
+    }
+    return "";
+  }
+  //Double : check the register availability in register_map, first check all the 128 bit Double registers, and then all the 64 bit Double registers
+  // if no register is available, return nullptr
+  std::string checkDoubleRegisterAvailability(){
+    for (auto it = register_map_128.begin(); it != register_map_128.end(); it++){
+      if (it->second.available){
+        return it->first;
+      }
+    }
+
+    return "";
+  }
+
+  //update the register availability in register_map
+  void updateRegisterAvailability(std::string register_name, bool available){
+    if (register_map_32.find(register_name) != register_map_32.end()){
+      register_map_32[register_name].available = available;
+    }
+    else if (register_map_64.find(register_name) != register_map_64.end()){
+      register_map_64[register_name].available = available;
+    }
+    else if (register_map_128.find(register_name) != register_map_128.end()){
+      register_map_128[register_name].available = available;
+    }
+    else{
+      // it should not reach here
+      std::cerr << "Error: register " << register_name << " not found in register map" << std::endl;
+    }
+  }
+
+
+  //update variableinfo coorsponding to the register_name
+  void updateVarInfoRegisterName(std::string var_name, std::string register_name){
+    for (int i = block_var_info_map_list.size() - 1; i >= 0; i--){
+      if (block_var_info_map_list[i].find(var_name) != block_var_info_map_list[i].end()){
+        block_var_info_map_list[i][var_name].register_name = register_name;
+        return;
+      }
+    }
+    // it should not reach here
+    std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
   }
 
 
