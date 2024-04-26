@@ -18,7 +18,7 @@
 #include "llvm/IR/Value.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Type.h"
-
+#include "queue"
 
 struct RegisterInfo{
   bool available;     //check if the register is available
@@ -69,6 +69,39 @@ private:
     return *LLVM_Context_;
   }
   
+  // a map for saving the function name and a queue to store function argument list register name
+  std::map<std::string, std::queue<std::string>> function_arg_map_;
+
+  // push the argument register name to the queue of the function name
+  void pushArgToFunctionMap(std::string function_name, std::string arg_register_name){
+    if (function_arg_map_.find(function_name) != function_arg_map_.end()){
+      function_arg_map_[function_name].push(arg_register_name);
+    }
+    else{
+      std::queue<std::string> arg_queue;
+      arg_queue.push(arg_register_name);
+      function_arg_map_[function_name] = arg_queue;
+    }
+  }
+
+  // pop the argument register name from the queue of the function name
+  std::string popArgFromFunctionMap(std::string function_name){
+    if (function_arg_map_.find(function_name) != function_arg_map_.end()){
+      std::string arg_register_name = function_arg_map_[function_name].front();
+      function_arg_map_[function_name].pop();
+      return arg_register_name;
+    }
+    else{
+      // it should not reach here
+      std::cerr << "Error: function " << function_name << " not found in function arg map" << std::endl;
+      return "";
+    }
+  }
+
+
+
+
+
   // x86-64 gcc register info, 32 bit registers, dont add %
 std::map<std::string, RegisterInfo> register_map_32{
   {"eax", {true, nullptr}},
@@ -260,15 +293,15 @@ std::map<std::string, RegisterInfo> register_map_128{
   }
 
 
-  //get the stack location of the variable through value*
-  int getStackLocation(llvm::Value * value){
-    for (auto it = block_stack_map_list.back().begin(); it != block_stack_map_list.back().end(); it++){
-      if (it->second.second == value){
-        return it->first;
+  //get the stack location of the variable through var_name
+  int getStackLocation(std::string var_name){
+    for (int i = block_var_info_map_list.size() - 1; i >= 0; i--){
+      if (block_var_info_map_list[i].find(var_name) != block_var_info_map_list[i].end()){
+        return block_var_info_map_list[i][var_name].stack_location;
       }
     }
     // it should not reach here
-    std::cerr << "Error: value not found in llvm block stack map" << std::endl;
+    std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
     return -1;
   }
 
@@ -333,8 +366,44 @@ std::map<std::string, RegisterInfo> register_map_128{
     std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
   }
 
+  //update imm value* corrsponding to the register_name
+  void updateRegisterValue(llvm::Value * value,std::string register_name){
+    if (register_map_32.find(register_name) != register_map_32.end()){
+      register_map_32[register_name].value = value;
+    }
+    else if (register_map_64.find(register_name) != register_map_64.end()){
+      register_map_64[register_name].value = value;
+    }
+    else if (register_map_128.find(register_name) != register_map_128.end()){
+      register_map_128[register_name].value = value;
+    }
+    else{
+      // it should not reach here
+      std::cerr << "Error: register " << register_name << " not found in register map" << std::endl;
+    }
+  }
 
-
+  //get the register from to the value*
+  std::string getRegisterFromValue(llvm::Value * value){
+    for (auto it = register_map_32.begin(); it != register_map_32.end(); it++){
+      if (it->second.value == value){
+        return it->first;
+      }
+    }
+    for (auto it = register_map_64.begin(); it != register_map_64.end(); it++){
+      if (it->second.value == value){
+        return it->first;
+      }
+    }
+    for (auto it = register_map_128.begin(); it != register_map_128.end(); it++){
+      if (it->second.value == value){
+        return it->first;
+      }
+    }
+    // it should not reach here
+    std::cerr << "Error: value not found in register map" << std::endl;
+    return "";
+  }
 
   // type conversion
   llvm::Type *convertType(type_enum type);

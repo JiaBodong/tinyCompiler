@@ -131,6 +131,14 @@ void JLCLLVMGenerator::visitProgram(Program *program)
     for (size_t i = 0; i < func.args.size(); i++)
     {
       arg_iter->setName(func.args[i].first);
+
+      auto reg = popArgFromFunctionMap(fn_def->ident_);
+           
+      std::cout << "  mov DWORD PTR [rbp" << -4 << "], " << reg << std::endl;
+
+      //restore the register availability
+      updateRegisterAvailability(reg, true);
+
       arg_iter++;
     }
     // add to llvm module - end 
@@ -167,11 +175,6 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
     llvm::BasicBlock::Create(*LLVM_Context_, "entry", llvm_func);
   LLVM_builder_->SetInsertPoint(entry);
   
-      //for x86 assembly generator
-  std::cout << globalContext.currentFrameName << ":" << std::endl;
-  std::cout << "  push rbp" << std::endl;
-  std::cout << "  mov rbp, rsp" << std::endl;
-  std::cout << "  sub rsp, 16" << std::endl;
 
   DEBUG_PRINT("init args");
   // if the block is the function body, we need to add the arguments to the block
@@ -179,7 +182,7 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
   {
     for (auto & arg : func.args)
     {
-      auto arg_iter = llvm_func->arg_begin();
+      auto arg_iter = llvm_func->arg_begin();// get the value* of the argument
       for (size_t i = 0; i < func.args.size(); i++)
       {
         if (arg.first == std::string(arg_iter->getName()))
@@ -187,6 +190,20 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
           auto alloca = LLVM_builder_->CreateAlloca(convertType(arg.second), nullptr, arg.first);
           LLVM_builder_->CreateStore(arg_iter, alloca);
           addVarToBlockMap(arg.first, alloca);
+            // set x86 information
+          addVarToStackMap(arg.first, alloca);
+          int stkptr = getStackTop();
+
+          // auto reg = popArgFromFunctionMap(fn_def->ident_);
+          
+          // std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << reg << std::endl;
+
+          // //restore the register availability
+          // updateRegisterAvailability(reg, true);
+          
+          addVarInfoToBlockMap(arg.first, alloca, stkptr,"");
+          
+         
           break;
         }
         arg_iter++;
@@ -194,33 +211,20 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
     }
   }
 
-  //for x86 assembly generator of args
-  int arg_num = 0;
-  for (auto & arg : func.args)
-  {
-    //if args is int
-    if (arg.second == INT)
-    {
-      std::cout << "  mov DWORD PTR [rbp-" <<16+ 4 * arg_num << "], " << "edi" << std::endl;
-      //map the args to the stack frame
-      
-
-    }
-    //if args is double
-    else if (arg.second == DOUB)
-    {
-      std::cout << "  movsd QWORD PTR [rbp-" << 8 * arg_num << "], " << "xmm0" << std::endl;
-      //map the args to the stack frame
-     
-    }
-    arg_num++;
-  }
-
 
 
 
   // cotinue to iterate the function body
   if (fn_def->blk_) fn_def->blk_->accept(this);
+
+  // after visiting the block
+  //for x86 assembly generator
+  std::cout << globalContext.currentFrameName << ":" << std::endl;
+  std::cout << "  push rbp" << std::endl;
+  std::cout << "  mov rbp, rsp" << std::endl;
+  int blktop = getStackTop();
+  std::cout << "  sub rsp, " << ((-blktop)/16+1)*16 << std::endl;
+
 
   // check if the predecessor block is terminated
   if (LLVM_builder_->GetInsertBlock()->getTerminator() == nullptr)
@@ -332,6 +336,15 @@ void JLCLLVMGenerator::visitAss(Ass *ass)
     auto subvarInfo = getVarInfoFromBlockMap(x86_temp_value);
     //find the coorsponding reg of this var
     std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << subvarInfo->register_name<< std::endl;
+    //retore the avaibility of this reg
+    updateRegisterAvailability(subvarInfo->register_name, true);
+  } else if(x86_temp_value_type == "Fun"){
+    if(temp_type == DOUB){
+      std::cout << "  movq rax, xmm0"<< std::endl;
+      std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << "rax"<< std::endl;
+    }
+    std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << "eax"<< std::endl;
+
   }
   
   
@@ -745,6 +758,7 @@ void JLCLLVMGenerator::visitEVar(EVar *e_var)
       std::cout << "  mov " << reg << ", DWORD PTR [rbp" << stkloc << "]" << std::endl;
       updateRegisterAvailability(reg, false);
       updateVarInfoRegisterName(e_var->ident_, reg);
+      updateRegisterValue(var, reg);
     }
   }
   else if (temp_type == DOUB)
@@ -761,6 +775,7 @@ void JLCLLVMGenerator::visitEVar(EVar *e_var)
       std::cout << "  movsd " << reg << ", QWORD PTR [rbp" << stkloc << "]" << std::endl;
       updateRegisterAvailability(reg, false);
       updateVarInfoRegisterName(e_var->ident_, reg);
+      updateRegisterValue(var, reg);
     }
   }
 
@@ -821,7 +836,7 @@ void JLCLLVMGenerator::visitELitInt(ELitInt *e_lit_int)
   x86_temp_value_type = "Imm";
   // llvm constant
   setLLVMTempValue( llvm::ConstantInt::get(*LLVM_Context_, llvm::APInt(32, e_lit_int->integer_)));
-
+  
 }
 
 void JLCLLVMGenerator::visitELitDoub(ELitDoub *e_lit_doub)
@@ -855,6 +870,7 @@ void JLCLLVMGenerator::visitELitFalse(ELitFalse *e_lit_false)
 void JLCLLVMGenerator::visitEApp(EApp *e_app)
 {
   DEBUG_PRINT("Visit EApp: " + e_app->ident_);
+  
   /* Code For EApp Goes Here */
   std::vector<llvm::Value*> args;
   // iterate through the arguments, and collect the llvm values
@@ -864,15 +880,55 @@ void JLCLLVMGenerator::visitEApp(EApp *e_app)
     args.push_back(llvm_temp_value_);
 
     //for x86 func call
+    DEBUG_PRINT("x86 func call")
     if (temp_type == INT)
     {
-      int stkloc = getStackLocation(llvm_temp_value_);
-      std::cout << "  mov edi, DWORD PTR [rbp" << stkloc << "]" << std::endl;
+      
+      if(x86_temp_value_type=="Imm"){
+        auto reg = checkIntRegisterAvailability();
+        if (reg == "")
+        {
+          std::cerr << "ERROR: no available register for int type\n";
+          exit(1);
+        }
+        else
+        {
+          std::cout << "  mov " << reg << ", " << x86_temp_value << std::endl;
+          updateRegisterAvailability(reg, false);
+          //update the llvm temp value to the register
+          updateRegisterValue(llvm_temp_value_, reg);
+          //push the arg to the function map
+          pushArgToFunctionMap(e_app->ident_, reg);
+        }
+      }
+      //get the register name of the var, and push it to the function map
+      auto var = getVarInfoFromBlockMap(x86_temp_value);
+      auto reg = var->register_name;
+      pushArgToFunctionMap(e_app->ident_, reg);
+     
     }
     else if (temp_type == DOUB)
     {
-      int stkloc = getStackLocation(llvm_temp_value_);
-      std::cout << "  movsd xmm0, QWORD PTR [rbp" << stkloc << "]" << std::endl;
+      if(x86_temp_value_type=="Imm"){
+        auto reg = checkDoubleRegisterAvailability();
+        if (reg == "")
+        {
+          std::cerr << "ERROR: no available register for double type\n";
+          exit(1);
+        }
+        else
+        {
+          std::cout << "  movsd " << reg << ", " << x86_temp_value << std::endl;
+          updateRegisterAvailability(reg, false);
+          //update the llvm temp value to the register
+          updateRegisterValue(llvm_temp_value_, reg);
+
+          pushArgToFunctionMap(e_app->ident_, reg);
+        }
+      }
+      auto var = getVarInfoFromBlockMap(x86_temp_value);
+      auto reg = var->register_name;
+      pushArgToFunctionMap(e_app->ident_, reg);
     }
   }
   // add llvm function call
@@ -889,6 +945,23 @@ void JLCLLVMGenerator::visitEApp(EApp *e_app)
   DEBUG_PRINT("EApp create call")
   setLLVMTempValue( LLVM_builder_->CreateCall(llvm_func, args, tag));
   DEBUG_PRINT("Call function: " + e_app->ident_);
+
+  //problem
+  // cout the instruction in number of args
+  // for x86 assembly generator
+  // pop the args from the function map
+  for (size_t i = 0; i < args.size(); i++)
+  {
+    auto reg = popArgFromFunctionMap(e_app->ident_);
+    std::cout << "  mov DWORD PTR [rbp-" << 4*(i+1) << "], "<< reg << std::endl;
+    //restore the register availability
+    updateRegisterAvailability(reg, true);
+  }
+
+
+  //x86 func call assembly generator
+  std::cout << "  call " << e_app->ident_ << std::endl;
+  x86_temp_value_type = "Fun";  
 }
 
 void JLCLLVMGenerator::visitEString(EString *e_string)

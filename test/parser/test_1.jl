@@ -6,20 +6,20 @@
 
 # // iterative factorial
 
-# int fact (int n) {
-#   int i,r ;
-#   i = 1 ;
-#   r = 1 ;
-#   while (i <= n) {
-#     r = r * i ;
-#     i++ ;
-#   }
-#   return r ;
-# }
+
+
+int sump(int a,int b) {
+  a = b;
+  return 1;
+}
 
 int main() {
   int a = 3 ;
   int b =4;
+  int c = 9;
+
   a = b;
+
+  a = sump(a,b);
   return 0;
 }
