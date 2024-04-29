@@ -63,12 +63,19 @@ private:
   llvm::Value * llvm_temp_value_;
   std::string x86_temp_value;
   std::string x86_temp_value_type;
+  // a map using for store x86 instruction code , one function name include a vector
+  std::map<std::string, std::vector<std::string>> x86_function_map;
+  
+  
+
 
   // GET _CONTEXT()
   llvm::LLVMContext &GET_CONTEXT(){
     return *LLVM_Context_;
   }
   
+
+
   // a queue to store function argument list register name
   std::queue<std::string> function_arg_queue;
 
