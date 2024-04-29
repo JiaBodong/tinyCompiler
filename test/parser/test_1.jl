@@ -9,7 +9,10 @@
 
 
 int sump(int a,int b) {
-  a = b;
+  b = 1;
+  int x = 3;
+  int y = 6;
+  int o = 7;
   return 1;
 }
 

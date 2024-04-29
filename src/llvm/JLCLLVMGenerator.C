@@ -132,12 +132,10 @@ void JLCLLVMGenerator::visitProgram(Program *program)
     {
       arg_iter->setName(func.args[i].first);
 
-      auto reg = popArgFromFunctionMap(fn_def->ident_);
-           
-      std::cout << "  mov DWORD PTR [rbp" << -4 << "], " << reg << std::endl;
+      
 
-      //restore the register availability
-      updateRegisterAvailability(reg, true);
+      // //restore the register availability
+      // updateRegisterAvailability(reg, true);
 
       arg_iter++;
     }
@@ -176,6 +174,16 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
   LLVM_builder_->SetInsertPoint(entry);
   
 
+    // after visiting the block
+  //for x86 assembly generator
+  std::cout << globalContext.currentFrameName << ":" << std::endl;
+  std::cout << "  push rbp" << std::endl;
+  std::cout << "  mov rbp, rsp" << std::endl;
+  int blktop = getStackTop();
+  std::cout << "  sub rsp, " << ((-blktop)/16+1)*16 << std::endl;
+
+
+
   DEBUG_PRINT("init args");
   // if the block is the function body, we need to add the arguments to the block
   if (func.blk->parent == nullptr)
@@ -194,12 +202,8 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
           addVarToStackMap(arg.first, alloca);
           int stkptr = getStackTop();
 
-          // auto reg = popArgFromFunctionMap(fn_def->ident_);
-          
-          // std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << reg << std::endl;
-
-          // //restore the register availability
-          // updateRegisterAvailability(reg, true);
+          //restore the register availability
+          //updateRegisterAvailability(reg, true);
           
           addVarInfoToBlockMap(arg.first, alloca, stkptr,"");
           
@@ -216,14 +220,6 @@ void JLCLLVMGenerator::visitFnDef(FnDef *fn_def)
 
   // cotinue to iterate the function body
   if (fn_def->blk_) fn_def->blk_->accept(this);
-
-  // after visiting the block
-  //for x86 assembly generator
-  std::cout << globalContext.currentFrameName << ":" << std::endl;
-  std::cout << "  push rbp" << std::endl;
-  std::cout << "  mov rbp, rsp" << std::endl;
-  int blktop = getStackTop();
-  std::cout << "  sub rsp, " << ((-blktop)/16+1)*16 << std::endl;
 
 
   // check if the predecessor block is terminated
@@ -898,13 +894,13 @@ void JLCLLVMGenerator::visitEApp(EApp *e_app)
           //update the llvm temp value to the register
           updateRegisterValue(llvm_temp_value_, reg);
           //push the arg to the function map
-          pushArgToFunctionMap(e_app->ident_, reg);
+          pushArgToFunctionMap(reg);
         }
       }
       //get the register name of the var, and push it to the function map
       auto var = getVarInfoFromBlockMap(x86_temp_value);
       auto reg = var->register_name;
-      pushArgToFunctionMap(e_app->ident_, reg);
+      pushArgToFunctionMap(reg);
      
     }
     else if (temp_type == DOUB)
@@ -923,12 +919,12 @@ void JLCLLVMGenerator::visitEApp(EApp *e_app)
           //update the llvm temp value to the register
           updateRegisterValue(llvm_temp_value_, reg);
 
-          pushArgToFunctionMap(e_app->ident_, reg);
+          pushArgToFunctionMap(reg);
         }
       }
       auto var = getVarInfoFromBlockMap(x86_temp_value);
       auto reg = var->register_name;
-      pushArgToFunctionMap(e_app->ident_, reg);
+      pushArgToFunctionMap(reg);
     }
   }
   // add llvm function call
@@ -946,13 +942,13 @@ void JLCLLVMGenerator::visitEApp(EApp *e_app)
   setLLVMTempValue( LLVM_builder_->CreateCall(llvm_func, args, tag));
   DEBUG_PRINT("Call function: " + e_app->ident_);
 
-  //problem
+  // problem
   // cout the instruction in number of args
-  // for x86 assembly generator
+  //for x86 assembly generator
   // pop the args from the function map
   for (size_t i = 0; i < args.size(); i++)
   {
-    auto reg = popArgFromFunctionMap(e_app->ident_);
+    auto reg = popArgFromFunctionMap();
     std::cout << "  mov DWORD PTR [rbp-" << 4*(i+1) << "], "<< reg << std::endl;
     //restore the register availability
     updateRegisterAvailability(reg, true);

@@ -69,38 +69,22 @@ private:
     return *LLVM_Context_;
   }
   
-  // a map for saving the function name and a queue to store function argument list register name
-  std::map<std::string, std::queue<std::string>> function_arg_map_;
+  // a queue to store function argument list register name
+  std::queue<std::string> function_arg_queue;
 
-  // push the argument register name to the queue of the function name
-  void pushArgToFunctionMap(std::string function_name, std::string arg_register_name){
-    if (function_arg_map_.find(function_name) != function_arg_map_.end()){
-      function_arg_map_[function_name].push(arg_register_name);
-    }
-    else{
-      std::queue<std::string> arg_queue;
-      arg_queue.push(arg_register_name);
-      function_arg_map_[function_name] = arg_queue;
-    }
+  // push the argument register name to the queue
+  void pushArgToFunctionMap(std::string arg_name){
+    function_arg_queue.push(arg_name);
   }
 
-  // pop the argument register name from the queue of the function name
-  std::string popArgFromFunctionMap(std::string function_name){
-    if (function_arg_map_.find(function_name) != function_arg_map_.end()){
-      std::string arg_register_name = function_arg_map_[function_name].front();
-      function_arg_map_[function_name].pop();
-      return arg_register_name;
-    }
-    else{
-      // it should not reach here
-      std::cerr << "Error: function " << function_name << " not found in function arg map" << std::endl;
-      return "";
-    }
+  // pop the argument register name from the queue
+  std::string popArgFromFunctionMap(){
+    std::string arg_name = function_arg_queue.front();
+    function_arg_queue.pop();
+    return arg_name;
   }
 
-
-
-
+  
 
   // x86-64 gcc register info, 32 bit registers, dont add %
 std::map<std::string, RegisterInfo> register_map_32{
