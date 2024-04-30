@@ -94,6 +94,9 @@ void JLCX86Generator::visitProgram(Program *program)
   /* iterate through the top definitions */
   // this part is same as the type checker, will add all the functions to the context
   restoreFunctionArgQueue();
+  outfile << "section .data" << std::endl;
+  outfile << "section .text" << std::endl;
+  outfile << "global _start" << std::endl;
   for (ListTopDef::iterator top_def = program->listtopdef_->begin() ; top_def != program->listtopdef_->end() ; ++top_def)
   {
     FnDef* fn_def = reinterpret_cast<FnDef*>(*top_def);
@@ -195,13 +198,13 @@ void JLCX86Generator::visitFnDef(FnDef *fn_def)
           
           auto reg = popArgFromFunctionMap(arg.second);
 
-          std::cout << "  mov DWORD PTR [rbp" << stkptr << "], "<< reg << std::endl;
+          //std::cout << "  mov dword [rbp" << stkptr << "], "<< reg << std::endl;
           //restore the register availability
           updateRegisterAvailability(reg, true);
 
           //push the inst to x86_code_inst
           std::stringstream ss;
-          ss << "  mov DWORD PTR [rbp" << stkptr << "], "<< reg;
+          ss << "  mov dword [rbp" << stkptr << "], "<< reg;
           std::string inst = ss.str();
           x86_function_map[globalContext.currentFrameName].push_back(inst);
          
@@ -222,20 +225,28 @@ void JLCX86Generator::visitFnDef(FnDef *fn_def)
 
   // after visiting the block
   //for x86 assembly generator
-  std::cout << globalContext.currentFrameName << ":" << std::endl;
-  std::cout << "  push rbp" << std::endl;
-  std::cout << "  mov rbp, rsp" << std::endl;
-  int blktop = getStackTop();
-  std::cout << "  sub rsp, " << ((-blktop)/16+1)*16 << std::endl;
+  //std::cout << globalContext.currentFrameName << ":" << std::endl;
+  //std::cout << "  push rbp" << std::endl;
+  //std::cout << "  mov rbp, rsp" << std::endl;
+  if(function_call_map[globalContext.currentFrameName]==true){
+    int blktop = getStackTop();
+    //std::cout << "  sub rsp, " << ((-blktop)/16+1)*16 << std::endl;
+    std::stringstream ss;
+    ss << ((-blktop)/16+1)*16;
+    std::string sub_rsp_value = ss.str();
+    x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),"  sub rsp, "+sub_rsp_value);
+  }
+
 
   // store the x86 code to the x86_code_vector
-  std::stringstream ss;
-  ss << ((-blktop)/16+1)*16;
-  std::string sub_rsp_value = ss.str();
-  x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),"  sub rsp, "+sub_rsp_value);
   x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),"  mov rbp, rsp");
   x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),"  push rbp");
-  x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),globalContext.currentFrameName + ":");
+  if(globalContext.currentFrameName=="main"){
+    x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),"_start:");
+  }else{
+    x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),globalContext.currentFrameName + ":");
+  }
+
 
   // check if the predecessor block is terminated
   if (LLVM_builder_->GetInsertBlock()->getTerminator() == nullptr)
@@ -294,7 +305,7 @@ void JLCX86Generator::visitEmpty(Empty *empty)
 {
   /* Code For Empty Goes Here */
   //x86 assembly generator for empty
-  std::cout << "  nop" << std::endl;
+  //std::cout << "  nop" << std::endl;
   x86_function_map[globalContext.currentFrameName].push_back("  nop");
 }
 
@@ -347,10 +358,10 @@ void JLCX86Generator::visitAss(Ass *ass)
 
   
   if(x86_temp_value_type == "Imm"){
-    std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << x86_temp_value<< std::endl;
+    //std::cout << "  mov dword [rbp" << stkptr << "], " << x86_temp_value<< std::endl;
     // push the inst to x86_code_inst
     std::stringstream ss;
-    ss << "  mov DWORD PTR [rbp" << stkptr << "], " << x86_temp_value;
+    ss << "  mov dword [rbp" << stkptr << "], " << x86_temp_value;
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
 
@@ -359,11 +370,11 @@ void JLCX86Generator::visitAss(Ass *ass)
 
     auto subvarInfo = getVarInfoFromBlockMap(x86_temp_value);
     //find the coorsponding reg of this var
-    std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << subvarInfo->register_name<< std::endl;
+    //std::cout << "  mov dword [rbp" << stkptr << "], " << subvarInfo->register_name<< std::endl;
 
     //push the inst to x86_code _inst
     std::stringstream ss;
-    ss <<  "  mov DWORD PTR [rbp" << stkptr << "], " << subvarInfo->register_name;
+    ss <<  "  mov dword [rbp" << stkptr << "], " << subvarInfo->register_name;
     std::string inst =ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
 
@@ -372,11 +383,12 @@ void JLCX86Generator::visitAss(Ass *ass)
 
   } else if(x86_temp_value_type == "Fun"){
     if(temp_type == DOUB){
-      std::cout << "  movq rax, xmm0"<< std::endl;
-      std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << "rax"<< std::endl;
+      //std::cout << "  movq rax, xmm0"<< std::endl;
+      //std::cout << "  mov dword [rbp" << stkptr << "], " << "rax"<< std::endl;
     }
-    std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << "eax"<< std::endl;
-
+    //std::cout << "  mov dword [rbp" << stkptr << "], " << "eax"<< std::endl;
+    //push the inst to x86_code_inst
+    x86_function_map[globalContext.currentFrameName].push_back("  mov dword [rbp" + std::to_string(stkptr) + "], eax");
   }
   
   
@@ -436,10 +448,76 @@ void JLCX86Generator::visitDecr(Decr *decr)
 void JLCX86Generator::visitRet(Ret *ret)
 {
   /* Code For Ret Goes Here */
-
+  DEBUG_PRINT("visitRet");
   if (ret->expr_) ret->expr_->accept(this);
   // add llvm return 
   LLVM_builder_->CreateRet(llvm_temp_value_);
+
+  //for x86 assembly generator
+  if(x86_temp_value_type=="Imm"){
+    if(temp_type == DOUB){
+      //std::cout << "  movq xmm0, " << x86_temp_value << std::endl;
+      //push the inst to x86_code_inst
+      x86_function_map[globalContext.currentFrameName].push_back("  movq xmm0, " + x86_temp_value);
+    } else{
+      //std::cout << "  mov eax, " << x86_temp_value << std::endl;
+      //push the inst to x86_code_inst
+      x86_function_map[globalContext.currentFrameName].push_back("  mov eax, " + x86_temp_value);
+    }
+  } else if(x86_temp_value_type == "Var"){
+    auto varInfo = getVarInfoFromBlockMap(x86_temp_value);
+    if(temp_type == DOUB){
+      if(varInfo->register_name != "xmm0"){
+        //std::cout << "  movq xmm0, " << varInfo->register_name << std::endl;
+        //set the availability of this reg
+        updateRegisterAvailability("xmm0", false);
+        //push the inst to x86_code_inst
+        x86_function_map[globalContext.currentFrameName].push_back("  movq xmm0, " + varInfo->register_name);
+      }
+    } else{
+      if(varInfo->register_name != "eax"){
+        //std::cout << "  mov eax, " << varInfo->register_name << std::endl; 
+        //set the availability of this reg
+        updateRegisterAvailability("eax", false);
+        //push the inst to x86_code_inst
+        x86_function_map[globalContext.currentFrameName].push_back("  mov eax, " + varInfo->register_name);
+      }
+      
+    }
+    //restore
+    updateRegisterAvailability(varInfo->register_name, true);
+  } else if(x86_temp_value_type == "Fun"){//TODO func return
+    // if(temp_type == DOUB){
+    //   //std::cout << "  movq xmm0, xmm0" << std::endl;
+    // } else{
+    //   //std::cout << "  mov eax, eax" << std::endl;
+    // }
+  }
+
+  // return
+  if(globalContext.currentFrameName!="main"){
+    if(function_call_map[globalContext.currentFrameName]==true){
+      //std::cout << "  leave"<< std::endl;
+      //std::cout << "  ret" << std::endl;
+      //push the inst to x86_code_inst
+      x86_function_map[globalContext.currentFrameName].push_back("  leave");
+      x86_function_map[globalContext.currentFrameName].push_back("  ret");
+    } else{
+      //std::cout << "  pop rbp"<< std::endl;
+      //std::cout << "  ret" << std::endl;
+      //push the inst to x86_code_inst
+      x86_function_map[globalContext.currentFrameName].push_back("  pop rbp");
+      x86_function_map[globalContext.currentFrameName].push_back("  ret");
+    }
+  } else{
+    //std::cout << "  mov edi, eax"<< std::endl;
+    //std::cout << "  mov eax, 60"<< std::endl;
+    //std::cout << "  syscall"<< std::endl;
+    //push the inst to x86_code_inst
+    x86_function_map[globalContext.currentFrameName].push_back("  mov edi, eax");
+    x86_function_map[globalContext.currentFrameName].push_back("  mov eax, 60");
+    x86_function_map[globalContext.currentFrameName].push_back("  syscall");
+  }
 }
 
 void JLCX86Generator::visitVRet(VRet *v_ret)
@@ -680,19 +758,19 @@ void JLCX86Generator::visitInit(Init *init)
 
     //get the stack top
     int stkptr = getStackTop();
-    std::cout << "  mov DWORD PTR [rbp" << stkptr << "], " << x86_temp_value<< std::endl;
+    //std::cout << "  mov dword [rbp" << stkptr << "], " << x86_temp_value<< std::endl;
     addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
 
     //push the inst to x86_code_inst
     std::stringstream ss;
-    ss << "  mov DWORD PTR [rbp" << stkptr << "], " << x86_temp_value;
+    ss << "  mov dword [rbp" << stkptr << "], " << x86_temp_value;
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
   }
   else if (temp_decl_type == DOUB)
   {
     int stkptr = getStackTop();
-    std::cout << "  movsd QWORD PTR [rbp" << stkptr<< "], " << x86_temp_value << std::endl;
+    //std::cout << "  movsd QWORD PTR [rbp" << stkptr<< "], " << x86_temp_value << std::endl;
     addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
 
     //push the inst to x86_code_inst
@@ -799,14 +877,14 @@ void JLCX86Generator::visitEVar(EVar *e_var)
     }
     else
     {
-      std::cout << "  mov " << reg << ", DWORD PTR [rbp" << stkloc << "]" << std::endl;
+      //std::cout << "  mov " << reg << ", dword [rbp" << stkloc << "]" << std::endl;
       updateRegisterAvailability(reg, false);
       updateVarInfoRegisterName(e_var->ident_, reg);
       updateRegisterValue(var, reg);
 
       //push the inst to x86_code_inst
       std::stringstream ss;
-      ss << "  mov " << reg << ", DWORD PTR [rbp" << stkloc << "]";
+      ss << "  mov " << reg << ", dword [rbp" << stkloc << "]";
       std::string inst = ss.str();
       x86_function_map[globalContext.currentFrameName].push_back(inst);
     }
@@ -822,7 +900,7 @@ void JLCX86Generator::visitEVar(EVar *e_var)
     }
     else
     {
-      std::cout << "  movsd " << reg << ", QWORD PTR [rbp" << stkloc << "]" << std::endl;
+      //std::cout << "  movsd " << reg << ", QWORD PTR [rbp" << stkloc << "]" << std::endl;
       updateRegisterAvailability(reg, false);
       updateVarInfoRegisterName(e_var->ident_, reg);
       updateRegisterValue(var, reg);
@@ -927,7 +1005,7 @@ void JLCX86Generator::visitELitFalse(ELitFalse *e_lit_false)
 void JLCX86Generator::visitEApp(EApp *e_app)
 {
   DEBUG_PRINT("Visit EApp: " + e_app->ident_);
-  
+  function_call_map[globalContext.currentFrameName] = true;
   /* Code For EApp Goes Here */
   std::vector<llvm::Value*> args;
   // iterate through the arguments, and collect the llvm values
@@ -941,7 +1019,7 @@ void JLCX86Generator::visitEApp(EApp *e_app)
   
     if(x86_temp_value_type=="Imm"){
       auto reg = popArgFromFunctionMap(temp_type);
-      std::cout << "  mov " << reg << ", " << x86_temp_value << std::endl;
+      //std::cout << "  mov " << reg << ", " << x86_temp_value << std::endl;
       updateRegisterAvailability(reg, false);
       //push the inst to x86_code_inst
       std::stringstream ss;
@@ -953,7 +1031,7 @@ void JLCX86Generator::visitEApp(EApp *e_app)
       auto subvarInfo = getVarInfoFromBlockMap(x86_temp_value);
       auto reg = popArgFromFunctionMap(temp_type);
       //find the coorsponding reg of this var
-      std::cout << "  mov " << reg << ", " << subvarInfo->register_name  << std::endl;
+      //std::cout << "  mov " << reg << ", " << subvarInfo->register_name  << std::endl;
       
       updateRegisterAvailability(subvarInfo->register_name, true);
       updateRegisterAvailability(reg, false);
@@ -964,10 +1042,10 @@ void JLCX86Generator::visitEApp(EApp *e_app)
       x86_function_map[globalContext.currentFrameName].push_back(inst);
     } else if(x86_temp_value_type == "Fun"){//TODO
       // if(temp_type == DOUB){
-      //   std::cout << "  movq rax, xmm0"<< std::endl;
-      //   std::cout << "  mov " << reg << ", rax"<< std::endl;
+      //   //std::cout << "  movq rax, xmm0"<< std::endl;
+      //   //std::cout << "  mov " << reg << ", rax"<< std::endl;
       // }
-      // std::cout << "  mov " << reg << ", eax"<< std::endl;
+      // //std::cout << "  mov " << reg << ", eax"<< std::endl;
     }
   }
   // add llvm function call
@@ -985,28 +1063,9 @@ void JLCX86Generator::visitEApp(EApp *e_app)
   setLLVMTempValue( LLVM_builder_->CreateCall(llvm_func, args, tag));
   DEBUG_PRINT("Call function: " + e_app->ident_);
 
-  // problem
-  // cout the instruction in number of args
-  // for x86 assembly generator
-  // pop the args from the function map
-  // for (size_t i = 0; i < args.size(); i++)
-  // {
-  //   auto reg = popArgFromFunctionMap();
-  //   std::cout << "  mov DWORD PTR [rbp-" << 4*(i+1) << "], "<< reg << std::endl;
-  //   //restore the register availability
-  //   updateRegisterAvailability(reg, true);
-
-  //   //push the inst to x86_code_inst
-  //   std::stringstream ss;
-  //   ss << "  mov DWORD PTR [rbp-" << 4*(i+1) << "], "<< reg;
-  //   std::string inst = ss.str();
-  //   x86_function_map[globalContext.currentFrameName].push_back(inst);
-
-  // }
-
 
   //x86 func call assembly generator
-  std::cout << "  call " << e_app->ident_ << std::endl;
+  //std::cout << "  call " << e_app->ident_ << std::endl;
 
   //push the inst to x86_code_inst
   std::stringstream ss;

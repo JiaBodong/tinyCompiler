@@ -13,7 +13,7 @@ int sump(int a,int b) {
   int x = 3;
   int y = 6;
   int o = 7;
-  return 1;
+  return y;
 }
 
 int main() {
@@ -24,5 +24,5 @@ int main() {
   a = b;
 
   a = sump(a,b);
-  return 0;
+  return a;
 }

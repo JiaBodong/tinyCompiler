@@ -4,7 +4,7 @@
 #define __JLC_X86_GENERATOR__
 /* You might want to change the above name. */
 #include <iostream>
-
+#include <fstream>
 #include "Absyn.H"
 #include "context.H"
 
@@ -50,7 +50,13 @@ public:
   };
 
   ~JLCX86Generator(){
-    //LLVM_module_->print(llvm::outs(), nullptr);
+
+    //print stdout of x86output.s
+    std::ifstream infile("x86output.s");
+    std::string line;
+    while (std::getline(infile, line)){
+      std::cout << line << std::endl;
+    }
   };
   
 
@@ -66,7 +72,8 @@ private:
   // a map using for store x86 instruction code , one function name include a vector
   std::map<std::string, std::vector<std::string>> x86_function_map;
   
-  
+  // map for function name and if have function call
+  std::map<std::string, bool> function_call_map;
 
 
   // GET _CONTEXT()
@@ -115,7 +122,7 @@ private:
     while (!function_arg_queue_128.empty()){
       function_arg_queue_128.pop();
     }
-    
+
     std::initializer_list<std::string> arg_list = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
     for (const auto& arg : arg_list) {
         function_arg_queue_32.push(arg);

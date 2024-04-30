@@ -81,11 +81,11 @@ CC_INCLUDES := -I$(SRC_DIR) \
 
 .PHONY : clean all
 
-all: clean jlc
+all: clean jlc_x64
 
 clean:
 	rm -rf $(BUILD_DIR)/*
-	rm -rf jlc
+	rm -rf jlc_x64
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/$(PARSER_DIR)
 	mkdir -p $(BUILD_DIR)/$(TYPECHECKER_DIR)
@@ -116,10 +116,10 @@ $(BUILD_DIR)/$(X86_DIR)/%.o: $(SRC_DIR)/$(X86_DIR)/%.C $(HEADERS)
 
 # this target is used to generate the jlc executable, 
 # output to the root directory directly.
-jlc: $(OBJS) $(SRC_DIR)/jlc.cpp
+jlc_x64: $(OBJS) $(SRC_DIR)/jlc.cpp
 	@echo "Building jlc..."
 	$(CC) $(CCFLAGS) $(LLVM_CC_CONFIG) \
-		$(CC_INCLUDES) $(OBJS) $(SRC_DIR)/jlc.cpp $(LLVM_LD_CONFIG) -o jlc 
+		$(CC_INCLUDES) $(OBJS) $(SRC_DIR)/jlc.cpp $(LLVM_LD_CONFIG) -o jlc_x64 
 
 # remove this target, because we just need to generate it once,
 # thus, we generate it manually.
