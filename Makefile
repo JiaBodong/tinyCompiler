@@ -24,6 +24,7 @@ SRC_DIR := src
 PARSER_DIR := parser
 TYPECHECKER_DIR := typechecker
 LLVM_DIR := llvm
+X86_DIR := x86Backend
 COMMON_DIR := common
 
 
@@ -43,15 +44,20 @@ COMMON_DIR_H_FILES := $(wildcard $(SRC_DIR)/$(COMMON_DIR)/*.H)
 COMMON_DIR_CC_FILES := $(wildcard $(SRC_DIR)/$(COMMON_DIR)/*.C)
 COMMON_DIR_OBJS := $(patsubst $(SRC_DIR)/$(COMMON_DIR)/%.C, $(BUILD_DIR)/$(COMMON_DIR)/%.o, $(COMMON_DIR_CC_FILES))
 
+X86_DIR_H_FILES := $(wildcard $(SRC_DIR)/$(X86_DIR)/*.H)
+X86_DIR_CC_FILES := $(wildcard $(SRC_DIR)/$(X86_DIR)/*.C)
+X86_DIR_OBJS := $(patsubst $(SRC_DIR)/$(X86_DIR)/%.C, $(BUILD_DIR)/$(X86_DIR)/%.o, $(X86_DIR_CC_FILES))
 
 HEADERS := $(PARSER_DIR_H_FILES) \
 		   $(TYPECHECKER_DIR_H_FILES) \
 		   $(LLVM_DIR_H_FILES) \
+		   $(X86_DIR_H_FILES) \
 		   $(COMMON_DIR_H_FILES)
 
 OBJS := $(PARSER_DIR_OBJS) \
 		$(TYPECHECKER_DIR_OBJS) \
 		$(LLVM_DIR_OBJS) \
+		$(X86_DIR_OBJS) \
 		$(COMMON_DIR_OBJS)
 
 # debug 
@@ -60,6 +66,7 @@ ifdef DETAIL
 $(info "PARSER_DIR_OBJS:"$(PARSER_DIR_OBJS))
 $(info "TYPECHECKER_DIR_OBJS:"$(TYPECHECKER_DIR_OBJS))
 $(info "LLVM_DIR_OBJS:"$(LLVM_DIR_OBJS))
+$(info "X86_DIR_OBJS:"$(X86_DIR_OBJS))
 $(info "COMMON_DIR_OBJS:"$(COMMON_DIR_OBJS))
 endif
 
@@ -69,6 +76,7 @@ CC_INCLUDES := -I$(SRC_DIR) \
 			   -I$(SRC_DIR)/$(PARSER_DIR) \
 			   -I$(SRC_DIR)/$(TYPECHECKER_DIR) \
 			   -I$(SRC_DIR)/$(LLVM_DIR) \
+			   -I$(SRC_DIR)/$(X86_DIR) \
 			   -I$(SRC_DIR)/$(COMMON_DIR)
 
 .PHONY : clean all
@@ -82,6 +90,7 @@ clean:
 	mkdir -p $(BUILD_DIR)/$(PARSER_DIR)
 	mkdir -p $(BUILD_DIR)/$(TYPECHECKER_DIR)
 	mkdir -p $(BUILD_DIR)/$(LLVM_DIR)
+	mkdir -p $(BUILD_DIR)/$(X86_DIR)
 	mkdir -p $(BUILD_DIR)/$(COMMON_DIR)
 
 
@@ -101,7 +110,9 @@ $(BUILD_DIR)/$(TYPECHECKER_DIR)/%.o: $(SRC_DIR)/$(TYPECHECKER_DIR)/%.C $(HEADERS
 
 $(BUILD_DIR)/$(LLVM_DIR)/%.o: $(SRC_DIR)/$(LLVM_DIR)/%.C $(HEADERS)
 	$(CC) $(CCFLAGS) $(CC_INCLUDES) $(LLVM_CC_CONFIG) -c $< -o $@;
-	
+
+$(BUILD_DIR)/$(X86_DIR)/%.o: $(SRC_DIR)/$(X86_DIR)/%.C $(HEADERS)
+	$(CC) $(CCFLAGS) $(CC_INCLUDES) $(LLVM_CC_CONFIG) -c $< -o $@;
 
 # this target is used to generate the jlc executable, 
 # output to the root directory directly.

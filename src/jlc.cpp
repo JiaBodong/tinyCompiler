@@ -6,8 +6,8 @@
 #include "Absyn.H"
 #include "ParserError.H"
 #include "JLCTypeChecker.H"
-#include "JLCLLVMGenerator.H"
-
+//#include "JLCLLVMGenerator.H"
+#include "JLCX86Generator.H"
 void usage() {
   printf("usage: Call with one of the following argument combinations:\n");
   printf("\t--help\t\tDisplay this help message.\n");
@@ -65,7 +65,7 @@ int main(int argc, char ** argv)
     JLCTypeChecker *jlcvc = new JLCTypeChecker();
     parse_tree->accept(jlcvc);
     delete(jlcvc);
-    JLCLLVMGenerator *jlcg = new JLCLLVMGenerator();
+    JLCX86Generator *jlcg = new JLCX86Generator();
     parse_tree->accept(jlcg);
     delete(jlcg);
     delete(parse_tree);
