@@ -80,6 +80,8 @@ void JLCX86Generator::addFuncDeclearation(Frame &frame){
       func_name, 
       LLVM_module_.get());
   
+  globalContext.addFrame(func_name);
+
   std::string ss;
   llvm::raw_string_ostream ss2(ss);
   func_dec->print(ss2);
@@ -94,9 +96,14 @@ void JLCX86Generator::visitProgram(Program *program)
   /* iterate through the top definitions */
   // this part is same as the type checker, will add all the functions to the context
   restoreFunctionArgQueue();
+  outfile << "extern printInt" << std::endl;
+  outfile << "extern printDouble" << std::endl;
+  outfile << "extern printString" << std::endl;
+  outfile << "extern readInt" << std::endl;
+  outfile << "extern readDouble" << std::endl;
   outfile << "section .data" << std::endl;
   outfile << "section .text" << std::endl;
-  outfile << "global _start" << std::endl;
+  outfile << "global main" << std::endl;
   for (ListTopDef::iterator top_def = program->listtopdef_->begin() ; top_def != program->listtopdef_->end() ; ++top_def)
   {
     FnDef* fn_def = reinterpret_cast<FnDef*>(*top_def);
@@ -241,11 +248,8 @@ void JLCX86Generator::visitFnDef(FnDef *fn_def)
   // store the x86 code to the x86_code_vector
   x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),"  mov rbp, rsp");
   x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),"  push rbp");
-  if(globalContext.currentFrameName=="main"){
-    x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),"_start:");
-  }else{
-    x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),globalContext.currentFrameName + ":");
-  }
+  x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),globalContext.currentFrameName + ":");
+  
 
 
   // check if the predecessor block is terminated

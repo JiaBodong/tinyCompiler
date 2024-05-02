@@ -1,6 +1,7 @@
+extern printInt
 section .data
 section .text
-global _start
+global main
 sump:
   push rbp
   mov rbp, rsp
@@ -13,7 +14,7 @@ sump:
   mov eax, dword [rbp-16]
   pop rbp
   ret
-_start:
+main:
   push rbp
   mov rbp, rsp
   sub rsp, 16
@@ -24,10 +25,8 @@ _start:
   mov dword [rbp-4], eax
   mov eax, dword [rbp-4]
   mov edi, eax
-  mov eax, dword [rbp-8]
-  mov esi, eax
-  call sump
-  mov dword [rbp-4], eax
+  call printInt
+
   mov eax, dword [rbp-4]
   mov edi, eax
   mov eax, 60

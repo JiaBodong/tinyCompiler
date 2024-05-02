@@ -22,7 +22,7 @@ int main() {
   int c = 9;
 
   a = b;
-
+  printInt(a);
   a = sump(a,b);
   return a;
 }
