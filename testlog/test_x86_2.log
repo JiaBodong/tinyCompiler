@@ -1,0 +1,548 @@
+- Running make in /chalmers/users/bodong/CompilerProject/lab-group-22 ... Ok.
+- Checking for executable(s) ...Ok.
+- Checking for runtime(s) ... Ok.
+About to run tests with these settings:
+  Prefix:     jlc
+  Backends:   ['x64']
+  Extensions: None
+
+[  1/123] testsuite/good/core009    ... FAILED
+[  2/123] testsuite/good/stack1     ... OK
+[  3/123] testsuite/good/core031    ... FAILED
+[  4/123] testsuite/good/assignedargument ... OK
+[  5/123] testsuite/good/core030    ... FAILED
+[  6/123] testsuite/good/core027    ... FAILED
+[  7/123] testsuite/good/core008    ... OK
+[  8/123] testsuite/good/stack2     ... FAILED
+[  9/123] testsuite/good/core032    ... FAILED
+[ 10/123] testsuite/good/core024    ... OK
+[ 11/123] testsuite/good/core018    ... FAILED
+[ 12/123] testsuite/good/core020    ... OK
+[ 13/123] testsuite/good/registers2 ... FAILED
+[ 14/123] testsuite/good/intarith   ... FAILED
+[ 15/123] testsuite/good/core019    ... FAILED
+[ 16/123] testsuite/good/registers1 ... FAILED
+[ 17/123] testsuite/good/order_binop2 ... FAILED
+[ 18/123] testsuite/good/core023    ... OK
+[ 19/123] testsuite/good/core022    ... FAILED
+[ 20/123] testsuite/good/core004    ... OK
+[ 21/123] testsuite/good/order_binop ... FAILED
+[ 22/123] testsuite/good/core013    ... FAILED
+[ 23/123] testsuite/good/order_fun  ... FAILED
+[ 24/123] testsuite/good/core012    ... FAILED
+[ 25/123] testsuite/good/core005    ... FAILED
+[ 26/123] testsuite/good/intarith2  ... FAILED
+[ 27/123] testsuite/good/core007    ... OK
+[ 28/123] testsuite/good/core028    ... FAILED
+[ 29/123] testsuite/good/core010    ... FAILED
+[ 30/123] testsuite/good/core011    ... OK
+[ 31/123] testsuite/good/core029    ... FAILED
+[ 32/123] testsuite/good/core006    ... OK
+[ 33/123] testsuite/good/intarith3  ... FAILED
+[ 34/123] testsuite/good/core015    ... FAILED
+[ 35/123] testsuite/good/core002    ... FAILED
+[ 36/123] testsuite/good/core014    ... FAILED
+[ 37/123] testsuite/good/shadowedfunction ... FAILED
+[ 38/123] testsuite/good/core016    ... FAILED
+[ 39/123] testsuite/good/core001    ... FAILED
+[ 40/123] testsuite/good/intarith4  ... FAILED
+[ 41/123] testsuite/good/intarith5  ... FAILED
+[ 42/123] testsuite/good/core017    ... FAILED
+[ 43/123] testsuite/bad/bad021      ... OK
+[ 44/123] testsuite/bad/bad051      ... OK
+[ 45/123] testsuite/bad/bad019      ... OK
+[ 46/123] testsuite/bad/struct05    ... OK
+[ 47/123] testsuite/bad/bad046      ... OK
+[ 48/123] testsuite/bad/bad069      ... OK
+[ 49/123] testsuite/bad/bad036      ... OK
+[ 50/123] testsuite/bad/bad037      ... OK
+[ 51/123] testsuite/bad/bad068      ... OK
+[ 52/123] testsuite/bad/bad047      ... OK
+[ 53/123] testsuite/bad/struct04    ... OK
+[ 54/123] testsuite/bad/bad018      ... OK
+[ 55/123] testsuite/bad/bad050      ... OK
+[ 56/123] testsuite/bad/bad020      ... OK
+[ 57/123] testsuite/bad/bad052      ... OK
+[ 58/123] testsuite/bad/bad022      ... OK
+[ 59/123] testsuite/bad/bad035      ... OK
+[ 60/123] testsuite/bad/bad045      ... OK
+[ 61/123] testsuite/bad/bad044      ... OK
+[ 62/123] testsuite/bad/bad034      ... OK
+[ 63/123] testsuite/bad/bad023      ... OK
+[ 64/123] testsuite/bad/bad053      ... OK
+[ 65/123] testsuite/bad/bad040      ... OK
+[ 66/123] testsuite/bad/struct03    ... OK
+[ 67/123] testsuite/bad/bad008      ... OK
+[ 68/123] testsuite/bad/bad027      ... OK
+[ 69/123] testsuite/bad/bad026      ... OK
+[ 70/123] testsuite/bad/bad009      ... OK
+[ 71/123] testsuite/bad/bad056      ... OK
+[ 72/123] testsuite/bad/struct02    ... OK
+[ 73/123] testsuite/bad/bad041      ... OK
+[ 74/123] testsuite/bad/bad031      ... OK
+[ 75/123] testsuite/bad/bad043      ... OK
+[ 76/123] testsuite/bad/bad033      ... OK
+[ 77/123] testsuite/bad/bad054      ... OK
+[ 78/123] testsuite/bad/bad055      ... OK
+[ 79/123] testsuite/bad/bad025      ... OK
+[ 80/123] testsuite/bad/bad032      ... OK
+[ 81/123] testsuite/bad/bad042      ... OK
+[ 82/123] testsuite/bad/bad003      ... OK
+[ 83/123] testsuite/bad/array04     ... OK
+[ 84/123] testsuite/bad/bad073      ... OK
+[ 85/123] testsuite/bad/bad064      ... OK
+[ 86/123] testsuite/bad/bad015      ... OK
+[ 87/123] testsuite/bad/bad065      ... OK
+[ 88/123] testsuite/bad/bad072      ... OK
+[ 89/123] testsuite/bad/bad002      ... OK
+[ 90/123] testsuite/bad/array05     ... OK
+[ 91/123] testsuite/bad/bad070      ... OK
+[ 92/123] testsuite/bad/array07     ... OK
+[ 93/123] testsuite/bad/bad017      ... OK
+[ 94/123] testsuite/bad/bad048      ... OK
+[ 95/123] testsuite/bad/bad067      ... OK
+[ 96/123] testsuite/bad/bad038      ... OK
+[ 97/123] testsuite/bad/bad039      ... OK
+[ 98/123] testsuite/bad/bad066      ... OK
+[ 99/123] testsuite/bad/bad049      ... OK
+[100/123] testsuite/bad/bad016      ... OK
+[101/123] testsuite/bad/array06     ... OK
+[102/123] testsuite/bad/bad001      ... OK
+[103/123] testsuite/bad/bad071      ... OK
+[104/123] testsuite/bad/bad012      ... OK
+[105/123] testsuite/bad/bad062      ... OK
+[106/123] testsuite/bad/bad005      ... OK
+[107/123] testsuite/bad/bad004      ... OK
+[108/123] testsuite/bad/array03     ... OK
+[109/123] testsuite/bad/bad074      ... OK
+[110/123] testsuite/bad/bad063      ... OK
+[111/123] testsuite/bad/bad013      ... OK
+[112/123] testsuite/bad/bad061      ... OK
+[113/123] testsuite/bad/bad011      ... OK
+[114/123] testsuite/bad/array01     ... OK
+[115/123] testsuite/bad/bad059      ... OK
+[116/123] testsuite/bad/bad006      ... OK
+[117/123] testsuite/bad/bad029      ... OK
+[118/123] testsuite/bad/bad028      ... OK
+[119/123] testsuite/bad/bad007      ... OK
+[120/123] testsuite/bad/bad058      ... OK
+[121/123] testsuite/bad/bad010      ... OK
+[122/123] testsuite/bad/bad060      ... OK
+[123/123] testsuite/bad/assignedfunction ... OK
+
+
+Some tests failed:
+---------- !!! testsuite/good/core009.jl failed !!! ----------
+
+- stdout expected:
+    10
+- stdout actual:
+    32535
+
+---------- !!! testsuite/good/core031.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    OK
+
+---------- !!! testsuite/good/core027.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: variable b not found in x86 block name map
+- compiler return code info:
+    compiler return code: -11, 0 expected
+
+---------- !!! testsuite/good/stack2.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: register  not found in register map
+    OK
+
+---------- !!! testsuite/good/core032.jl failed !!! ----------
+
+- stdout expected:
+    100
+- stdout actual:
+
+
+---------- !!! testsuite/good/core018.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: register  not found in register map
+    OK
+
+---------- !!! testsuite/good/registers2.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    ERROR: no available register for double type
+- compiler return code info:
+    compiler return code: 1, 0 expected
+
+---------- !!! testsuite/good/intarith.jl failed !!! ----------
+
+- stdout expected:
+    5
+    4
+    3
+    2
+    1
+    0
+- stdout actual:
+
+
+---------- !!! testsuite/good/core019.jl failed !!! ----------
+
+- stdout expected:
+    1
+    78
+    77
+    84
+    76
+    83
+    76
+    4
+    76
+- stdout actual:
+
+
+---------- !!! testsuite/good/order_binop2.jl failed !!! ----------
+
+- stdout expected:
+    -1
+- stdout actual:
+    795209408
+
+---------- !!! testsuite/good/order_binop.jl failed !!! ----------
+
+- stdout expected:
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    2
+    12
+    34
+    46
+- stdout actual:
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    2
+    12
+    34
+    -1371986480
+
+---------- !!! testsuite/good/core013.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    OK
+
+---------- !!! testsuite/good/order_fun.jl failed !!! ----------
+
+- stdout expected:
+    1
+    2
+    3
+    6
+- stdout actual:
+    1
+    2
+    3
+    1291948448
+
+---------- !!! testsuite/good/core012.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    OK
+
+---------- !!! testsuite/good/core005.jl failed !!! ----------
+
+- stdout expected:
+    2
+- stdout actual:
+
+
+---------- !!! testsuite/good/intarith2.jl failed !!! ----------
+
+- stdout expected:
+    10
+    9
+    8
+    7
+    6
+    5
+    4
+    3
+    2
+    1
+    0
+- stdout actual:
+
+
+---------- !!! testsuite/good/core028.jl failed !!! ----------
+
+- stdout expected:
+    1
+    0
+    -1
+    -2
+- stdout actual:
+
+
+---------- !!! testsuite/good/core010.jl failed !!! ----------
+
+- stdout expected:
+    120
+- stdout actual:
+
+
+---------- !!! testsuite/good/core029.jl failed !!! ----------
+
+- stdout expected:
+    101325.0
+    101325.0
+    1
+    2
+- stdout actual:
+    101325.0
+    0.0
+    1
+    2
+
+---------- !!! testsuite/good/intarith3.jl failed !!! ----------
+
+- stdout expected:
+    0
+    2
+    4
+    6
+    8
+- stdout actual:
+
+
+---------- !!! testsuite/good/core015.jl failed !!! ----------
+
+- stdout expected:
+    0
+- stdout actual:
+
+
+---------- !!! testsuite/good/core002.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: register  not found in register map
+    OK
+
+---------- !!! testsuite/good/core014.jl failed !!! ----------
+
+- stdout expected:
+    1
+    1
+    2
+    3
+    5
+    8
+    13
+    21
+    34
+    55
+    89
+    144
+    233
+    377
+    610
+    987
+    1597
+    2584
+    4181
+    6765
+    10946
+    17711
+    28657
+    46368
+    75025
+    121393
+    196418
+    317811
+    514229
+    832040
+    1346269
+    2178309
+    3524578
+- stdout actual:
+
+
+---------- !!! testsuite/good/shadowedfunction.jl failed !!! ----------
+
+- stdout expected:
+    I'm here!
+- stdout actual:
+
+
+---------- !!! testsuite/good/core016.jl failed !!! ----------
+
+- stdout expected:
+    0
+- stdout actual:
+
+
+---------- !!! testsuite/good/intarith4.jl failed !!! ----------
+
+- stdout expected:
+    5040
+    5040
+- stdout actual:
+
+
+---------- !!! testsuite/good/intarith5.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: variable -x not found in x86 block name map
+- compiler return code info:
+    compiler return code: -11, 0 expected
+
+---------- !!! testsuite/good/core017.jl failed !!! ----------
+
+- stderr expected:
+    OK
+- stderr actual:
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    Error: register  not found in register map
+    OK
+
+Some tests caused build failures:
+---------- !!! testsuite/good/core030.jl failed !!! ----------
+
+    nasm failed with:
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_dq5vvczu.s:16: error: expression syntax error
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_dq5vvczu.s:17: error: expression syntax error
+
+---------- !!! testsuite/good/registers1.jl failed !!! ----------
+
+    nasm failed with:
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_nfr6hi35.s:34: error: symbol `eip' not defined
+
+---------- !!! testsuite/good/core022.jl failed !!! ----------
+
+    nasm failed with:
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_y_pypkod.s:14: error: expression syntax error
+
+---------- !!! testsuite/good/core001.jl failed !!! ----------
+
+    nasm failed with:
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_1xv2omap.s:28: error: expression syntax error
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_1xv2omap.s:120: error: expression syntax error
+
+/chalmers/users/bodong/CompilerProject/lab-group-22

@@ -110,6 +110,29 @@ private:
   std::map<std::string, bool> function_call_map;
 
 
+  // map for double x86_temp_value and FP number
+  std::map<std::string, std::string> x86_FP_map;
+
+  //check if the double x86_temp_value is in the map
+  bool checkDoubleFPMap(std::string x86_temp_value){
+    if (x86_FP_map.find(x86_temp_value) != x86_FP_map.end()){
+      return true;
+    }
+    return false;
+  }
+
+  // get the FP number from the map
+  std::string getDoubleFPMap(std::string x86_temp_value){
+    return x86_FP_map[x86_temp_value];
+  }
+
+  // add the double x86_temp_value and FP number to the map
+  void addDoubleFPMap(std::string x86_temp_value, std::string FP_number){
+    x86_FP_map[x86_temp_value] = FP_number;
+  }
+
+
+
   // GET _CONTEXT()
   llvm::LLVMContext &GET_CONTEXT(){
     return *LLVM_Context_;

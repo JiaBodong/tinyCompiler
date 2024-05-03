@@ -26,6 +26,7 @@ std::ofstream outfile("x86output.s");
 std::string FPRecord="";
 
 int FPCounter=0;
+
 #define ERRPR_HANDLE(msg) \
   while(1){ \
   std::cerr << "Error: " << msg << std::endl; \
@@ -211,7 +212,11 @@ void JLCX86Generator::visitFnDef(FnDef *fn_def)
 
           //push the inst to x86_code_inst
           std::stringstream ss;
-          ss << "  mov dword [rbp" << stkptr << "], "<< reg;
+          if(arg.second == DOUB){
+            ss << "  movss dword [rbp" << stkptr << "], "<< reg;
+          } else if(arg.second == INT){
+            ss << "  mov dword [rbp" << stkptr << "], "<< reg;
+          }
           std::string inst = ss.str();
           x86_function_map[globalContext.currentFrameName].push_back(inst);
          
@@ -258,6 +263,9 @@ void JLCX86Generator::visitFnDef(FnDef *fn_def)
     if (func.returnType == VOID)
     {
       LLVM_builder_->CreateRetVoid();
+      x86_function_map[globalContext.currentFrameName].push_back("  nop");
+      x86_function_map[globalContext.currentFrameName].push_back("  leave");
+      x86_function_map[globalContext.currentFrameName].push_back("  ret");
     }
     else
     {
@@ -365,8 +373,9 @@ void JLCX86Generator::visitAss(Ass *ass)
     // push the inst to x86_code_inst
     std::stringstream ss;
     if(temp_type==DOUB){
-      ss << "  movss dword [rbp" << stkptr << "], " <<x86_temp_value;
-    }else{
+      ss << "  movss dword [rbp" << stkptr << "], " <<x86_temp_FPregister;
+      updateRegisterAvailability(x86_temp_FPregister,true);
+    }else if(temp_type==INT){
       ss << "  mov dword [rbp" << stkptr << "], " <<x86_temp_value;
     }
   
@@ -384,7 +393,7 @@ void JLCX86Generator::visitAss(Ass *ass)
     std::stringstream ss;
     if(temp_type==DOUB){
       ss <<  "  movss dword [rbp" << stkptr << "], " << subvarInfo->register_name;
-    }else{
+    }else if(temp_type==INT){
       ss <<  "  mov dword [rbp" << stkptr << "], " << subvarInfo->register_name;
     }
     
@@ -485,7 +494,7 @@ void JLCX86Generator::visitRet(Ret *ret)
         //set the availability of this reg
         updateRegisterAvailability("xmm0", false);
         //push the inst to x86_code_inst
-        x86_function_map[globalContext.currentFrameName].push_back("  movq xmm0, " + varInfo->register_name);
+        x86_function_map[globalContext.currentFrameName].push_back("  movss xmm0, " + varInfo->register_name);
       }
     } else{
       if(varInfo->register_name != "eax"){
@@ -535,6 +544,8 @@ void JLCX86Generator::visitVRet(VRet *v_ret)
   /* Code For VRet Goes Here */
   LLVM_builder_->CreateRetVoid();
   DEBUG_PRINT("visitVRet");
+
+
 }
 
 void JLCX86Generator::visitCond(Cond *cond)
@@ -740,7 +751,15 @@ void JLCX86Generator::visitNoInit(NoInit *no_init)
   int stkptr = getStackTop();
   
   addVarInfoToBlockMap(no_init->ident_, alloca, stkptr,"");
-
+  std::stringstream ss;
+  if(temp_type == INT){
+    ss << "  mov dword [rbp" << stkptr << "], " << "0";
+  } else if(temp_type == DOUB){
+    ss << "  movss dword [rbp" << stkptr << "], " << "0.0";
+  }
+  
+  std::string inst = ss.str();
+  x86_function_map[globalContext.currentFrameName].push_back(inst);
 }
 
 void JLCX86Generator::visitInit(Init *init)
@@ -780,7 +799,16 @@ void JLCX86Generator::visitInit(Init *init)
 
     //push the inst to x86_code_inst
     std::stringstream ss;
-    ss << "  mov dword [rbp" << stkptr << "], " << x86_temp_value;
+    if(x86_temp_value_type == "Imm"){
+      ss << "  mov dword [rbp" << stkptr << "], " << x86_temp_value;
+    } else if(x86_temp_value_type == "Var"){
+      auto varInfo = getVarInfoFromBlockMap(x86_temp_value);
+      ss << "  mov dword [rbp" << stkptr << "], " << varInfo->register_name;
+      updateRegisterAvailability(varInfo->register_name, true);
+    } else if(x86_temp_value_type == "Fun"){
+      //TODO:ss << "  mov dword [rbp" << stkptr << "], " << "eax";
+    }
+    
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
   }
@@ -792,7 +820,16 @@ void JLCX86Generator::visitInit(Init *init)
 
     
     std::stringstream ss;
-    ss << "  movss dword [rbp" << stkptr<< "], " << x86_temp_value;
+    if(x86_temp_value_type == "Imm"){
+      ss << "  movss dword [rbp" << stkptr<< "], " << x86_temp_FPregister;
+      updateRegisterAvailability(x86_temp_FPregister, true);
+    } else if(x86_temp_value_type == "Var"){
+      auto varInfo = getVarInfoFromBlockMap(x86_temp_value);
+      ss << "  movss dword [rbp" << stkptr<< "], " << varInfo->register_name;
+      updateRegisterAvailability(varInfo->register_name, true);
+    } else if(x86_temp_value_type == "Fun"){
+      //Todo
+    }
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
 
@@ -889,7 +926,7 @@ void JLCX86Generator::visitEVar(EVar *e_var)
     auto reg = checkIntRegisterAvailability();
 
     if (reg =="")
-    {
+    {//TODO:handle the case when there is no available register
       std::cerr << "ERROR: no available register for int type\n";
       exit(1);
     }
@@ -1000,13 +1037,22 @@ void JLCX86Generator::visitELitDoub(ELitDoub *e_lit_doub)
 
   visitDouble(e_lit_doub->double_);
   temp_type = DOUB;
-  FPCounter++;
+  std::string FPNum;
+  std::string floatIdentifier;
 
   x86_temp_value = std::to_string(e_lit_doub->double_);
-  std::string FPNum ="FP" + std::to_string(FPCounter);
-  std::string floatIdentifier = " "+FPNum +" dd "+x86_temp_value+"\n";
-  //update the string in FPRecord
-  FPRecord += floatIdentifier;
+  if(checkDoubleFPMap(x86_temp_value)==true){
+    FPNum = getDoubleFPMap(x86_temp_value);
+    floatIdentifier = " "+FPNum +" dd "+x86_temp_value+"\n";
+  } else{
+    FPCounter++;
+    FPNum ="FP" + std::to_string(FPCounter);
+    floatIdentifier = " "+FPNum +" dd "+x86_temp_value+"\n";
+    //update the string in FPRecord
+    addDoubleFPMap(x86_temp_value, FPNum);
+    FPRecord += floatIdentifier;
+  }
+
   //push the inst to x86_code_inst
   auto reg = checkDoubleRegisterAvailability();
   
@@ -1014,7 +1060,8 @@ void JLCX86Generator::visitELitDoub(ELitDoub *e_lit_doub)
   ss << "  movss " << reg << ", dword "<<"["<<FPNum<<"]";
   std::string inst = ss.str();
   x86_function_map[globalContext.currentFrameName].push_back(inst);
-  x86_temp_value = reg;
+  updateRegisterAvailability(reg, false);
+  x86_temp_FPregister = reg;
 
   x86_temp_value_type = "Imm";
   // llvm constant
@@ -1060,7 +1107,19 @@ void JLCX86Generator::visitEApp(EApp *e_app)
       updateRegisterAvailability(reg, false);
       //push the inst to x86_code_inst
       std::stringstream ss;
-      ss << "  mov " << reg << ", " << x86_temp_value;
+      if(temp_type == DOUB){
+
+        updateRegisterAvailability(x86_temp_FPregister, true);
+        // at this time the x86_temp_Value is a reg
+        if(e_app->ident_=="printDouble"){
+          ss << "  cvtss2sd " << reg << ", " << x86_temp_FPregister;
+        }else{
+          ss << "  movss " << reg << ", " << x86_temp_FPregister;
+        }
+      } else if(temp_type == INT){
+        ss << "  mov " << reg << ", " << x86_temp_value;
+        
+      }
       std::string inst = ss.str();
       x86_function_map[globalContext.currentFrameName].push_back(inst);
     } else if(x86_temp_value_type == "Var"){
@@ -1075,10 +1134,15 @@ void JLCX86Generator::visitEApp(EApp *e_app)
       //push the inst to x86_code_inst
       std::stringstream ss;
       if(temp_type == DOUB){
-        ss << "  cvtss2sd " << reg  << ", " << subvarInfo->register_name ;
+        if(e_app->ident_=="printDouble"){
+          ss << "  cvtss2sd " << reg << ", " << subvarInfo->register_name;
+        }else{
+          ss << "  movss " << reg  << ", " << subvarInfo->register_name ;
+        }
       } else{
         ss << "  mov " << reg << ", " << subvarInfo->register_name ;
       }
+      updateRegisterAvailability(subvarInfo->register_name, true);
       std::string inst = ss.str();
       x86_function_map[globalContext.currentFrameName].push_back(inst);
       
