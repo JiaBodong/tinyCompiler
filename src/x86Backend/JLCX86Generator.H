@@ -5,6 +5,8 @@
 /* You might want to change the above name. */
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <string>
 #include "Absyn.H"
 #include "context.H"
 
@@ -69,6 +71,38 @@ private:
   llvm::Value * llvm_temp_value_;
   std::string x86_temp_value;
   std::string x86_temp_value_type;
+  std::string x86_temp_FPregister;
+
+
+  void insertContentAtBeginning(const std::string& filename, const std::string& content) {
+    // stringstream 
+    std::ifstream infile(filename);
+    if (!infile.is_open()) {
+        std::cerr << "Error: Failed to open file for reading." << std::endl;
+        return;
+    }
+
+    std::stringstream fileContent;
+    fileContent << infile.rdbuf();
+    infile.close();
+
+    // stringstream 
+    std::string newContent = content + "\n" + fileContent.str();
+
+    // 
+    std::ofstream outfile(filename);
+    if (!outfile.is_open()) {
+        std::cerr << "Error: Failed to open file for writing." << std::endl;
+        return;
+    }
+
+    // stringstream 
+    outfile << newContent;
+    outfile.close();
+  }
+
+
+
   // a map using for store x86 instruction code , one function name include a vector
   std::map<std::string, std::vector<std::string>> x86_function_map;
   
@@ -275,7 +309,7 @@ std::map<std::string, RegisterInfo> register_map_128{
       }
     }
     // it should not reach here
-    std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
+    std::cerr << "Error: variable " << var_name << " not found in x86 block name map" << std::endl;
     return nullptr;
   }
 
@@ -341,7 +375,7 @@ std::map<std::string, RegisterInfo> register_map_128{
       }
     }
     // it should not reach here
-    std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
+    std::cerr << "Error: variable " << var_name << " not found in x86 block name map" << std::endl;
     return -1;
   }
 
@@ -403,7 +437,7 @@ std::map<std::string, RegisterInfo> register_map_128{
       }
     }
     // it should not reach here
-    std::cerr << "Error: variable " << var_name << " not found in llvm block name map" << std::endl;
+    std::cerr << "Error: variable " << var_name << " not found in x86 block name map" << std::endl;
   }
 
   //update imm value* corrsponding to the register_name

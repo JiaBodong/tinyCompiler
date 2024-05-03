@@ -23,6 +23,9 @@ static PrintAbsyn p = PrintAbsyn();
 static const std::string GeneratorName = "JLCX86Generator";
 std::ofstream outfile("x86output.s");
 
+std::string FPRecord="";
+
+int FPCounter=0;
 #define ERRPR_HANDLE(msg) \
   while(1){ \
   std::cerr << "Error: " << msg << std::endl; \
@@ -96,14 +99,7 @@ void JLCX86Generator::visitProgram(Program *program)
   /* iterate through the top definitions */
   // this part is same as the type checker, will add all the functions to the context
   restoreFunctionArgQueue();
-  outfile << "extern printInt" << std::endl;
-  outfile << "extern printDouble" << std::endl;
-  outfile << "extern printString" << std::endl;
-  outfile << "extern readInt" << std::endl;
-  outfile << "extern readDouble" << std::endl;
-  outfile << "section .data" << std::endl;
-  outfile << "section .text" << std::endl;
-  outfile << "global main" << std::endl;
+
   for (ListTopDef::iterator top_def = program->listtopdef_->begin() ; top_def != program->listtopdef_->end() ; ++top_def)
   {
     FnDef* fn_def = reinterpret_cast<FnDef*>(*top_def);
@@ -155,6 +151,10 @@ void JLCX86Generator::visitProgram(Program *program)
   }
 
   if (program->listtopdef_) program->listtopdef_->accept(this);
+
+  //before finish the program,  insert some code to the head of outfile
+  insertContentAtBeginning("x86output.s", "extern printInt\nextern printDouble\nextern printString\nextern readInt\nextern readDouble\nsection .data\n"+FPRecord+"section .text\nglobal main");
+
 
 }
 
@@ -250,7 +250,6 @@ void JLCX86Generator::visitFnDef(FnDef *fn_def)
   x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),"  push rbp");
   x86_function_map[globalContext.currentFrameName].insert(x86_function_map[globalContext.currentFrameName].begin(),globalContext.currentFrameName + ":");
   
-
 
   // check if the predecessor block is terminated
   if (LLVM_builder_->GetInsertBlock()->getTerminator() == nullptr)
@@ -365,7 +364,12 @@ void JLCX86Generator::visitAss(Ass *ass)
     //std::cout << "  mov dword [rbp" << stkptr << "], " << x86_temp_value<< std::endl;
     // push the inst to x86_code_inst
     std::stringstream ss;
-    ss << "  mov dword [rbp" << stkptr << "], " << x86_temp_value;
+    if(temp_type==DOUB){
+      ss << "  movss dword [rbp" << stkptr << "], " <<x86_temp_value;
+    }else{
+      ss << "  mov dword [rbp" << stkptr << "], " <<x86_temp_value;
+    }
+  
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
 
@@ -378,7 +382,12 @@ void JLCX86Generator::visitAss(Ass *ass)
 
     //push the inst to x86_code _inst
     std::stringstream ss;
-    ss <<  "  mov dword [rbp" << stkptr << "], " << subvarInfo->register_name;
+    if(temp_type==DOUB){
+      ss <<  "  movss dword [rbp" << stkptr << "], " << subvarInfo->register_name;
+    }else{
+      ss <<  "  mov dword [rbp" << stkptr << "], " << subvarInfo->register_name;
+    }
+    
     std::string inst =ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
 
@@ -514,13 +523,10 @@ void JLCX86Generator::visitRet(Ret *ret)
       x86_function_map[globalContext.currentFrameName].push_back("  ret");
     }
   } else{
-    //std::cout << "  mov edi, eax"<< std::endl;
-    //std::cout << "  mov eax, 60"<< std::endl;
-    //std::cout << "  syscall"<< std::endl;
     //push the inst to x86_code_inst
-    x86_function_map[globalContext.currentFrameName].push_back("  mov edi, eax");
-    x86_function_map[globalContext.currentFrameName].push_back("  mov eax, 60");
-    x86_function_map[globalContext.currentFrameName].push_back("  syscall");
+    x86_function_map[globalContext.currentFrameName].push_back("  leave");
+    x86_function_map[globalContext.currentFrameName].push_back("  ret");
+
   }
 }
 
@@ -728,6 +734,13 @@ void JLCX86Generator::visitNoInit(NoInit *no_init)
       llvm::MDString::get(*LLVM_Context_, "Default value: 0"));
     alloca->setMetadata("comment", N);
   }
+  addVarToStackMap(no_init->ident_, alloca);
+  
+
+  int stkptr = getStackTop();
+  
+  addVarInfoToBlockMap(no_init->ident_, alloca, stkptr,"");
+
 }
 
 void JLCX86Generator::visitInit(Init *init)
@@ -777,11 +790,12 @@ void JLCX86Generator::visitInit(Init *init)
     //std::cout << "  movsd QWORD PTR [rbp" << stkptr<< "], " << x86_temp_value << std::endl;
     addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
 
-    //push the inst to x86_code_inst
+    
     std::stringstream ss;
-    ss << "  movsd QWORD PTR [rbp" << stkptr << "], " << x86_temp_value;
+    ss << "  movss dword [rbp" << stkptr<< "], " << x86_temp_value;
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
+
   }
 }
 
@@ -904,14 +918,14 @@ void JLCX86Generator::visitEVar(EVar *e_var)
     }
     else
     {
-      //std::cout << "  movsd " << reg << ", QWORD PTR [rbp" << stkloc << "]" << std::endl;
+      
       updateRegisterAvailability(reg, false);
       updateVarInfoRegisterName(e_var->ident_, reg);
       updateRegisterValue(var, reg);
 
       //push the inst to x86_code_inst
       std::stringstream ss;
-      ss << "  movsd " << reg << ", QWORD PTR [rbp" << stkloc << "]";
+      ss << "  movss " << reg << ", dword [rbp" << stkloc << "]";
       std::string inst = ss.str();
       x86_function_map[globalContext.currentFrameName].push_back(inst);
 
@@ -971,7 +985,9 @@ void JLCX86Generator::visitELitInt(ELitInt *e_lit_int)
 
   visitInteger(e_lit_int->integer_);
   temp_type = INT;
+  
   x86_temp_value = std::to_string(e_lit_int->integer_);
+
   x86_temp_value_type = "Imm";
   // llvm constant
   setLLVMTempValue( llvm::ConstantInt::get(*LLVM_Context_, llvm::APInt(32, e_lit_int->integer_)));
@@ -984,6 +1000,23 @@ void JLCX86Generator::visitELitDoub(ELitDoub *e_lit_doub)
 
   visitDouble(e_lit_doub->double_);
   temp_type = DOUB;
+  FPCounter++;
+
+  x86_temp_value = std::to_string(e_lit_doub->double_);
+  std::string FPNum ="FP" + std::to_string(FPCounter);
+  std::string floatIdentifier = " "+FPNum +" dd "+x86_temp_value+"\n";
+  //update the string in FPRecord
+  FPRecord += floatIdentifier;
+  //push the inst to x86_code_inst
+  auto reg = checkDoubleRegisterAvailability();
+  
+  std::stringstream ss;
+  ss << "  movss " << reg << ", dword "<<"["<<FPNum<<"]";
+  std::string inst = ss.str();
+  x86_function_map[globalContext.currentFrameName].push_back(inst);
+  x86_temp_value = reg;
+
+  x86_temp_value_type = "Imm";
   // llvm constant
   setLLVMTempValue(llvm::ConstantFP::get(*LLVM_Context_, llvm::APFloat(e_lit_doub->double_)));
 }
@@ -1041,9 +1074,14 @@ void JLCX86Generator::visitEApp(EApp *e_app)
       updateRegisterAvailability(reg, false);
       //push the inst to x86_code_inst
       std::stringstream ss;
-      ss << "  mov " << reg << ", " << subvarInfo->register_name ;
+      if(temp_type == DOUB){
+        ss << "  cvtss2sd " << reg  << ", " << subvarInfo->register_name ;
+      } else{
+        ss << "  mov " << reg << ", " << subvarInfo->register_name ;
+      }
       std::string inst = ss.str();
       x86_function_map[globalContext.currentFrameName].push_back(inst);
+      
     } else if(x86_temp_value_type == "Fun"){//TODO
       // if(temp_type == DOUB){
       //   //std::cout << "  movq rax, xmm0"<< std::endl;
@@ -1052,6 +1090,9 @@ void JLCX86Generator::visitEApp(EApp *e_app)
       // //std::cout << "  mov " << reg << ", eax"<< std::endl;
     }
   }
+
+  restoreFunctionArgQueue();
+
   // add llvm function call
   auto llvm_func = LLVM_module_->getFunction(e_app->ident_);
   // check if the return type is void
@@ -1135,6 +1176,7 @@ void JLCX86Generator::visitNeg(Neg *neg)
   {
     setLLVMTempValue( LLVM_builder_->CreateFNeg(llvm_temp_value_));
   }
+  x86_temp_value = "-" + x86_temp_value;
 }
 
 void JLCX86Generator::visitNot(Not *not_)

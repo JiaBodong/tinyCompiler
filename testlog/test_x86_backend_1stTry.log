@@ -25,14 +25,14 @@ About to run tests with these settings:
 [ 17/123] testsuite/good/order_binop2 ... FAILED
 [ 18/123] testsuite/good/core023    ... OK
 [ 19/123] testsuite/good/core022    ... FAILED
-[ 20/123] testsuite/good/core004    ... FAILED
+[ 20/123] testsuite/good/core004    ... OK
 [ 21/123] testsuite/good/order_binop ... FAILED
 [ 22/123] testsuite/good/core013    ... FAILED
 [ 23/123] testsuite/good/order_fun  ... FAILED
 [ 24/123] testsuite/good/core012    ... FAILED
 [ 25/123] testsuite/good/core005    ... FAILED
 [ 26/123] testsuite/good/intarith2  ... FAILED
-[ 27/123] testsuite/good/core007    ... FAILED
+[ 27/123] testsuite/good/core007    ... OK
 [ 28/123] testsuite/good/core028    ... FAILED
 [ 29/123] testsuite/good/core010    ... FAILED
 [ 30/123] testsuite/good/core011    ... FAILED
@@ -146,16 +146,6 @@ Some tests failed:
 - stderr expected:
     OK
 - stderr actual:
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
     Error: register  not found in register map
     Error: register  not found in register map
     Error: register  not found in register map
@@ -302,28 +292,6 @@ Some tests failed:
     Error: register  not found in register map
     Error: register  not found in register map
     Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
     OK
 
 ---------- !!! testsuite/good/intarith.jl failed !!! ----------
@@ -337,35 +305,25 @@ Some tests failed:
 
 ---------- !!! testsuite/good/core019.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    Error: register  not found in register map
-    OK
+- stdout expected:
+    1
+    78
+    77
+    84
+    76
+    83
+    76
+    4
+    76
+- stdout actual:
 
----------- !!! testsuite/good/registers1.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    OK
 
 ---------- !!! testsuite/good/order_binop2.jl failed !!! ----------
 
 - stdout expected:
     -1
 - stdout actual:
-
+    1953941264
 
 ---------- !!! testsuite/good/core022.jl failed !!! ----------
 
@@ -375,13 +333,6 @@ Some tests failed:
     Error: variable x not found in llvm block name map
 - compiler return code info:
     compiler return code: -11, 0 expected
-
----------- !!! testsuite/good/core004.jl failed !!! ----------
-
-- stdout expected:
-    42
-- stdout actual:
-
 
 ---------- !!! testsuite/good/order_binop.jl failed !!! ----------
 
@@ -400,16 +351,6 @@ Some tests failed:
     Error: register  not found in register map
     Error: register  not found in register map
     Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
-    Error: register  not found in register map
     OK
 
 ---------- !!! testsuite/good/order_fun.jl failed !!! ----------
@@ -420,7 +361,10 @@ Some tests failed:
     3
     6
 - stdout actual:
-
+    1
+    2
+    3
+    -966659600
 
 ---------- !!! testsuite/good/core012.jl failed !!! ----------
 
@@ -458,13 +402,6 @@ Some tests failed:
 - stdout actual:
 
 
----------- !!! testsuite/good/core007.jl failed !!! ----------
-
-- stdout expected:
-    7
-- stdout actual:
-
-
 ---------- !!! testsuite/good/core028.jl failed !!! ----------
 
 - stderr expected:
@@ -488,7 +425,7 @@ Some tests failed:
 - stdout expected:
     -1
 - stdout actual:
-
+    1
 
 ---------- !!! testsuite/good/core006.jl failed !!! ----------
 
@@ -594,32 +531,38 @@ Some tests caused build failures:
 ---------- !!! testsuite/good/core009.jl failed !!! ----------
 
     nasm failed with:
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_acnfujdu.s:14: error: invalid combination of opcode and operands
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_nvud73o6.s:14: error: invalid combination of opcode and operands
 
 ---------- !!! testsuite/good/assignedargument.jl failed !!! ----------
 
     nasm failed with:
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_vbyp57po.s:25: error: symbol `greeting' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_dnpi76z6.s:25: error: symbol `greeting' not defined
+
+---------- !!! testsuite/good/registers1.jl failed !!! ----------
+
+    nasm failed with:
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_o3h_evov.s:34: error: symbol `eip' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_o3h_evov.s:43: error: symbol `x15' not defined
 
 ---------- !!! testsuite/good/core029.jl failed !!! ----------
 
     nasm failed with:
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:14: warning: `PTR' is not a NASM keyword [-w+ptr]
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:14: error: symbol `PTR' not defined
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:16: warning: `PTR' is not a NASM keyword [-w+ptr]
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:16: error: symbol `PTR' not defined
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:17: error: invalid combination of opcode and operands
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:19: warning: `PTR' is not a NASM keyword [-w+ptr]
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:19: error: symbol `PTR' not defined
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:20: warning: `PTR' is not a NASM keyword [-w+ptr]
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:20: error: symbol `PTR' not defined
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:21: warning: `PTR' is not a NASM keyword [-w+ptr]
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:21: error: symbol `PTR' not defined
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:24: warning: `PTR' is not a NASM keyword [-w+ptr]
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:24: error: symbol `PTR' not defined
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:25: warning: `PTR' is not a NASM keyword [-w+ptr]
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:25: error: symbol `PTR' not defined
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:26: warning: `PTR' is not a NASM keyword [-w+ptr]
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_mqgej2jq.s:26: error: symbol `PTR' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:14: warning: `PTR' is not a NASM keyword [-w+ptr]
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:14: error: symbol `PTR' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:16: warning: `PTR' is not a NASM keyword [-w+ptr]
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:16: error: symbol `PTR' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:17: error: invalid combination of opcode and operands
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:19: warning: `PTR' is not a NASM keyword [-w+ptr]
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:19: error: symbol `PTR' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:20: warning: `PTR' is not a NASM keyword [-w+ptr]
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:20: error: symbol `PTR' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:21: warning: `PTR' is not a NASM keyword [-w+ptr]
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:21: error: symbol `PTR' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:24: warning: `PTR' is not a NASM keyword [-w+ptr]
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:24: error: symbol `PTR' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:25: warning: `PTR' is not a NASM keyword [-w+ptr]
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:25: error: symbol `PTR' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:26: warning: `PTR' is not a NASM keyword [-w+ptr]
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_k5h8q1qb.s:26: error: symbol `PTR' not defined
 
 /chalmers/users/bodong/CompilerProject/lab-group-22
