@@ -129,7 +129,27 @@ private:
   void addDoubleFPMap(std::string x86_temp_value, std::string FP_number){
     x86_FP_map[x86_temp_value] = FP_number;
   }
+ 
+  // like x86_FP_map, for string
+  std::map<std::string, std::string> x86_string_map;
 
+  //check if the string x86_temp_value is in the map
+  bool checkStringMap(std::string x86_temp_value){
+    if (x86_string_map.find(x86_temp_value) != x86_string_map.end()){
+      return true;
+    }
+    return false;
+  }
+
+  // get the string from the map
+  std::string getStringMap(std::string x86_temp_value){
+    return x86_string_map[x86_temp_value];
+  }
+
+  // add the string x86_temp_value and FP number to the map
+  void addStringMap(std::string x86_temp_value, std::string FP_number){
+    x86_string_map[x86_temp_value] = FP_number;
+  }
 
 
   // GET _CONTEXT()

@@ -5,7 +5,7 @@ extern readInt
 extern readDouble
 section .data
  FP1 dd 0.000000
- ST1 db 'Yes!!',0
+ Str1 db 'AMD,Yes!', 0
 section .text
 global main
 main:
@@ -21,7 +21,7 @@ main:
   movss xmm0, dword [rbp-8]
   cvtss2sd xmm0, xmm0
   call printDouble
-  mov edi, qword [ST1]
+  lea rdi, [Str1]
   call printString
   mov eax, 0
   leave

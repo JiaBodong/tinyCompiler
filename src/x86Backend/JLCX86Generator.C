@@ -31,6 +31,8 @@ int FPCounter=0;
 int CondCounter=0;
 int NoBstmt = 0;
 
+int StrCounter = 0;
+std::string StrRecord = "";
 
 #define ERRPR_HANDLE(msg) \
   while(1){ \
@@ -159,7 +161,7 @@ void JLCX86Generator::visitProgram(Program *program)
   if (program->listtopdef_) program->listtopdef_->accept(this);
 
   //before finish the program,  insert some code to the head of outfile
-  insertContentAtBeginning("x86output.s", "extern printInt\nextern printDouble\nextern printString\nextern readInt\nextern readDouble\nsection .data\n"+FPRecord+"section .text\nglobal main");
+  insertContentAtBeginning("x86output.s", "extern printInt\nextern printDouble\nextern printString\nextern readInt\nextern readDouble\nsection .data\n"+FPRecord+StrRecord+"section .text\nglobal main");
 
 
 }
@@ -1366,6 +1368,8 @@ void JLCX86Generator::visitEApp(EApp *e_app)
       //   //std::cout << "  mov " << reg << ", rax"<< std::endl;
       // }
       // //std::cout << "  mov " << reg << ", eax"<< std::endl;
+    } else if(temp_type==STRING){
+      ;
     }
   }
 
@@ -1437,6 +1441,30 @@ void JLCX86Generator::visitEString(EString *e_string)
   }
 
   setLLVMTempValue( global_sid_var_map[id]);
+
+
+  //for x86 assembly generator
+  std::string StrNum;
+  std::string StrIdentifier;
+
+  auto temp_str = e_string->string_;
+  if(checkStringMap(temp_str)==true){
+    StrNum = getStringMap(temp_str);
+    StrIdentifier = " "+StrNum +" db "+temp_str+", 0\n";
+  } else{
+    StrCounter++;
+    StrNum ="Str" + std::to_string(StrCounter);
+    StrIdentifier = " "+StrNum +" db "+"'"+temp_str+"'"+", 0\n";
+    //update the string in FPRecord
+    addStringMap(temp_str, StrNum);
+    StrRecord += StrIdentifier;
+  }
+
+  //push the inst to x86_code_inst
+  std::stringstream ss;
+  ss << "  lea rdi, " << "[" << StrNum << "]";
+  std::string inst = ss.str();
+  x86_function_map[globalContext.currentFrameName].push_back(inst);
 }
 
 void JLCX86Generator::visitNeg(Neg *neg)

@@ -38,6 +38,7 @@ int main() {
   double y;
   printInt(x);
   printDouble(y);
+  printString("AMD,Yes!");
   return 0;
 }
 
