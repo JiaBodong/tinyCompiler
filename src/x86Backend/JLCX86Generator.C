@@ -24,8 +24,11 @@ static const std::string GeneratorName = "JLCX86Generator";
 std::ofstream outfile("x86output.s");
 
 std::string FPRecord="";
-
+std::string BStmtBlkLabel ="";
+std::string BStmtBlkEndLabel ="";
 int FPCounter=0;
+int CondCounter=0;
+
 
 #define ERRPR_HANDLE(msg) \
   while(1){ \
@@ -323,16 +326,20 @@ void JLCX86Generator::visitEmpty(Empty *empty)
 void JLCX86Generator::visitBStmt(BStmt *b_stmt)
 {
   /* Code For BStmt Goes Here */
+  std::stringstream ss;
+  ss<<BStmtBlkLabel<<":";
+  x86_function_map[globalContext.currentFrameName].push_back(ss.str());
   DEBUG_PRINT( "[" + GeneratorName  +"]" + " visiting BStmt");
   auto & func = globalContext.currentFrame();
   func.newBlock();
   addBlockVarMap(); // this 
-
+  addBlockVarInfoMap();
   if (b_stmt->blk_) b_stmt->blk_->accept(this);
   // release the block
   DEBUG_PRINT("release block");
   func.releaseBlock();
   removeBlockVarMap();
+  removeBlockVarInfoMap();
 }
 
 void JLCX86Generator::visitDecl(Decl *decl)
@@ -404,13 +411,17 @@ void JLCX86Generator::visitAss(Ass *ass)
     updateRegisterAvailability(subvarInfo->register_name, true);
 
   } else if(x86_temp_value_type == "Fun"){
+    std::stringstream ss;
     if(temp_type == DOUB){
-      //std::cout << "  movq rax, xmm0"<< std::endl;
-      //std::cout << "  mov dword [rbp" << stkptr << "], " << "rax"<< std::endl;
+      ss << "  movd eax, xmm0"<< std::endl <<"  mov dword [rbp" << stkptr << "], " << "eax";
+      updateRegisterAvailability("eax", true);
+      updateRegisterAvailability("xmm0", true);
+    } else if(temp_type == INT){
+      ss << "  mov dword [rbp" << stkptr << "], " << "eax";
+      updateRegisterAvailability("eax", true);
     }
-    //std::cout << "  mov dword [rbp" << stkptr << "], " << "eax"<< std::endl;
-    //push the inst to x86_code_inst
-    x86_function_map[globalContext.currentFrameName].push_back("  mov dword [rbp" + std::to_string(stkptr) + "], eax");
+    std::string inst = ss.str();
+    x86_function_map[globalContext.currentFrameName].push_back(inst);
   }
   
   
@@ -557,8 +568,78 @@ void JLCX86Generator::visitCond(Cond *cond)
       *LLVM_Context_, "cond.true", parent);
   auto cond_end_block = llvm::BasicBlock::Create(
       *LLVM_Context_, "cond.end", parent);
+  
+  CondCounter++;
+  BStmtBlkLabel = ".LB"+std::to_string(CondCounter);
+  CondCounter++;
+  BStmtBlkEndLabel = ".LB"+std::to_string(CondCounter);
 
   if (cond->expr_) cond->expr_->accept(this);
+
+  //get the last logic operation
+  if(temp_op==eLT){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  jge " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jae " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+
+  }else if(temp_op==eLE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  jg " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  ja " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eGT){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  jle " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jbe " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eGE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  jl " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jb " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eEQ){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  jne " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jne " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eNE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  je " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  je " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }
+
   auto expr_llvm_value = llvm_temp_value_;
 
   LLVM_builder_->CreateCondBr(expr_llvm_value, cond_true_block, cond_end_block);
@@ -568,12 +649,20 @@ void JLCX86Generator::visitCond(Cond *cond)
   func.newBlock(); // just logic block, no need to create a label
   addBlockVarMap();// just logic block, no need to create a label
 
+  addBlockVarInfoMap();
+
+
   if (cond->stmt_) cond->stmt_->accept(this);
   auto stmt_llvm_value = llvm_temp_value_;
 
+    //insert the label to the cond end block
+  std::stringstream ss;
+  ss<<BStmtBlkEndLabel<<":";
+  x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+
   func.releaseBlock(); // release the logic block
   removeBlockVarMap(); // release the logic block
-
+  removeBlockVarInfoMap(); // release the logic block
   // if the block is not terminated, we need to jump to the end block
   if (LLVM_builder_->GetInsertBlock()->getTerminator() == nullptr)
   {
@@ -582,6 +671,7 @@ void JLCX86Generator::visitCond(Cond *cond)
       +" is not terminated by return" );
   }
   LLVM_builder_->SetInsertPoint(cond_end_block); 
+
 }
 
 void JLCX86Generator::visitCondElse(CondElse *cond_else)
@@ -806,7 +896,8 @@ void JLCX86Generator::visitInit(Init *init)
       ss << "  mov dword [rbp" << stkptr << "], " << varInfo->register_name;
       updateRegisterAvailability(varInfo->register_name, true);
     } else if(x86_temp_value_type == "Fun"){
-      //TODO:ss << "  mov dword [rbp" << stkptr << "], " << "eax";
+      ss << "  mov dword [rbp" << stkptr << "], " << "eax";
+      updateRegisterAvailability("eax", true);
     }
     
     std::string inst = ss.str();
@@ -828,7 +919,9 @@ void JLCX86Generator::visitInit(Init *init)
       ss << "  movss dword [rbp" << stkptr<< "], " << varInfo->register_name;
       updateRegisterAvailability(varInfo->register_name, true);
     } else if(x86_temp_value_type == "Fun"){
-      //Todo
+      ss << "  movd eax, xmm0" << std::endl << "  movss dword [rbp" << stkptr<< "], " << "eax";
+      updateRegisterAvailability("eax", true);
+      updateRegisterAvailability("xmm0", true);
     }
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
@@ -923,6 +1016,9 @@ void JLCX86Generator::visitEVar(EVar *e_var)
   // allocate the stack location to one register, for example, eax , and update the the status from true to false in register_map
   if (temp_type == INT)
   {
+    if(isRelop==true){
+      return;
+    }
     auto reg = checkIntRegisterAvailability();
 
     if (reg =="")
@@ -1352,12 +1448,74 @@ void JLCX86Generator::visitEAdd(EAdd *e_add)
 void JLCX86Generator::visitERel(ERel *e_rel)
 {
   /* Code For ERel Goes Here */
+  isRelop = true;
   if (e_rel->expr_1) e_rel->expr_1->accept(this);
   auto expr_1_llvm_value = llvm_temp_value_;
+  auto expr_1_x86_temp_value = x86_temp_value;
+  auto expr_1_x86_temp_value_type = x86_temp_value_type;
   if (e_rel->relop_) e_rel->relop_->accept(this);
   auto local_op = temp_op;
   if (e_rel->expr_2) e_rel->expr_2->accept(this);
   auto expr_2_llvm_value = llvm_temp_value_;
+  auto expr_2_x86_temp_value = x86_temp_value;
+  auto expr_2_x86_temp_value_type = x86_temp_value_type; 
+  //for x86 assembly generator
+  std::stringstream ss;
+
+  // if value is int, then we use CreateICmpSLT
+  if(expr_1_llvm_value->getType()->isIntegerTy())
+  {
+
+    //for x86 assembly generator
+    if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
+      
+      ss <<"  mov eax, "<< expr_1_x86_temp_value;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      auto stkloc = getStackLocation(expr_2_x86_temp_value);      
+      ss << "  cmp eax, " << "dword [rbp" << stkloc << "]";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+
+    }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
+    
+      auto stkloc1 = getStackLocation(expr_1_x86_temp_value);
+      auto stkloc2 = getStackLocation(expr_2_x86_temp_value);
+      ss << "  mov eax, " << "dword [rbp" << stkloc1 << "]";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      ss << "  cmp eax, " << "dword [rbp" << stkloc2 << "]";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else{
+      
+      auto stkloc = getStackLocation(expr_1_x86_temp_value);
+      ss << "  cmp " << "dword [rbp" << stkloc << "], " << expr_2_x86_temp_value;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+      
+  }
+  else
+  {
+    
+    if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
+      auto reg = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+      ss <<"  ucomiss "<< x86_temp_FPregister << ", " << reg;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      updateRegisterAvailability(reg, true);
+      updateRegisterAvailability(x86_temp_FPregister, true);
+    }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
+      auto reg1 = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
+      auto reg2 = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+      ss << "  ucomiss " << reg1 << ", " << reg2;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      updateRegisterAvailability(reg1, true);
+      updateRegisterAvailability(reg2, true);
+    } else{
+      auto reg = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
+      ss << "  ucomiss " << reg << ", " << x86_temp_FPregister;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      updateRegisterAvailability(reg, true);
+      updateRegisterAvailability(x86_temp_FPregister, true);
+    }
+  }
+
 
   switch (local_op)
   {
@@ -1373,13 +1531,15 @@ void JLCX86Generator::visitERel(ERel *e_rel)
       setLLVMTempValue( LLVM_builder_->CreateFCmpOLT(
           expr_1_llvm_value, expr_2_llvm_value, "lt"));
     }
+      
     break;
-  case eLE:
+  case eLE: 
     // if value is int, then we use CreateICmpSLE
     if(expr_1_llvm_value->getType()->isIntegerTy())
     {
       setLLVMTempValue( LLVM_builder_->CreateICmpSLE(
           expr_1_llvm_value, expr_2_llvm_value, "le"));
+      
     }
     else
     {
@@ -1443,6 +1603,7 @@ void JLCX86Generator::visitERel(ERel *e_rel)
     ERRPR_HANDLE("unknown EREL operation")
     break;
   }
+  isRelop = false;
 }
 
 void JLCX86Generator::visitEAnd(EAnd *e_and)
@@ -1455,13 +1616,81 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
 
   if (e_and->expr_1) e_and->expr_1->accept(this);
   auto expr_1_llvm_value = llvm_temp_value_;
-  // short-circui evaluation
-  // if the first expression is false, 
-  // then we do not need to evaluate the second expression
-  // @todo: how to do this in llvm ?
+
 
   LLVM_builder_->CreateCondBr(expr_1_llvm_value, and_true_block, and_end_block);
   LLVM_builder_->SetInsertPoint(and_true_block);
+
+  if(temp_op==eLT){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  jge " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jae " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+
+  }else if(temp_op==eLE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  jg " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  ja " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eGT){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  jle " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jbe " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eGE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  jl " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jb " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eEQ){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  jne " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jne " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eNE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  je " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  je " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }
+
+
   if (e_and->expr_2) e_and->expr_2->accept(this);
   auto expr_2_llvm_value = llvm_temp_value_;
 
@@ -1497,6 +1726,76 @@ void JLCX86Generator::visitEOr(EOr *e_or)
   LLVM_builder_->CreateCondBr(expr_1_llvm_value, or_end_block, or_false_block);
   LLVM_builder_->SetInsertPoint(or_false_block);
 
+ 
+  if(temp_op==eLT){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  jl " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jb " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+
+  }else if(temp_op==eLE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  jle " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jbe " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eGT){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  jg " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  ja " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eGE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  jge " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jae " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eEQ){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  je " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  je " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eNE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      ss<< "  jne " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jne " << BStmtBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }
+
   if (e_or->expr_2) e_or->expr_2->accept(this);
   auto expr_2_llvm_value = llvm_temp_value_;
 
@@ -1511,8 +1810,6 @@ void JLCX86Generator::visitEOr(EOr *e_or)
   phi->addIncoming(expr_2_llvm_value,or_false_block);
   setLLVMTempValue( phi);
 
-  // reset the block
-  // LLVM_builder_->SetInsertPoint(current_block);  @todo: do we really need this?
 }
 
 void JLCX86Generator::visitPlus(Plus *plus)

@@ -32,21 +32,21 @@
 # }
 #include<stdio.h>
 
-void many_params(double x1, double x2, double x3, double x4,
-                double d1, double d2, double d3, double d4) {
-  printDouble(x1);
-  printDouble(x2);
-  printDouble(x4);
-  printDouble(x3);
-  printDouble(d1);
-}
-
-int main() {
-  int a =1;
-  int b =a;
-  many_params(1.0,2.0,3.0,4.0,
-              100.0,100.0,100.0,100.0);
+int main(){
+  double a = 102.0;
+  int x =1;
+  if(a<11.0 || a <10.0 || 100.0<a){
+    double l =3.0;
+    printDouble(l);
+  }
+  
+  if(a>100.0 &&x<2 ){
+    printInt(x);
+  }
   return 0;
 }
+
+
+
 
 
