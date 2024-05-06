@@ -32,19 +32,17 @@
 # }
 #include<stdio.h>
 
-int main(){
-  double a = 102.0;
-  int x =1;
-  if(a<11.0 || a <10.0 || 100.0<a){
-    double l =3.0;
-    printDouble(l);
-  }
-  
-  if(a>100.0 &&x<2 ){
-    printInt(x);
-  }
+
+int main() {
+  int x;
+  double y;
+  printInt(x);
+  printDouble(y);
   return 0;
 }
+
+
+
 
 
 

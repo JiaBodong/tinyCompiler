@@ -73,7 +73,6 @@ private:
   std::string x86_temp_value_type;
   std::string x86_temp_FPregister;
   bool isRelop = false;
-
   void insertContentAtBeginning(const std::string& filename, const std::string& content) {
     // stringstream 
     std::ifstream infile(filename);

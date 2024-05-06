@@ -26,8 +26,10 @@ std::ofstream outfile("x86output.s");
 std::string FPRecord="";
 std::string BStmtBlkLabel ="";
 std::string BStmtBlkEndLabel ="";
+std::string BStmtBlkEndEndLabel ="";
 int FPCounter=0;
 int CondCounter=0;
+int NoBstmt = 0;
 
 
 #define ERRPR_HANDLE(msg) \
@@ -313,6 +315,11 @@ void JLCX86Generator::visitBlock(Block *block)
   DEBUG_PRINT("go through the block")
 
   if (block->liststmt_) block->liststmt_->accept(this);
+  if(NoBstmt==1){
+    std::stringstream ss;
+    ss<<"  jmp "<<BStmtBlkEndEndLabel;
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }
 }
 
 void JLCX86Generator::visitEmpty(Empty *empty)
@@ -327,19 +334,32 @@ void JLCX86Generator::visitBStmt(BStmt *b_stmt)
 {
   /* Code For BStmt Goes Here */
   std::stringstream ss;
-  ss<<BStmtBlkLabel<<":";
-  x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  if(NoBstmt==0){
+    ss<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }else if(NoBstmt==1){
+    ss<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }else if(NoBstmt==2){
+    ss<<BStmtBlkEndLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }
+
   DEBUG_PRINT( "[" + GeneratorName  +"]" + " visiting BStmt");
   auto & func = globalContext.currentFrame();
   func.newBlock();
   addBlockVarMap(); // this 
   addBlockVarInfoMap();
   if (b_stmt->blk_) b_stmt->blk_->accept(this);
+  
+
+
   // release the block
   DEBUG_PRINT("release block");
   func.releaseBlock();
   removeBlockVarMap();
   removeBlockVarInfoMap();
+  
 }
 
 void JLCX86Generator::visitDecl(Decl *decl)
@@ -686,20 +706,95 @@ void JLCX86Generator::visitCondElse(CondElse *cond_else)
   auto cond_end_block = llvm::BasicBlock::Create(
       *LLVM_Context_, "cond.end", parent);
   
+  CondCounter++;
+  BStmtBlkLabel = ".LB"+std::to_string(CondCounter);
+  CondCounter++;
+  BStmtBlkEndLabel = ".LB"+std::to_string(CondCounter);
+  CondCounter++;
+  BStmtBlkEndEndLabel = ".LB"+std::to_string(CondCounter);
 
   if (cond_else->expr_) cond_else->expr_->accept(this);
-  auto expr_llvm_value = llvm_temp_value_;
 
+    //get the last logic operation
+  if(temp_op==eLT){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  jge " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jae " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+
+  }else if(temp_op==eLE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  jg " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  ja " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eGT){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  jle " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jbe " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eGE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  jl " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jb " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eEQ){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  jne " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  jne " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }else if(temp_op==eNE){
+    //jump instruction
+    std::stringstream ss;
+    if(temp_type == INT){
+      ss<< "  je " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == DOUB){
+      ss<< "  je " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+  }
+
+
+  NoBstmt = 1;
+
+  auto expr_llvm_value = llvm_temp_value_;
   LLVM_builder_->CreateCondBr(expr_llvm_value, cond_true_block, cond_else_block);
   LLVM_builder_->SetInsertPoint(cond_true_block);
 
   auto func = globalContext.currentFrame();
   func.newBlock(); // just logic block, no need to create a label
   addBlockVarMap();// just logic block, no need to create a label
+  addBlockVarInfoMap();
   if (cond_else->stmt_1) cond_else->stmt_1->accept(this);
   auto stmt_1_llvm_value = llvm_temp_value_;
   func.releaseBlock(); // release the logic block
   removeBlockVarMap(); // release the logic block
+  removeBlockVarInfoMap(); // release the logic block
 
   bool need_end_block = false;
   // if the block is not terminated, we need to jump to the end block
@@ -711,14 +806,17 @@ void JLCX86Generator::visitCondElse(CondElse *cond_else)
       +" is not terminated by return" );
   }
 
+  NoBstmt = 2;
   LLVM_builder_->SetInsertPoint(cond_else_block);
 
   func.newBlock(); // just logic block, no need to create a label
   addBlockVarMap();// just logic block, no need to create a label
+  addBlockVarInfoMap();
   if (cond_else->stmt_2) cond_else->stmt_2->accept(this);
   auto stmt_2_llvm_value = llvm_temp_value_;
   func.releaseBlock(); // release the logic block
   removeBlockVarMap(); // release the logic block
+  removeBlockVarInfoMap(); // release the logic block
 
   // if the block is not terminated, we need to jump to the end block
   if (cond_else_block->getTerminator() == nullptr)
@@ -735,6 +833,11 @@ void JLCX86Generator::visitCondElse(CondElse *cond_else)
     // remove the end block
     cond_end_block->eraseFromParent();
   }
+  //restore default
+  NoBstmt = 0;
+  std::stringstream ss;
+  ss << BStmtBlkEndEndLabel<<":";
+  x86_function_map[globalContext.currentFrameName].push_back(ss.str());
   
 }
 
@@ -845,7 +948,22 @@ void JLCX86Generator::visitNoInit(NoInit *no_init)
   if(temp_type == INT){
     ss << "  mov dword [rbp" << stkptr << "], " << "0";
   } else if(temp_type == DOUB){
-    ss << "  movss dword [rbp" << stkptr << "], " << "0.0";
+    std::string FPNum;
+    std::string floatIdentifier;
+    auto noinitFP = std::to_string(0.0);
+    if(checkDoubleFPMap(noinitFP)==true){
+      FPNum = getDoubleFPMap(noinitFP);
+      floatIdentifier = " "+FPNum +" dd "+noinitFP+"\n";
+    } else{
+      FPCounter++;
+      FPNum ="FP" + std::to_string(FPCounter);
+      floatIdentifier = " "+FPNum +" dd "+noinitFP+"\n";
+      //update the string in FPRecord
+      addDoubleFPMap(noinitFP, FPNum);
+      FPRecord += floatIdentifier;
+    }
+    ss << "  movss xmm0, dword [" << FPNum << "]" << std::endl;
+    ss << "  movss dword [rbp" << stkptr << "], " << "xmm0";
   }
   
   std::string inst = ss.str();
@@ -1468,10 +1586,10 @@ void JLCX86Generator::visitERel(ERel *e_rel)
 
     //for x86 assembly generator
     if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
-      
       ss <<"  mov eax, "<< expr_1_x86_temp_value;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      auto stkloc = getStackLocation(expr_2_x86_temp_value);      
+      auto stkloc = getStackLocation(expr_2_x86_temp_value);     
+      std::stringstream ss; 
       ss << "  cmp eax, " << "dword [rbp" << stkloc << "]";
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
 
@@ -1481,6 +1599,7 @@ void JLCX86Generator::visitERel(ERel *e_rel)
       auto stkloc2 = getStackLocation(expr_2_x86_temp_value);
       ss << "  mov eax, " << "dword [rbp" << stkloc1 << "]";
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      std::stringstream ss;
       ss << "  cmp eax, " << "dword [rbp" << stkloc2 << "]";
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     } else{
@@ -1609,6 +1728,7 @@ void JLCX86Generator::visitERel(ERel *e_rel)
 void JLCX86Generator::visitEAnd(EAnd *e_and)
 {
   /* Code For EAnd Goes Here */
+
   auto current_block = LLVM_builder_->GetInsertBlock();
   auto parent = current_block->getParent();
   auto and_true_block = llvm::BasicBlock::Create(*LLVM_Context_, "and.true", parent);
@@ -1707,8 +1827,7 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
   phi->addIncoming(expr_2_llvm_value, block_of_expr_2);
   setLLVMTempValue( phi);
 
-  // reset the block
-  // LLVM_builder_->SetInsertPoint(current_block);  @todo: do we really need this?
+
 }
 
 void JLCX86Generator::visitEOr(EOr *e_or)
