@@ -56,18 +56,23 @@
 # }
 
 
-void func() {
-    printString("I'm here!");
-}
 
 int main() {
-
-    int func = 0;
-    
-    func();
-
+    double dA;
+    double dB;
+    dA=1.4e-3;
+    dB=0.4e-3;
+    if (dA+dB == 0.0018) {
+        printInt(99);
+    }
+    int iA;
+    int iB;
+    iA=342;
+    iB=5123123;
+    printInt(iA+iB);
     return 0;
 }
+
 
 
 

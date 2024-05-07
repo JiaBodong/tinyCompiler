@@ -1666,10 +1666,15 @@ void JLCX86Generator::visitEAdd(EAdd *e_add)
 
   if (e_add->expr_1) e_add->expr_1->accept(this);
   auto expr_1_llvm_value = llvm_temp_value_;
+  auto expr_1_x86_temp_value = x86_temp_value;
+  auto expr_1_x86_temp_value_type = x86_temp_value_type;
   if (e_add->addop_) e_add->addop_->accept(this);
   auto local_op = temp_op;
   if (e_add->expr_2) e_add->expr_2->accept(this);
   auto expr_2_llvm_value = llvm_temp_value_;
+  auto expr_2_x86_temp_value = x86_temp_value;
+  auto expr_2_x86_temp_value_type = x86_temp_value_type;
+
 
   switch (local_op)
   {
@@ -1679,11 +1684,73 @@ void JLCX86Generator::visitEAdd(EAdd *e_add)
     {
       setLLVMTempValue( LLVM_builder_->CreateAdd(
           expr_1_llvm_value, expr_2_llvm_value, "add"));
+
+      //for x86 assembly generator
+      if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
+        auto reg = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+        std::stringstream ss;
+        ss <<"  add " << reg << ", " << expr_1_x86_temp_value;
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        x86_temp_value = expr_2_x86_temp_value;
+        x86_temp_value_type = "Var";//for the eapp, ass...
+      }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
+        auto reg1 = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
+        auto reg2 = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+        std::stringstream ss;
+        ss << "  add " << reg1 << ", " << reg2;
+         x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        updateRegisterAvailability(reg2, true);
+        x86_temp_value = expr_1_x86_temp_value;
+        x86_temp_value_type="Var";
+      } else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Imm"){
+        auto reg = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
+        std::stringstream ss;
+        ss <<"  add " << reg << ", " << expr_2_x86_temp_value;
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        x86_temp_value = expr_1_x86_temp_value;
+        x86_temp_value_type = "Var";//for the eapp, ass...
+      } else{
+        auto ival = std::stoi(expr_1_x86_temp_value)+std::stoi(expr_2_x86_temp_value);
+        x86_temp_value = std::to_string(ival);
+        x86_temp_value_type ="Imm";
+      }
+        
     }
     else
     {
       setLLVMTempValue( LLVM_builder_->CreateFAdd(
           expr_1_llvm_value, expr_2_llvm_value, "add"));
+     
+            //for x86 assembly generator
+      if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
+        auto reg = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+        std::stringstream ss;
+        ss <<"  addss " << reg<<", " << x86_temp_FPregister;
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        updateRegisterAvailability(x86_temp_FPregister,true);
+        x86_temp_value = expr_2_x86_temp_value;
+        x86_temp_value_type = "Var";//for the eapp, ass...
+      }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
+        auto reg1 = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
+        auto reg2 = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+        std::stringstream ss;
+        ss << "  addss " << reg1 << ", " << reg2;
+         x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        updateRegisterAvailability(reg2, true);
+        x86_temp_value = expr_1_x86_temp_value;
+        x86_temp_value_type="Var";
+      } else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Imm"){
+        auto reg = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
+        std::stringstream ss;
+        ss <<"  addss " << reg << ", " << x86_temp_FPregister;
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        updateRegisterAvailability(x86_temp_FPregister,true);
+        x86_temp_value = expr_1_x86_temp_value;
+        x86_temp_value_type = "Var";//for the eapp, ass...
+      } else{
+        ; //maybe not need
+      }
+      
     }
     break;
   case eSUB:

@@ -226,8 +226,6 @@ std::map<std::string, RegisterInfo> register_map_32{
   {"edx", {true, nullptr}},
   {"esi", {true, nullptr}},
   {"edi", {true, nullptr}},
-  {"ebp", {true, nullptr}},
-  {"esp", {true, nullptr}},
   {"eip", {true, nullptr}},
   {"r8d", {true, nullptr}},
   {"r9d", {true, nullptr}},
