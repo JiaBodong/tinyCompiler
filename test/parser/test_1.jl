@@ -60,16 +60,19 @@
 int main() {
     double dA;
     double dB;
-    dA=1.4e-3;
-    dB=0.4e-3;
-    if (dA+dB == 0.0018) {
+    dA=0.0014;
+    dB=0.0004;
+    if (dA-dB == 0.001) {
         printInt(99);
     }
     int iA;
     int iB;
     iA=342;
-    iB=5123123;
-    printInt(iA+iB);
+    iB=5120011;
+    printInt(iA-iB);
+    printInt(iA*iB);
+    printInt(iA*2);
+    printInt(3*7);
     return 0;
 }
 
