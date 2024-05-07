@@ -33,14 +33,49 @@
 #include<stdio.h>
 
 
-int main() {
-  int x;
-  double y;
-  printInt(x);
-  printDouble(y);
-  printString("AMD,Yes!");
-  return 0;
+
+
+# int subb(int x){
+#   x--;
+#   return x;
+# }
+
+# int main() {
+    
+#     int y = 101325;
+#     int a =11;
+    
+
+
+#     while(y>a){
+#         y=subb(subb(y));
+#         printInt(y);
+#     }
+#     return 0;
+
+# }
+
+
+void func() {
+    printString("I'm here!");
 }
+
+int main() {
+
+    int func = 0;
+    
+    func();
+
+    return 0;
+}
+
+
+
+    
+
+
+
+
 
 
 
