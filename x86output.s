@@ -5,55 +5,33 @@ extern readInt
 extern readDouble
 section .data
  epsilon dd 0.0000001
- FP1 dd 0.000000
- FP2 dd 0.001400
- FP3 dd 0.000400
- FP4 dd 0.001000
 section .text
 global main
 main:
   push rbp
   mov rbp, rsp
-  sub rsp, 32
-  movss xmm0, dword [FP1]
-  movss dword [rbp-4], xmm0
-  movss xmm0, dword [FP1]
-  movss dword [rbp-8], xmm0
-  movss xmm0, dword [FP2]
-  movss dword [rbp-4], xmm0
-  movss xmm0, dword [FP3]
-  movss dword [rbp-8], xmm0
-  movss xmm0, dword [rbp-4]
-  movss xmm1, dword [rbp-8]
-  subss xmm0, xmm1
-  movss xmm1, dword [FP4]
-  subss xmm0, xmm1
-  ucomiss xmm0, dword [epsilon]
-  jae .LB2
+  sub rsp, 16
+  mov dword [rbp-4], 17
 .LB1:
-  mov edi, 99
-  call printInt
+  cmp dword [rbp-4], 0
+  jle .LB2
+  mov eax, dword [rbp-4]
+  sub eax, 2
+  mov dword [rbp-4], eax
+  jmp .LB1
 .LB2:
-  mov dword [rbp-12], 0
-  mov dword [rbp-16], 0
-  mov dword [rbp-12], 342
-  mov dword [rbp-16], 5120011
-  mov eax, dword [rbp-12]
-  mov ebx, dword [rbp-16]
-  sub eax, ebx
-  mov edi, eax
-  call printInt
-  mov eax, dword [rbp-12]
-  mov ebx, dword [rbp-16]
-  imul eax, ebx
-  mov edi, eax
-  call printInt
-  mov eax, dword [rbp-12]
-  imul eax, dword [rbp-12], 2
-  mov edi, eax
-  call printInt
-  mov edi, 21
+  cmp dword [rbp-4], 0
+  jge .LB4
+.LB3:
+  mov edi, 0
   call printInt
   mov eax, 0
+  jmp .LB0
+.LB4:
+  mov edi, 1
+  call printInt
+  mov eax, 0
+.LB5:
+.LB0:
   leave
   ret

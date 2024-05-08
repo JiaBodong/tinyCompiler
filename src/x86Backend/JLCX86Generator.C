@@ -27,12 +27,17 @@ std::string FPRecord="";
 std::string BStmtBlkLabel ="";
 std::string BStmtBlkEndLabel ="";
 std::string BStmtBlkEndEndLabel ="";
+std::string FinalEndLabel =".LB0";//for final return
 int FPCounter=0;
 int CondCounter=0;
-int NoBstmt = 0;
+int NoBstmt = -2;
 
 int StrCounter = 0;
 std::string StrRecord = "";
+
+int isBstmt = 0;//for sexp in condblk
+
+bool hasCond = false; //for recording a main blk if has cond
 
 #define ERRPR_HANDLE(msg) \
   while(1){ \
@@ -315,17 +320,22 @@ void JLCX86Generator::visitBlock(Block *block)
   /* Code For Block Goes Here */
   DEBUG_PRINT( "[" + GeneratorName  +"]" + " visiting Block");
   DEBUG_PRINT("go through the block")
-
+  
   if (block->liststmt_) block->liststmt_->accept(this);
-  if(NoBstmt==1){
+  
+  if(NoBstmt==1&&condHasReturn==false){
     std::stringstream ss;
     ss<<"  jmp "<<BStmtBlkEndEndLabel;
     x86_function_map[globalContext.currentFrameName].push_back(ss.str());
   }else if(NoBstmt==-1){
+    ;
+  }else if(hasCond&&NoBstmt==-2){
+
     std::stringstream ss;
-    ss<<"  jmp "<<BStmtBlkLabel;
+    ss<<FinalEndLabel<<":\n  leave\n  ret";
     x86_function_map[globalContext.currentFrameName].push_back(ss.str());
   }
+  //hasCond = false;
 }
 
 void JLCX86Generator::visitEmpty(Empty *empty)
@@ -339,6 +349,7 @@ void JLCX86Generator::visitEmpty(Empty *empty)
 void JLCX86Generator::visitBStmt(BStmt *b_stmt)
 {
   /* Code For BStmt Goes Here */
+  isBstmt = 1;
   std::stringstream ss;
   if(NoBstmt==0){
     ss<<BStmtBlkLabel<<":";
@@ -350,6 +361,8 @@ void JLCX86Generator::visitBStmt(BStmt *b_stmt)
     ss<<BStmtBlkEndLabel<<":";
     x86_function_map[globalContext.currentFrameName].push_back(ss.str());
   }else if(NoBstmt==-1){
+    ;
+  } else if(NoBstmt==-2){
     ;
   }
 
@@ -367,7 +380,7 @@ void JLCX86Generator::visitBStmt(BStmt *b_stmt)
   func.releaseBlock();
   removeBlockVarMap();
   removeBlockVarInfoMap();
-  
+  isBstmt = 0;
 }
 
 void JLCX86Generator::visitDecl(Decl *decl)
@@ -441,8 +454,9 @@ void JLCX86Generator::visitAss(Ass *ass)
   } else if(x86_temp_value_type == "Fun"){
     std::stringstream ss;
     if(temp_type == DOUB){
-      ss << "  movd eax, xmm0"<< std::endl <<"  mov dword [rbp" << stkptr << "], " << "eax";
-      updateRegisterAvailability("eax", true);
+      
+      ss << "  movss dword [rbp" << stkptr << "], " << "xmm0";
+      //updateRegisterAvailability("eax", true);
       updateRegisterAvailability("xmm0", true);
     } else if(temp_type == INT){
       ss << "  mov dword [rbp" << stkptr << "], " << "eax";
@@ -531,16 +545,32 @@ void JLCX86Generator::visitRet(Ret *ret)
 {
   /* Code For Ret Goes Here */
   DEBUG_PRINT("visitRet");
+   std::stringstream ss;
+  if(NoBstmt==0&&isBstmt==0){
+    ss<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }else if(NoBstmt==1&&isBstmt==0){
+    ss<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }else if(NoBstmt==2&&isBstmt==0){
+    ss<<BStmtBlkEndLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }else if(NoBstmt==-1&&isBstmt==0){
+    ;
+  } else if(NoBstmt==-2&&isBstmt==0){
+    ;
+  }
   if (ret->expr_) ret->expr_->accept(this);
   // add llvm return 
   LLVM_builder_->CreateRet(llvm_temp_value_);
+
 
   //for x86 assembly generator
   if(x86_temp_value_type=="Imm"){
     if(temp_type == DOUB){
       //std::cout << "  movq xmm0, " << x86_temp_value << std::endl;
       //push the inst to x86_code_inst
-      x86_function_map[globalContext.currentFrameName].push_back("  movq xmm0, " + x86_temp_value);
+      x86_function_map[globalContext.currentFrameName].push_back("  movss xmm0, " + x86_temp_value);
     } else{
       //std::cout << "  mov eax, " << x86_temp_value << std::endl;
       //push the inst to x86_code_inst
@@ -575,27 +605,35 @@ void JLCX86Generator::visitRet(Ret *ret)
     //   //std::cout << "  mov eax, eax" << std::endl;
     // }
   }
-
-  // return
-  if(globalContext.currentFrameName!="main"){
-    if(function_call_map[globalContext.currentFrameName]==true){
-      //std::cout << "  leave"<< std::endl;
-      //std::cout << "  ret" << std::endl;
+  if(hasCond==false){
+    // return
+    if(globalContext.currentFrameName!="main"){
+      if(function_call_map[globalContext.currentFrameName]==true){
+        //std::cout << "  leave"<< std::endl;
+        //std::cout << "  ret" << std::endl;
+        //push the inst to x86_code_inst
+        x86_function_map[globalContext.currentFrameName].push_back("  leave");
+        x86_function_map[globalContext.currentFrameName].push_back("  ret");
+      } else{
+        //std::cout << "  pop rbp"<< std::endl;
+        //std::cout << "  ret" << std::endl;
+        //push the inst to x86_code_inst
+        x86_function_map[globalContext.currentFrameName].push_back("  pop rbp");
+        x86_function_map[globalContext.currentFrameName].push_back("  ret");
+      }
+    } else{
       //push the inst to x86_code_inst
       x86_function_map[globalContext.currentFrameName].push_back("  leave");
       x86_function_map[globalContext.currentFrameName].push_back("  ret");
-    } else{
-      //std::cout << "  pop rbp"<< std::endl;
-      //std::cout << "  ret" << std::endl;
-      //push the inst to x86_code_inst
-      x86_function_map[globalContext.currentFrameName].push_back("  pop rbp");
-      x86_function_map[globalContext.currentFrameName].push_back("  ret");
-    }
-  } else{
-    //push the inst to x86_code_inst
-    x86_function_map[globalContext.currentFrameName].push_back("  leave");
-    x86_function_map[globalContext.currentFrameName].push_back("  ret");
 
+    }
+  }
+  else if(hasCond&&(NoBstmt==0||NoBstmt==1||NoBstmt==-1)){
+    //for x86 assembly generator
+    std::stringstream ss;
+     ss << "  jmp "<<FinalEndLabel;
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    condHasReturn = true;
   }
 }
 
@@ -610,7 +648,26 @@ void JLCX86Generator::visitVRet(VRet *v_ret)
 
 void JLCX86Generator::visitCond(Cond *cond)
 {
+  std::stringstream ss1;
+  //nested cond
+  if(NoBstmt==0&&isBstmt==0){
+    ss1<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss1.str());
+  }else if(NoBstmt==1&&isBstmt==0){
+    ss1<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss1.str());
+  }else if(NoBstmt==2&&isBstmt==0){
+    ss1<<BStmtBlkEndLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss1.str());
+  }else if(NoBstmt==-1&&isBstmt==0){
+    ;
+  } else if(NoBstmt==-2&&isBstmt==0){
+    ;
+  }
+
   /* Code For Cond Goes Here */
+  hasCond = true;
+  isBstmt = 0;
   auto current_block = LLVM_builder_->GetInsertBlock();
   auto parent = current_block->getParent();
   auto cond_true_block = llvm::BasicBlock::Create(
@@ -622,6 +679,7 @@ void JLCX86Generator::visitCond(Cond *cond)
   BStmtBlkLabel = ".LB"+std::to_string(CondCounter);
   CondCounter++;
   BStmtBlkEndLabel = ".LB"+std::to_string(CondCounter);
+
 
   if (cond->expr_) cond->expr_->accept(this);
 
@@ -693,6 +751,7 @@ void JLCX86Generator::visitCond(Cond *cond)
     }
   }
 
+  NoBstmt = 0;
   auto expr_llvm_value = llvm_temp_value_;
 
   LLVM_builder_->CreateCondBr(expr_llvm_value, cond_true_block, cond_end_block);
@@ -724,12 +783,30 @@ void JLCX86Generator::visitCond(Cond *cond)
       +" is not terminated by return" );
   }
   LLVM_builder_->SetInsertPoint(cond_end_block); 
-
+  NoBstmt = -2;
+  isBstmt = 1;
 }
 
 void JLCX86Generator::visitCondElse(CondElse *cond_else)
 {
+  std::stringstream ss1;
+  if(NoBstmt==0&&isBstmt==0){
+    ss1<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss1.str());
+  }else if(NoBstmt==1&&isBstmt==0){
+    ss1<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss1.str());
+  }else if(NoBstmt==2&&isBstmt==0){
+    ss1<<BStmtBlkEndLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss1.str());
+  }else if(NoBstmt==-1&&isBstmt==0){
+    ;
+  } else if(NoBstmt==-2&&isBstmt==0){
+    ;
+  }
   /* Code For CondElse Goes Here */
+  hasCond = true;
+  isBstmt = 0;
   auto current_block = LLVM_builder_->GetInsertBlock();
   auto parent = current_block->getParent();
   auto cond_true_block = llvm::BasicBlock::Create(
@@ -844,6 +921,7 @@ void JLCX86Generator::visitCondElse(CondElse *cond_else)
   }
 
   NoBstmt = 2;
+  hasCond = true;//this value may be changed at last visitstmt
   LLVM_builder_->SetInsertPoint(cond_else_block);
 
   func.newBlock(); // just logic block, no need to create a label
@@ -871,16 +949,33 @@ void JLCX86Generator::visitCondElse(CondElse *cond_else)
     cond_end_block->eraseFromParent();
   }
   //restore default
-  NoBstmt = 0;
+  NoBstmt = -2;
   std::stringstream ss;
   ss << BStmtBlkEndEndLabel<<":";
   x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-  
+  isBstmt = 1;
 }
 
 void JLCX86Generator::visitWhile(While *while_)
 {
+  std::stringstream sss;
+  if(NoBstmt==0&&isBstmt==0){
+    sss<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(sss.str());
+  }else if(NoBstmt==1&&isBstmt==0){
+    sss<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(sss.str());
+  }else if(NoBstmt==2&&isBstmt==0){
+    sss<<BStmtBlkEndLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(sss.str());
+  }else if(NoBstmt==-1&&isBstmt==0){
+    ;
+  } else if(NoBstmt==-2&&isBstmt==0){
+    ;
+  }
   /* Code For While Goes Here */
+  hasCond = true;
+  isBstmt = 0;
   auto current_block = LLVM_builder_->GetInsertBlock();
   auto parent = current_block->getParent();
   auto cond_block = llvm::BasicBlock::Create(
@@ -986,6 +1081,11 @@ void JLCX86Generator::visitWhile(While *while_)
   addBlockVarInfoMap();
   if (while_->stmt_) while_->stmt_->accept(this);
 
+  // insert the jump back to the while start
+  std::stringstream ss2;
+  ss2<<"  jmp "<<BStmtBlkLabel;
+  x86_function_map[globalContext.currentFrameName].push_back(ss2.str());
+
   std::stringstream ss1;
   ss1<<BStmtBlkEndLabel<<":";
   x86_function_map[globalContext.currentFrameName].push_back(ss1.str());
@@ -998,7 +1098,8 @@ void JLCX86Generator::visitWhile(While *while_)
   // end block
   LLVM_builder_->SetInsertPoint(end_block); 
 
-  NoBstmt = 0;
+  NoBstmt = -2;
+  isBstmt = 1;
 }
 
 
@@ -1024,8 +1125,32 @@ void JLCX86Generator::visitForLoop(ForLoop *for_loop)
 void JLCX86Generator::visitSExp(SExp *s_exp)
 {
   /* Code For SExp Goes Here */
-
+    std::stringstream ss;
+  if(NoBstmt==0&&isBstmt==0){
+    ss<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }else if(NoBstmt==1&&isBstmt==0){
+    ss<<BStmtBlkLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }else if(NoBstmt==2&&isBstmt==0){
+    ss<<BStmtBlkEndLabel<<":";
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }else if(NoBstmt==-1&&isBstmt==0){
+    ;
+  } else if(NoBstmt==-2&&isBstmt==0){
+    ;
+  }
   if (s_exp->expr_) s_exp->expr_->accept(this);
+
+  if(NoBstmt==1&&isBstmt==0){
+    std::stringstream ss;
+    ss<<"  jmp "<<BStmtBlkEndEndLabel;
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }else if(NoBstmt==-1&&isBstmt==0){
+    // std::stringstream ss;
+    // ss<<"  jmp "<<BStmtBlkLabel;
+    // x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }
 
 }
 
@@ -1104,14 +1229,14 @@ void JLCX86Generator::visitInit(Init *init)
   auto temp_decl_type = temp_type; // !this type is passed from top level
   auto & frame = globalContext.currentFrame();
   
-
+  //addVarToStackMap(init->ident_, alloca);
   if (init->expr_) init->expr_->accept(this);
   
   // why we add the var after xx->accept(this)?
   // consider the case:  int x=1; {int x = x;}
   frame.addVar(init->ident_, temp_decl_type);
-  
-  
+ 
+
   auto alloca = LLVM_builder_->CreateAlloca(convertType(temp_decl_type), nullptr, init->ident_);
   // add the variable to the block map
   addVarToBlockMap(init->ident_, alloca);
@@ -1130,7 +1255,7 @@ void JLCX86Generator::visitInit(Init *init)
     //get the stack top
     int stkptr = getStackTop();
     //std::cout << "  mov dword [rbp" << stkptr << "], " << x86_temp_value<< std::endl;
-    addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
+    // addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
 
     //push the inst to x86_code_inst
     std::stringstream ss;
@@ -1144,7 +1269,7 @@ void JLCX86Generator::visitInit(Init *init)
       ss << "  mov dword [rbp" << stkptr << "], " << "eax";
       updateRegisterAvailability("eax", true);
     }
-    
+     addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
   }
@@ -1152,7 +1277,7 @@ void JLCX86Generator::visitInit(Init *init)
   {
     int stkptr = getStackTop();
     //std::cout << "  movsd QWORD PTR [rbp" << stkptr<< "], " << x86_temp_value << std::endl;
-    addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
+    // addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
 
     
     std::stringstream ss;
@@ -1164,10 +1289,12 @@ void JLCX86Generator::visitInit(Init *init)
       ss << "  movss dword [rbp" << stkptr<< "], " << varInfo->register_name;
       updateRegisterAvailability(varInfo->register_name, true);
     } else if(x86_temp_value_type == "Fun"){
-      ss << "  movd eax, xmm0" << std::endl << "  movss dword [rbp" << stkptr<< "], " << "eax";
-      updateRegisterAvailability("eax", true);
+      
+      ss << "  movss dword [rbp" << stkptr<< "], " << "xmm0";
+      
       updateRegisterAvailability("xmm0", true);
     }
+    addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
 
@@ -1451,6 +1578,8 @@ void JLCX86Generator::visitEApp(EApp *e_app)
       if(temp_type == DOUB){
 
         updateRegisterAvailability(x86_temp_FPregister, true);
+        updateRegisterAvailability(reg, true);
+        
         // at this time the x86_temp_Value is a reg
         if(e_app->ident_=="printDouble"){
           ss << "  cvtss2sd " << reg << ", " << x86_temp_FPregister;
@@ -1475,15 +1604,16 @@ void JLCX86Generator::visitEApp(EApp *e_app)
       //push the inst to x86_code_inst
       std::stringstream ss;
       if(temp_type == DOUB){
+        updateRegisterAvailability(reg, true);
         if(e_app->ident_=="printDouble"){
           ss << "  cvtss2sd " << reg << ", " << subvarInfo->register_name;
         }else{
           ss << "  movss " << reg  << ", " << subvarInfo->register_name ;
         }
-      } else{
+      } else if(temp_type == INT){
         ss << "  mov " << reg << ", " << subvarInfo->register_name ;
       }
-      updateRegisterAvailability(subvarInfo->register_name, true);
+      
       std::string inst = ss.str();
       x86_function_map[globalContext.currentFrameName].push_back(inst);
       
@@ -1491,13 +1621,14 @@ void JLCX86Generator::visitEApp(EApp *e_app)
         std::stringstream ss;
         auto reg = popArgFromFunctionMap(INT);
         updateRegisterAvailability(reg, false);
+        updateRegisterAvailability("eax", true);
         ss << "  mov " << reg << ", " << "eax";
         std::string inst = ss.str();
         x86_function_map[globalContext.currentFrameName].push_back(inst);
      
-    } else if(temp_type==STRING){
+    } else if(x86_temp_value_type=="Str"){
       ;
-    }
+    } 
   }
 
   restoreFunctionArgQueue();
@@ -1526,7 +1657,12 @@ void JLCX86Generator::visitEApp(EApp *e_app)
   ss << "  call " << e_app->ident_;
   std::string inst = ss.str();
   x86_function_map[globalContext.currentFrameName].push_back(inst);
-
+  if(e_app->ident_=="readDouble"){
+    std::stringstream ss1;
+    ss1 << "  cvtsd2ss " << "xmm0, " << "xmm0";
+    std::string inst = ss1.str();
+    x86_function_map[globalContext.currentFrameName].push_back(inst);
+  }
 
   x86_temp_value_type = "Fun";  
 }
@@ -1535,7 +1671,7 @@ void JLCX86Generator::visitEString(EString *e_string)
 {
   /* Code For EString Goes Here */
   temp_type = STRING;
-  
+  x86_temp_value_type="Str";
   // check if the string is already in the global context
   // @TODO: this is not a good way to store the string, 
   //        using llvm api to check if a string is already in the global context
@@ -1771,6 +1907,7 @@ void JLCX86Generator::visitEMul(EMul *e_mul)
     ERRPR_HANDLE("unknown EMUL operation")
     break;
   }
+  
 }
 
 void JLCX86Generator::visitEAdd(EAdd *e_add)
@@ -1781,12 +1918,66 @@ void JLCX86Generator::visitEAdd(EAdd *e_add)
   auto expr_1_llvm_value = llvm_temp_value_;
   auto expr_1_x86_temp_value = x86_temp_value;
   auto expr_1_x86_temp_value_type = x86_temp_value_type;
+  //handle addop is func
+  if(expr_1_x86_temp_value_type=="Fun"){
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      //for x86 assembly generator
+      //allocate a register for the return value of the function
+      updateRegisterAvailability("eax", false);
+      auto reg = checkIntRegisterAvailability();
+      ss << "  mov " << reg << ", " << "eax";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      expr_1_x86_temp_value = reg;//set the temp_value = reg
+      updateRegisterAvailability("eax", true);
+      updateRegisterAvailability(reg, false);
+    } else if(temp_type == DOUB){
+      //for x86 assembly generator
+      //allocate a register for the return value of the function
+      updateRegisterAvailability("xmm0", false);
+      auto reg = checkDoubleRegisterAvailability();
+      ss << "  movaps " << reg << ", " << "xmm0";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      expr_1_x86_temp_value = reg;//set the temp_value = reg
+      updateRegisterAvailability("xmm0", true);
+      updateRegisterAvailability(reg, false);
+    }
+  }
+  
   if (e_add->addop_) e_add->addop_->accept(this);
   auto local_op = temp_op;
   if (e_add->expr_2) e_add->expr_2->accept(this);
   auto expr_2_llvm_value = llvm_temp_value_;
   auto expr_2_x86_temp_value = x86_temp_value;
   auto expr_2_x86_temp_value_type = x86_temp_value_type;
+  //handle addop is func
+  if(expr_2_x86_temp_value_type=="Fun"){
+    std::stringstream ss;
+    if(temp_type == INT)
+    {
+      //for x86 assembly generator
+      //allocate a register for the return value of the function
+      updateRegisterAvailability("eax", false);
+      auto reg = checkIntRegisterAvailability();
+      ss << "  mov " << reg << ", " << "eax";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      expr_2_x86_temp_value = reg;//set the temp_value = reg
+      updateRegisterAvailability("eax", true);
+      updateRegisterAvailability(reg, false);
+    } else if(temp_type == DOUB){
+      //for x86 assembly generator
+      //allocate a register for the return value of the function
+      updateRegisterAvailability("xmm0", false);
+      auto reg = checkDoubleRegisterAvailability();
+      ss << "  movaps " << reg << ", " << "xmm0";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      expr_2_x86_temp_value = reg;//set the temp_value = reg
+      updateRegisterAvailability("xmm0", true);
+      updateRegisterAvailability(reg, false);
+    }
+  }
+
 
   if(expr_1_llvm_value->getType()->isIntegerTy())
   {
@@ -1825,10 +2016,24 @@ void JLCX86Generator::visitEAdd(EAdd *e_add)
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
       x86_temp_value = expr_1_x86_temp_value;
       x86_temp_value_type = "Var";//for the eapp, ass...
-    } else{
+      updateRegisterAvailability(reg,false);
+    } else if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Imm"){
       auto ival = std::stoi(expr_1_x86_temp_value)+std::stoi(expr_2_x86_temp_value);
       x86_temp_value = std::to_string(ival);
       x86_temp_value_type ="Imm";
+    } else{//multi funcs alu
+      std::stringstream ss;
+      if(local_op==eADD){
+        ss <<"  add "<< expr_1_x86_temp_value<<", "<<expr_2_x86_temp_value<<std::endl;
+      }else{
+        ss <<"  sub "<< expr_1_x86_temp_value<<", "<<expr_2_x86_temp_value<<std::endl;
+      }
+      ss <<"  mov eax, "<<expr_1_x86_temp_value;
+      updateRegisterAvailability(expr_1_x86_temp_value,true);
+      updateRegisterAvailability(expr_2_x86_temp_value,true);
+      updateRegisterAvailability("eax",false);
+       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      x86_temp_value_type ="Fun";
     }
       
   }
@@ -1911,7 +2116,7 @@ void JLCX86Generator::visitEAdd(EAdd *e_add)
     ERRPR_HANDLE("unknown EADD operation")
     break;
   }
-
+  
 }
 
 void JLCX86Generator::visitERel(ERel *e_rel)
@@ -2080,6 +2285,7 @@ void JLCX86Generator::visitERel(ERel *e_rel)
     break;
   }
   isRelop = false;
+  
 }
 
 void JLCX86Generator::visitEAnd(EAnd *e_and)

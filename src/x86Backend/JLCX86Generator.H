@@ -77,6 +77,7 @@ private:
   std::string LfpReg;
   std::string RfpReg;
 
+  bool condHasReturn = false;
 
   void insertContentAtBeginning(const std::string& filename, const std::string& content) {
     // stringstream 

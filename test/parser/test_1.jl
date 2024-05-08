@@ -57,24 +57,45 @@
 
 
 
-int main() {
-    double dA;
-    double dB;
-    dA=0.0014;
-    dB=0.0004;
-    if (dA-dB == 0.001) {
-        printInt(99);
+# int main() {
+#     double dA;
+#     double dB;
+#     dA=0.0014;
+#     dB=0.0004;
+#     if (dA-dB == 0.001) {
+#         printInt(99);
+#     }
+#     int iA;
+#     int iB;
+#     iA=342;
+#     iB=5120011;
+#     printInt(iA-iB);
+#     printInt(iA*iB);
+#     printInt(iA*2);
+#     printInt(3*7);
+#     return 0;
+# }
+
+
+
+
+int main () {
+  int y = 17;
+  while (y > 0)
+    y = y - 2;
+  if (y < 0) {
+    printInt(0);
+    return 0 ;
     }
-    int iA;
-    int iB;
-    iA=342;
-    iB=5120011;
-    printInt(iA-iB);
-    printInt(iA*iB);
-    printInt(iA*2);
-    printInt(3*7);
-    return 0;
+  else {
+    printInt(1);
+    return 0 ;
+  }
 }
+
+
+
+
 
 
 

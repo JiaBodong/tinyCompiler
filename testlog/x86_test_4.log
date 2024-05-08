@@ -8,10 +8,10 @@ About to run tests with these settings:
 
 [  1/123] testsuite/good/core009    ... OK
 [  2/123] testsuite/good/stack1     ... OK
-[  3/123] testsuite/good/core031    ... FAILED
+[  3/123] testsuite/good/core031    ... FAILED //register allocation
 [  4/123] testsuite/good/assignedargument ... OK
 [  5/123] testsuite/good/core030    ... OK
-[  6/123] testsuite/good/core027    ... FAILED
+[  6/123] testsuite/good/core027    ... FAILED //boolean
 [  7/123] testsuite/good/core008    ... OK
 [  8/123] testsuite/good/stack2     ... FAILED
 [  9/123] testsuite/good/core032    ... OK
