@@ -10,28 +10,33 @@ global main
 main:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
-  mov dword [rbp-4], 17
+  mov byte [rbp-4], 0
+
+  mov byte [rbp-4], 0
+
+  mov byte [rbp-8], 1
+
+  mov byte [rbp-8], 1
+
 .LB1:
-  cmp dword [rbp-4], 0
-  jle .LB2
-  mov eax, dword [rbp-4]
-  sub eax, 2
-  mov dword [rbp-4], eax
+  movzx eax, byte [rbp-4]
+  movzx ebx, byte [rbp-8]
+  test al, al
+  je .LB3
+  mov eax, 1
+  jmp .LB4
+.LB3:
+  mov eax, 0
+.LB4:
+
+  je .LB2
   jmp .LB1
 .LB2:
-  cmp dword [rbp-4], 0
-  jge .LB4
-.LB3:
-  mov edi, 0
-  call printInt
-  mov eax, 0
-  jmp .LB0
-.LB4:
-  mov edi, 1
-  call printInt
-  mov eax, 0
 .LB5:
+  nop
+  jmp .LB5
+.LB6:
+  mov eax, 0
 .LB0:
   leave
   ret

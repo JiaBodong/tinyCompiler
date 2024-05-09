@@ -14,12 +14,16 @@ Instruction for source code install of nasm asm
 
 7. nasm -v 
 
+8. export PATH="/chalmers/users/bodong/nasm/bin:$PATH"
+
 <!-- using for asm -->
-8. /you=path/nasm/bin/nasm -f elf64 ....  
+9. /you=path/nasm/bin/nasm -f elf64 ....  
     example: 
         /chalmers/users/bodong/nasm/bin/nasm -f elf64 test.asm -o test.o
         ld test.o -o example
         ./example
+
+
 
 
 

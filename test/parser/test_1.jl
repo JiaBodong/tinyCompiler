@@ -79,18 +79,38 @@
 
 
 
-int main () {
-  int y = 17;
-  while (y > 0)
-    y = y - 2;
-  if (y < 0) {
-    printInt(0);
-    return 0 ;
-    }
-  else {
-    printInt(1);
-    return 0 ;
-  }
+# int main() {
+#   int a =1;
+#   boolean x =a>= 3; 
+#   boolean y = a<0||a>1;
+#   x = a>0;
+#   printBool(test(3) && test(-5));
+
+#   return 0 ;
+
+# }
+
+# void printBool(boolean b) {
+#   if (!b) {
+#     printString("false");
+#   } else {
+#     printString("true");
+#  }
+#  return;
+# }
+
+# boolean test(int i) {
+#   printInt(i);
+#   return i > 0;
+# }
+
+
+int main() { 
+    boolean b=false;
+    boolean a =true;
+    while(b&&a){}
+    while(false){}
+    return 0; 
 }
 
 

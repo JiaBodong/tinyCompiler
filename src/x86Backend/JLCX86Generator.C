@@ -247,6 +247,15 @@ void JLCX86Generator::visitFnDef(FnDef *fn_def)
   // cotinue to iterate the function body
   if (fn_def->blk_) fn_def->blk_->accept(this);
 
+  if(hasCond==true&&NoBstmt==-2){
+
+    std::stringstream ss;
+    ss<<FinalEndLabel<<":\n  leave\n  ret";
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }
+
+  hasCond = false;//update, for the next function
+
   // after visiting the block
   //for x86 assembly generator
   //std::cout << globalContext.currentFrameName << ":" << std::endl;
@@ -331,9 +340,9 @@ void JLCX86Generator::visitBlock(Block *block)
     ;
   }else if(hasCond&&NoBstmt==-2){
 
-    std::stringstream ss;
-    ss<<FinalEndLabel<<":\n  leave\n  ret";
-    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    // std::stringstream ss;
+    // ss<<FinalEndLabel<<":\n  leave\n  ret";
+    // x86_function_map[globalContext.currentFrameName].push_back(ss.str());
   }
   //hasCond = false;
 }
@@ -566,7 +575,38 @@ void JLCX86Generator::visitRet(Ret *ret)
 
 
   //for x86 assembly generator
-  if(x86_temp_value_type=="Imm"){
+  //first handle the bool
+  if(x86_temp_value_type=="Logic"||x86_temp_value_type=="ALogic"){
+    switch (temp_op)
+    {
+    case eLT:
+      //push the inst to x86_code_inst
+      x86_function_map[globalContext.currentFrameName].push_back("  setl al");
+      break;
+    case eLE:
+      //push the inst to x86_code_inst
+      x86_function_map[globalContext.currentFrameName].push_back("  setle al");
+      break;
+    case eGT:
+      //push the inst to x86_code_inst
+      x86_function_map[globalContext.currentFrameName].push_back("  setg al");
+      break;
+    case eGE:
+      //push the inst to x86_code_inst
+      x86_function_map[globalContext.currentFrameName].push_back("  setge al");
+      break;
+    case eEQ:
+      //push the inst to x86_code_inst
+      x86_function_map[globalContext.currentFrameName].push_back("  sete al");
+      break;
+    case eNE:
+      //push the inst to x86_code_inst
+      x86_function_map[globalContext.currentFrameName].push_back("  setne al");
+      break;
+    default:
+      break;
+    }
+  } else if(x86_temp_value_type=="Imm"){
     if(temp_type == DOUB){
       //std::cout << "  movq xmm0, " << x86_temp_value << std::endl;
       //push the inst to x86_code_inst
@@ -609,14 +649,11 @@ void JLCX86Generator::visitRet(Ret *ret)
     // return
     if(globalContext.currentFrameName!="main"){
       if(function_call_map[globalContext.currentFrameName]==true){
-        //std::cout << "  leave"<< std::endl;
-        //std::cout << "  ret" << std::endl;
         //push the inst to x86_code_inst
         x86_function_map[globalContext.currentFrameName].push_back("  leave");
         x86_function_map[globalContext.currentFrameName].push_back("  ret");
       } else{
-        //std::cout << "  pop rbp"<< std::endl;
-        //std::cout << "  ret" << std::endl;
+  
         //push the inst to x86_code_inst
         x86_function_map[globalContext.currentFrameName].push_back("  pop rbp");
         x86_function_map[globalContext.currentFrameName].push_back("  ret");
@@ -1067,6 +1104,16 @@ void JLCX86Generator::visitWhile(While *while_)
       ss<< "  je " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
+  }else{
+    //jump instruction
+    std::stringstream ss;
+    if(x86_temp_value_type=="False"||x86_temp_value_type=="True"){
+      ss<< "  nop";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }else{
+      ss<< "  je " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
   }
 
 
@@ -1298,6 +1345,31 @@ void JLCX86Generator::visitInit(Init *init)
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
 
+  } else if(temp_decl_type ==BOOL){
+    auto stkptr = getStackTop();
+    
+    std::stringstream ss;
+    if(x86_temp_value_type == "Logic"){
+      ss <<"  mov byte [rbp" << stkptr<< "], al\n";
+      ss <<"  and byte [rbp" << stkptr<< "], 1\n";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(x86_temp_value_type == "ALogic"){
+      ss <<"  mov byte [rbp" << stkptr<< "], al\n";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(x86_temp_value_type == "Fun"){
+      ss <<"  mov byte [rbp" << stkptr<< "], al\n";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(x86_temp_value_type == "True"){
+      ss <<"  mov byte [rbp" << stkptr<< "], 1\n";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(x86_temp_value_type == "False"){
+      ss <<"  mov byte [rbp" << stkptr<< "], 0\n";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    }
+    addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
+    std::string inst = ss.str();
+    x86_function_map[globalContext.currentFrameName].push_back(inst);
+  
   }
 }
 
@@ -1435,6 +1507,17 @@ void JLCX86Generator::visitEVar(EVar *e_var)
       x86_function_map[globalContext.currentFrameName].push_back(inst);
 
     }
+  }else if(temp_type ==BOOL){
+    auto reg = checkIntRegisterAvailability();
+    updateRegisterAvailability(reg, false);
+    updateVarInfoRegisterName(e_var->ident_, reg);
+    updateRegisterValue(var, reg);
+
+    //push the inst to x86_code_inst
+    std::stringstream ss;
+    ss << "  movzx " << reg << ", byte [rbp" << stkloc << "]";
+    std::string inst = ss.str();
+    x86_function_map[globalContext.currentFrameName].push_back(inst);
   }
 
 
@@ -1541,6 +1624,7 @@ void JLCX86Generator::visitELitTrue(ELitTrue *e_lit_true)
   /* Code For ELitTrue Goes Here */
 
   temp_type = BOOL;
+  x86_temp_value_type = "True";
   // llvm constant 
   setLLVMTempValue( llvm::ConstantInt::get(*LLVM_Context_, llvm::APInt(1, 1)));
 
@@ -1550,6 +1634,7 @@ void JLCX86Generator::visitELitFalse(ELitFalse *e_lit_false)
 {
   /* Code For ELitFalse Goes Here */
   temp_type = BOOL;
+  x86_temp_value_type = "False";
   // llvm constant
   setLLVMTempValue( llvm::ConstantInt::get(*LLVM_Context_, llvm::APInt(1, 0)));
 }
@@ -1557,7 +1642,11 @@ void JLCX86Generator::visitELitFalse(ELitFalse *e_lit_false)
 void JLCX86Generator::visitEApp(EApp *e_app)
 {
   DEBUG_PRINT("Visit EApp: " + e_app->ident_);
+
+
   function_call_map[globalContext.currentFrameName] = true;
+  
+  // function_call_map[globalContext.currentFrameName] = true;
   /* Code For EApp Goes Here */
   std::vector<llvm::Value*> args;
   // iterate through the arguments, and collect the llvm values
@@ -1628,7 +1717,17 @@ void JLCX86Generator::visitEApp(EApp *e_app)
      
     } else if(x86_temp_value_type=="Str"){
       ;
-    } 
+    } else if(x86_temp_value_type=="Logic"||x86_temp_value_type=="ALogic"){
+       std::stringstream ss;
+       auto reg = popArgFromFunctionMap(INT);
+       updateRegisterAvailability(reg, false);
+      updateRegisterAvailability("eax", true);
+       ss <<"  and eax, 1\n";
+       ss<<"  movzx eax, al\n";
+       ss << "  mov " << reg << ", " << "eax";
+        std::string inst = ss.str();
+        x86_function_map[globalContext.currentFrameName].push_back(inst);
+    }
   }
 
   restoreFunctionArgQueue();
@@ -1649,9 +1748,6 @@ void JLCX86Generator::visitEApp(EApp *e_app)
   DEBUG_PRINT("Call function: " + e_app->ident_);
 
 
-  //x86 func call assembly generator
-  //std::cout << "  call " << e_app->ident_ << std::endl;
-
   //push the inst to x86_code_inst
   std::stringstream ss;
   ss << "  call " << e_app->ident_;
@@ -1662,6 +1758,12 @@ void JLCX86Generator::visitEApp(EApp *e_app)
     ss1 << "  cvtsd2ss " << "xmm0, " << "xmm0";
     std::string inst = ss1.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
+  }
+
+  Frame& func = globalContext.getFrame(e_app->ident_);
+  if (func.returnType != VOID)
+  {
+    temp_type = func.returnType;
   }
 
   x86_temp_value_type = "Fun";  
@@ -2196,7 +2298,7 @@ void JLCX86Generator::visitERel(ERel *e_rel)
       RfpReg = x86_temp_FPregister;
     }
   }
-
+ 
 
   switch (local_op)
   {
@@ -2285,7 +2387,7 @@ void JLCX86Generator::visitERel(ERel *e_rel)
     break;
   }
   isRelop = false;
-  
+  x86_temp_value_type = "ALogic";
 }
 
 void JLCX86Generator::visitEAnd(EAnd *e_and)
@@ -2296,7 +2398,10 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
   auto parent = current_block->getParent();
   auto and_true_block = llvm::BasicBlock::Create(*LLVM_Context_, "and.true", parent);
   auto and_end_block = llvm::BasicBlock::Create(*LLVM_Context_, "and.end", parent);
-
+  CondCounter++;
+  auto BoolBlkLabel = ".LB"+std::to_string(CondCounter);//for eand bool label
+  CondCounter++;
+  auto BoolBlkEndLabel = ".LB"+std::to_string(CondCounter);//for eand bool label
   if (e_and->expr_1) e_and->expr_1->accept(this);
   auto expr_1_llvm_value = llvm_temp_value_;
 
@@ -2314,6 +2419,10 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
     } else if(temp_type == DOUB){
       ss<< "  jae " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
+      ss<< "  test al, al\n";
+      ss<<"  je "<<BoolBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
 
   }else if(temp_op==eLE){
@@ -2326,6 +2435,10 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
     } else if(temp_type == DOUB){
       ss<< "  ja " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
+      ss<< "  test al, al\n";
+      ss<<"  je "<<BoolBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
   }else if(temp_op==eGT){
     //jump instruction
@@ -2336,6 +2449,10 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     } else if(temp_type == DOUB){
       ss<< "  jbe " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
+      ss<< "  test al, al\n";
+      ss<<"  je "<<BoolBlkLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
   }else if(temp_op==eGE){
@@ -2348,6 +2465,10 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
     } else if(temp_type == DOUB){
       ss<< "  jb " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
+      ss<< "  test al, al\n";
+      ss<<"  je "<<BoolBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
   }else if(temp_op==eEQ){
     //jump instruction
@@ -2358,6 +2479,10 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     } else if(temp_type == DOUB){
       ss<< "  jne " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
+      ss<< "  test al, al\n";
+      ss<<"  je "<<BoolBlkLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
   }else if(temp_op==eNE){
@@ -2370,12 +2495,28 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
     } else if(temp_type == DOUB){
       ss<< "  je " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
+      ss<< "  test al, al\n";
+      ss<<"  je "<<BoolBlkLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
   }
 
 
   if (e_and->expr_2) e_and->expr_2->accept(this);
   auto expr_2_llvm_value = llvm_temp_value_;
+  //handle bool
+  if(temp_type==BOOL){
+    std::stringstream ss;
+    ss<< "  test al, al\n";
+    ss<<"  je "<<BoolBlkLabel<<std::endl;
+    ss << "  mov eax, 1\n";
+    ss << "  jmp "<<BoolBlkEndLabel<<std::endl;
+    ss << BoolBlkLabel<<":"<<std::endl;
+    ss << "  mov eax, 0\n";
+    ss << BoolBlkEndLabel<<":"<<std::endl;
+    x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  }
 
   LLVM_builder_->CreateBr(and_end_block);
   LLVM_builder_->SetInsertPoint(and_end_block);
@@ -2390,7 +2531,7 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
   phi->addIncoming(expr_2_llvm_value, block_of_expr_2);
   setLLVMTempValue( phi);
 
-
+  x86_temp_value_type = "Logic";
 }
 
 void JLCX86Generator::visitEOr(EOr *e_or)
