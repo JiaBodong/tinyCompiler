@@ -131,31 +131,30 @@
 
 
 
-int main() {
-    int x = 56;
-    int y = -23;
-    printInt(x+y);
-    printInt(x-y);
-    printInt(x*y);
-    printInt(45/2);
-    printInt(78%3);
-    double z = -9.3;
-    double w = 5.1;
-    printBool(z+w > z-w);
-    printBool(z/w <= z*w);
-    return 0 ;
+int main () {
+printInt(fact(7)) ;
+int n =2;
+n = n+fact(n-1);
+return 0 ;
 }
-
-void printBool(boolean b) {
-  if (b) {
-    printString("true");
-    return;
-  } else {
-    printString("false");
-    return;
- }
+// iterative factorial
+int fact (int n) {
+int i,r ;
+i = 1 ;
+r = 1 ;
+while (i <= n) {
+r = r * i ;
+i++ ;
 }
-
+return r ;
+}
+# // recursive factorial
+# int factr (int n) {
+# if (n < 2)
+# return 1 ;
+# else
+# return n * factr(n-1) ;
+# }
 
 
 

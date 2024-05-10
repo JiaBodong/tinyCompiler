@@ -43,7 +43,7 @@ public:
   Context globalContext;
   type_enum temp_type;
   op_enum temp_op;
-
+  bool isALU = false;
   JLCX86Generator(): LLVM_Context_(std::make_unique<llvm::LLVMContext>()),
                       LLVM_module_(std::make_unique<llvm::Module>("JLC_llvm", *LLVM_Context_)),
                       LLVM_builder_(std::make_unique<llvm::IRBuilder<>>(*LLVM_Context_))
@@ -78,7 +78,7 @@ private:
   std::string RfpReg;
 
   bool condHasReturn = false;
-
+  
   void insertContentAtBeginning(const std::string& filename, const std::string& content) {
     // stringstream 
     std::ifstream infile(filename);
@@ -169,7 +169,7 @@ private:
   std::queue<std::string> function_arg_queue_32;
   std::queue<std::string> function_arg_queue_64;
   std::queue<std::string> function_arg_queue_128;
-
+  std::queue<std::string> function_arg_queue_8;
 
   // pop the argument register name from the queue, if Int type, pop from 32 bit register queue, if Double type, pop from 128 bit register queue
   std::string popArgFromFunctionMap(type_enum type){
@@ -186,7 +186,14 @@ private:
         function_arg_queue_128.pop();
         return arg_name;
       }
+    } else if (type == type_enum::BOOL){
+      if (!function_arg_queue_8.empty()){
+        std::string arg_name = function_arg_queue_8.front();
+        function_arg_queue_8.pop();
+        return arg_name;
+      }
     }
+    
     return "";
   }
 
@@ -204,6 +211,9 @@ private:
     while (!function_arg_queue_128.empty()){
       function_arg_queue_128.pop();
     }
+    while (!function_arg_queue_8.empty()){
+      function_arg_queue_8.pop();
+    }
 
     std::initializer_list<std::string> arg_list = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
     for (const auto& arg : arg_list) {
@@ -218,6 +228,11 @@ private:
     arg_list = {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"};
     for (const auto& arg : arg_list) {
         function_arg_queue_128.push(arg);
+    }
+
+    arg_list = {"al", "bl", "cl", "dl"};
+    for (const auto& arg : arg_list) {
+        function_arg_queue_8.push(arg);
     }
   }
   
@@ -283,6 +298,17 @@ std::map<std::string, RegisterInfo> register_map_128{
   {"xmm14", {true, nullptr}},
   {"xmm15", {true, nullptr}},
 };
+
+std::map<std::string, RegisterInfo> register_map_8{
+  {"al", {true, nullptr}},
+  {"bl", {true, nullptr}},
+  {"cl", {true, nullptr}},
+  {"dl", {true, nullptr}},
+
+};
+
+  // for saving the block of the function
+
 
   // for saving the block of the value
   // @TODO: there are should be a better way to do this
@@ -467,6 +493,9 @@ std::map<std::string, RegisterInfo> register_map_128{
     else if (register_map_128.find(register_name) != register_map_128.end()){
       register_map_128[register_name].available = available;
     }
+    else if (register_map_8.find(register_name) != register_map_8.end()){
+      register_map_8[register_name].available = available;
+    }
     else{
       // it should not reach here
       std::cerr << "Error: register " << register_name << " not found in register map" << std::endl;
@@ -525,6 +554,25 @@ std::map<std::string, RegisterInfo> register_map_128{
     return "";
   }
 
+  //get availability from register name
+  bool getRegisterAvailability(std::string register_name){
+    if (register_map_32.find(register_name) != register_map_32.end()){
+      return register_map_32[register_name].available;
+    }
+    else if (register_map_64.find(register_name) != register_map_64.end()){
+      return register_map_64[register_name].available;
+    }
+    else if (register_map_128.find(register_name) != register_map_128.end()){
+      return register_map_128[register_name].available;
+    }else if (register_map_8.find(register_name) != register_map_8.end()){
+      return register_map_8[register_name].available;
+    }
+    else{
+      // it should not reach here
+      std::cerr << "Error: register " << register_name << " not found in register map" << std::endl;
+    }
+    return false;
+  }
   // type conversion
   llvm::Type *convertType(type_enum type);
   // add inner/external function to the head of the ll file

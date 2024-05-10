@@ -6,6 +6,12 @@ About to run tests with these settings:
   Backends:   ['x64']
   Extensions: None
 
+# problem 1:ops within funcs havent implemented, including add,mul, erel
+# problem 2:few cases bool compare not right,because problem1?
+# problem 3:register allocation for  args transfer in function call ////final to solve, not hard in class
+
+
+
 [  1/123] testsuite/good/core009    ... OK
 [  2/123] testsuite/good/stack1     ... OK
 [  3/123] testsuite/good/core031    ... FAILED
@@ -38,7 +44,7 @@ About to run tests with these settings:
 [ 30/123] testsuite/good/core011    ... OK
 [ 31/123] testsuite/good/core029    ... OK
 [ 32/123] testsuite/good/core006    ... OK
-[ 33/123] testsuite/good/intarith3  ... FAILED
+[ 33/123] testsuite/good/intarith3  ... OK
 [ 34/123] testsuite/good/core015    ... OK
 [ 35/123] testsuite/good/core002    ... OK
 [ 36/123] testsuite/good/core014    ... OK
@@ -254,11 +260,62 @@ Some tests failed:
 
 ---------- !!! testsuite/good/core013.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    Error: register  not found in register map
-    OK
+- stdout expected:
+    &&
+    -1
+    false
+    -2
+    false
+    3
+    -5
+    false
+    234234
+    21321
+    true
+    ||
+    -1
+    0
+    false
+    -2
+    1
+    true
+    3
+    true
+    234234
+    true
+    !
+    true
+    false
+- stdout actual:
+    &&
+    -1
+    0
+    true
+    -2
+    1
+    false
+    3
+    -5
+    true
+    234234
+    21321
+    false
+    ||
+    -1
+    0
+    true
+    -2
+    1
+    false
+    3
+    -5
+    true
+    234234
+    21321
+    false
+    !
+    false
+    false
 
 ---------- !!! testsuite/good/order_fun.jl failed !!! ----------
 
@@ -275,11 +332,22 @@ Some tests failed:
 
 ---------- !!! testsuite/good/core012.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    Error: register  not found in register map
-    OK
+- stdout expected:
+    33
+    79
+    -1288
+    22
+    0
+    true
+    false
+- stdout actual:
+    33
+    79
+    -1288
+    22
+    0
+    true
+    true
 
 ---------- !!! testsuite/good/intarith4.jl failed !!! ----------
 
@@ -305,20 +373,12 @@ Some tests failed:
     OK
 - stderr actual:
     Error: variable 4 not found in x86 block name map
-    Error: variable 4.000000 not found in x86 block name map
-- compiler return code info:
-    compiler return code: -11, 0 expected
+    OK
 
 Some tests caused build failures:
----------- !!! testsuite/good/intarith3.jl failed !!! ----------
-
-    nasm failed with:
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_sys52o7c.s:35: error: label `main.LB4' inconsistently redefined
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_sys52o7c.s:30: info: label `main.LB4' originally defined here
-
 ---------- !!! testsuite/good/core001.jl failed !!! ----------
 
     nasm failed with:
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_l15t4y7c.s:173: error: expression syntax error
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_xnu_ch8p.s:169: error: expression syntax error
 
 /chalmers/users/bodong/CompilerProject/lab-group-22
