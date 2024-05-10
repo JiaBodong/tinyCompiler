@@ -39,6 +39,9 @@ int isBstmt = 0;//for sexp in condblk
 
 bool hasCond = false; //for recording a main blk if has cond
 
+bool setNot = false;
+
+bool isALU = false;
 #define ERRPR_HANDLE(msg) \
   while(1){ \
   std::cerr << "Error: " << msg << std::endl; \
@@ -679,7 +682,10 @@ void JLCX86Generator::visitVRet(VRet *v_ret)
   /* Code For VRet Goes Here */
   LLVM_builder_->CreateRetVoid();
   DEBUG_PRINT("visitVRet");
-
+  //for x86 assembly generator
+  std::stringstream ss;
+  ss<<"  nop\n  leave\n  ret";
+  x86_function_map[globalContext.currentFrameName].push_back(ss.str());
 
 }
 
@@ -775,6 +781,9 @@ void JLCX86Generator::visitCond(Cond *cond)
       ss <<"  ucomiss "<<LfpReg<<", "<<"dword [epsilon]"<<std::endl;
       ss<< "  jae " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
+      ss<< "  jne " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
   }else if(temp_op==eNE){
     //jump instruction
@@ -783,6 +792,9 @@ void JLCX86Generator::visitCond(Cond *cond)
       ss<< "  je " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     } else if(temp_type == DOUB){
+      ss<< "  je " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
       ss<< "  je " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
@@ -917,6 +929,9 @@ void JLCX86Generator::visitCondElse(CondElse *cond_else)
       ss <<"  ucomiss "<<LfpReg<<", "<<"dword [epsilon]"<<std::endl;
       ss<< "  jae " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
+      ss<< "  jne " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
   }else if(temp_op==eNE){
     //jump instruction
@@ -925,6 +940,9 @@ void JLCX86Generator::visitCondElse(CondElse *cond_else)
       ss<< "  je " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     } else if(temp_type == DOUB){
+      ss<< "  je " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
       ss<< "  je " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
@@ -1093,6 +1111,9 @@ void JLCX86Generator::visitWhile(While *while_)
       ss <<"  ucomiss "<<LfpReg<<", "<<"dword [epsilon]"<<std::endl;
       ss<< "  jae " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
+      ss<< "  jne " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
   }else if(temp_op==eNE){
     //jump instruction
@@ -1101,6 +1122,9 @@ void JLCX86Generator::visitWhile(While *while_)
       ss<< "  je " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     } else if(temp_type == DOUB){
+      ss<< "  je " << BStmtBlkEndLabel;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(temp_type == BOOL){
       ss<< "  je " << BStmtBlkEndLabel;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
@@ -1352,19 +1376,32 @@ void JLCX86Generator::visitInit(Init *init)
     if(x86_temp_value_type == "Logic"){
       ss <<"  mov byte [rbp" << stkptr<< "], al\n";
       ss <<"  and byte [rbp" << stkptr<< "], 1\n";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      
     } else if(x86_temp_value_type == "ALogic"){
       ss <<"  mov byte [rbp" << stkptr<< "], al\n";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      
     } else if(x86_temp_value_type == "Fun"){
       ss <<"  mov byte [rbp" << stkptr<< "], al\n";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    
     } else if(x86_temp_value_type == "True"){
       ss <<"  mov byte [rbp" << stkptr<< "], 1\n";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    
     } else if(x86_temp_value_type == "False"){
       ss <<"  mov byte [rbp" << stkptr<< "], 0\n";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+   
+    } else if(x86_temp_value_type == "Imm"){
+      ss <<"  mov byte [rbp" << stkptr<< "], " << x86_temp_value << "\n";
+    
+    } else if(x86_temp_value_type == "Var"){
+      if(setNot==false){
+        ss<<"  mov byte [rbp" << stkptr<< "], al";
+      }else{
+        ss<<"  mov byte [rbp" << stkptr<< "], al\n";
+        ss<<"  and byte [rbp" << stkptr<< "], 1";
+        setNot = false;
+      }
+    
+  
     }
     addVarInfoToBlockMap(init->ident_, alloca, stkptr,"");
     std::string inst = ss.str();
@@ -1460,7 +1497,7 @@ void JLCX86Generator::visitEVar(EVar *e_var)
   // allocate the stack location to one register, for example, eax , and update the the status from true to false in register_map
   if (temp_type == INT)
   {
-    if(isRelop==true){
+    if(isRelop==true&&(isALU==false)){
       return;
     }
     auto reg = checkIntRegisterAvailability();
@@ -1855,6 +1892,14 @@ void JLCX86Generator::visitNot(Not *not_)
   /* Code For Not Goes Here */
 
   if (not_->expr_) not_->expr_->accept(this);
+
+  // for x86 assembly generator
+  std::stringstream ss;
+
+  ss<<"  xor eax, 1";
+ 
+  x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+  setNot=true;
   // llvm not
   setLLVMTempValue(LLVM_builder_->CreateNot(llvm_temp_value_));
 
@@ -1863,7 +1908,7 @@ void JLCX86Generator::visitNot(Not *not_)
 void JLCX86Generator::visitEMul(EMul *e_mul)
 {
   /* Code For EMul Goes Here */
-
+  isALU = true;
   if (e_mul->expr_1) e_mul->expr_1->accept(this);
   auto expr_1_llvm_value = llvm_temp_value_;
   auto expr_1_x86_temp_value = x86_temp_value;
@@ -1883,14 +1928,29 @@ void JLCX86Generator::visitEMul(EMul *e_mul)
       if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
         auto reg = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
         updateRegisterAvailability(reg, true);
-        reg = checkIntRegisterAvailability();
-        auto stkloc = getStackLocation(expr_2_x86_temp_value);
-        addVarInfoToBlockMap(expr_2_x86_temp_value, expr_2_llvm_value, stkloc, reg);
+        x86_function_map[globalContext.currentFrameName].pop_back();
+ 
         std::stringstream ss;
-        if(local_op==eMUL)
+        if(local_op==eMUL){ //mul dont have fixed reg, so we need to check the availability
+          reg = checkIntRegisterAvailability();
+          auto stkloc = getStackLocation(expr_2_x86_temp_value);
+          addVarInfoToBlockMap(expr_2_x86_temp_value, expr_2_llvm_value, stkloc, reg);
           ss <<"  imul " << reg << ", " << "dword [rbp" << stkloc << "], "<< expr_1_x86_temp_value;
-        else if(local_op==eDIV)
-          ss <<"  sub " << reg << ", " << expr_1_x86_temp_value;
+        }
+        else if(local_op==eDIV){
+          ss <<"  mov eax, " << expr_1_x86_temp_value<<std::endl;
+          ss <<"  cdq\n";
+          auto stkloc = getStackLocation(expr_2_x86_temp_value);
+          addVarInfoToBlockMap(expr_2_x86_temp_value, expr_2_llvm_value, stkloc, "eax");//eax is the default register for div
+          ss <<"  idiv " << "dword [rbp" << stkloc << "]";
+        }else if(local_op==eMOD){
+          ss <<"  mov eax, " << expr_1_x86_temp_value<<std::endl;
+          ss <<"  cdq\n";
+          auto stkloc = getStackLocation(expr_2_x86_temp_value);
+          addVarInfoToBlockMap(expr_2_x86_temp_value, expr_2_llvm_value, stkloc, "edx");//edx is the default register for mod
+          ss <<"  idiv " << "dword [rbp" << stkloc << "]";
+        }
+          
         
         x86_function_map[globalContext.currentFrameName].push_back(ss.str());
         x86_temp_value = expr_2_x86_temp_value;
@@ -1898,34 +1958,88 @@ void JLCX86Generator::visitEMul(EMul *e_mul)
       }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
         auto reg1 = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
         auto reg2 = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+        updateRegisterAvailability(reg2,true);
+        x86_function_map[globalContext.currentFrameName].pop_back();
+        
         std::stringstream ss;
-        if(local_op==eMUL)
-          ss << "  imul " << reg1 << ", " << reg2;
-        else
-          ss << "  sub " << reg1 << ", " << reg2;
+        if(local_op==eMUL){
+          auto stkloc = getStackLocation(expr_2_x86_temp_value);
+          ss << "  imul " << reg1 << ", " <<"dword [rbp" << stkloc << "]";
+
+          stkloc = getStackLocation(expr_1_x86_temp_value);
+          addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, reg1);
+        }
+        else if(local_op==eDIV){
+          auto stkloc2 = getStackLocation(expr_2_x86_temp_value);
+          
+          ss <<" cdq\n";
+          ss <<"  idiv "<<"dword [rbp" << stkloc2 << "]";
+          updateRegisterAvailability(reg1,true);
+          auto stkloc = getStackLocation(expr_1_x86_temp_value);
+          addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, "eax");
+        }else if(local_op==eMOD){
+          auto stkloc2 = getStackLocation(expr_2_x86_temp_value);
+          
+          ss <<" cdq\n";
+          ss <<"  idiv "<<"dword [rbp" << stkloc2 << "]";
+          updateRegisterAvailability(reg1,true);
+          auto stkloc = getStackLocation(expr_1_x86_temp_value);
+          addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, "edx");
+        }
+          
         x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-        updateRegisterAvailability(reg2, true);
+    
         x86_temp_value = expr_1_x86_temp_value;
         x86_temp_value_type="Var";
       } else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Imm"){
         //update the reg info
         auto reg = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
-        updateRegisterAvailability(reg, true);
-        reg = checkIntRegisterAvailability();
-        auto stkloc = getStackLocation(expr_1_x86_temp_value);
-        addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, reg);
+        
+        
         std::stringstream ss;
-        if(local_op==eMUL)
-          ss <<"  imul " << reg << ", " << "dword [rbp" << stkloc << "], "<< expr_2_x86_temp_value;
-        else
-          ss <<"  sub " << reg << ", " << expr_2_x86_temp_value;
+        if(local_op==eMUL){
+          updateRegisterAvailability(reg, true);
+          x86_function_map[globalContext.currentFrameName].pop_back();
+          reg = checkIntRegisterAvailability();
+          auto stkloc = getStackLocation(expr_1_x86_temp_value);
+          addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, reg);
+          ss <<"  imul " << reg << ", " << "dword [rbp" << stkloc << "], " << expr_2_x86_temp_value;
+        }else if(local_op==eDIV){
+            auto reg2 = checkIntRegisterAvailability();
+            ss<<"  mov " << reg2 << ", " << expr_2_x86_temp_value<<std::endl;
+            ss<<"  cdq\n";
+            updateRegisterAvailability(reg, true);
+            updateRegisterAvailability(reg2, true);
+            auto stkloc = getStackLocation(expr_1_x86_temp_value);
+            addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, "eax");
+        }else if(local_op==eMOD){
+            auto reg2 = checkIntRegisterAvailability();
+            ss<<"  mov " << reg2 << ", " << expr_2_x86_temp_value<<std::endl;
+            ss<<"  cdq\n";
+            updateRegisterAvailability(reg, true);
+            updateRegisterAvailability(reg2, true);
+            auto stkloc = getStackLocation(expr_1_x86_temp_value);
+            addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, "edx");
+        }
         x86_function_map[globalContext.currentFrameName].push_back(ss.str());
         x86_temp_value = expr_1_x86_temp_value;
-        x86_temp_value_type = "Var";//for the eapp, ass...
-      } else{
-        auto ival = std::stoi(expr_1_x86_temp_value)*std::stoi(expr_2_x86_temp_value);
-        x86_temp_value = std::to_string(ival);
-        x86_temp_value_type ="Imm";
+        x86_temp_value_type = "Var";//
+      } else if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Imm"){
+        
+        if(local_op==eMUL){
+          auto ival = std::stoi(expr_1_x86_temp_value)*std::stoi(expr_2_x86_temp_value);
+          x86_temp_value = std::to_string(ival);
+          x86_temp_value_type ="Imm";
+        }else if(local_op==eDIV){
+           auto ival = std::stoi(expr_1_x86_temp_value)/std::stoi(expr_2_x86_temp_value);
+          x86_temp_value = std::to_string(ival);
+          x86_temp_value_type ="Imm";
+        }else if(local_op==eMOD){
+           auto ival = std::stoi(expr_1_x86_temp_value)%std::stoi(expr_2_x86_temp_value);
+          x86_temp_value = std::to_string(ival);
+          x86_temp_value_type ="Imm";
+        }
+        
       }
         
     }
@@ -2015,7 +2129,7 @@ void JLCX86Generator::visitEMul(EMul *e_mul)
 void JLCX86Generator::visitEAdd(EAdd *e_add)
 {
   /* Code For EAdd Goes Here */
-
+  isALU = true;
   if (e_add->expr_1) e_add->expr_1->accept(this);
   auto expr_1_llvm_value = llvm_temp_value_;
   auto expr_1_x86_temp_value = x86_temp_value;
@@ -2243,28 +2357,87 @@ void JLCX86Generator::visitERel(ERel *e_rel)
   {
 
     //for x86 assembly generator
-    if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
-      ss <<"  mov eax, "<< expr_1_x86_temp_value;
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      auto stkloc = getStackLocation(expr_2_x86_temp_value);     
-      std::stringstream ss; 
-      ss << "  cmp eax, " << "dword [rbp" << stkloc << "]";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    if(temp_type!=BOOL){
+      if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
+        ss <<"  mov eax, "<< expr_1_x86_temp_value;
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        auto stkloc = getStackLocation(expr_2_x86_temp_value);     
+        std::stringstream ss; 
+        ss << "  cmp eax, " << "dword [rbp" << stkloc << "]";
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
 
-    }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
-    
-      auto stkloc1 = getStackLocation(expr_1_x86_temp_value);
-      auto stkloc2 = getStackLocation(expr_2_x86_temp_value);
-      ss << "  mov eax, " << "dword [rbp" << stkloc1 << "]";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      std::stringstream ss;
-      ss << "  cmp eax, " << "dword [rbp" << stkloc2 << "]";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-    } else{
-      
-      auto stkloc = getStackLocation(expr_1_x86_temp_value);
-      ss << "  cmp " << "dword [rbp" << stkloc << "], " << expr_2_x86_temp_value;
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
+
+        auto stkloc1 = getStackLocation(expr_1_x86_temp_value);
+        auto stkloc2 = getStackLocation(expr_2_x86_temp_value);
+        ss << "  mov eax, " << "dword [rbp" << stkloc1 << "]";
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        std::stringstream ss;
+        ss << "  cmp eax, " << "dword [rbp" << stkloc2 << "]";
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      } else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Imm"){
+        auto stkloc = getStackLocation(expr_1_x86_temp_value);
+        ss << "  mov eax, " << "dword [rbp" << stkloc << "]";
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        std::stringstream ss;
+        ss << "  cmp eax, " << expr_2_x86_temp_value;
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      }  
+      else{
+        
+        auto stkloc = getStackLocation(expr_1_x86_temp_value);
+        ss << "  cmp " << "dword [rbp" << stkloc << "], " << expr_2_x86_temp_value;
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      }
+    }
+    else {
+      if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
+        auto reg1 = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
+        auto reg2 = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+        ss << "  cmp " << reg1 << ", " << reg2;
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        updateRegisterAvailability(reg1, true);
+        updateRegisterAvailability(reg2, true);
+      } else if(expr_1_x86_temp_value_type=="Var"&&(expr_2_x86_temp_value_type=="False"||expr_2_x86_temp_value_type=="True")){
+        auto reg1 = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
+        if(expr_2_x86_temp_value_type=="False"){
+          ss << "  cmp " << reg1 << ", 0";
+        }else{
+          ss << "  cmp " << reg1 << ", 1";
+        }
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        updateRegisterAvailability(reg1, true);
+      }else if((expr_1_x86_temp_value_type=="False"||expr_1_x86_temp_value_type=="True")&&expr_2_x86_temp_value_type=="Var"){
+        auto reg2 = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+        if(expr_1_x86_temp_value_type=="False"){
+          ss << "  cmp 0, " << reg2;
+        }else{
+          ss << "  cmp 1, " << reg2;
+        }
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+        updateRegisterAvailability(reg2, true);
+      } else if((expr_1_x86_temp_value_type=="False"||expr_1_x86_temp_value_type=="True")&&(expr_2_x86_temp_value_type=="False"||expr_2_x86_temp_value_type=="True")){
+        if(expr_1_x86_temp_value_type=="False"&&expr_2_x86_temp_value_type=="False"){
+          ss << "  mov eax, 0\n";
+          ss << "  cmp eax, 0";
+        }else if(expr_1_x86_temp_value_type=="False"&&expr_2_x86_temp_value_type=="True"){
+          ss << "  mov eax, 0\n";
+          ss << "  cmp eax, 1";
+        }else if(expr_1_x86_temp_value_type=="True"&&expr_2_x86_temp_value_type=="False"){
+          ss << "  mov eax, 1\n";
+          ss << "  cmp eax, 0";
+        }else{
+          ss << "  mov eax, 1\n";
+          ss << "  cmp eax, 1";
+        }
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      }
+      else{
+        
+        auto stkloc = getStackLocation(expr_1_x86_temp_value);
+        ss << "  cmp " << "dword [rbp" << stkloc << "], " << expr_2_x86_temp_value;
+        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      }
     }
       
   }
@@ -2388,6 +2561,7 @@ void JLCX86Generator::visitERel(ERel *e_rel)
   }
   isRelop = false;
   x86_temp_value_type = "ALogic";
+  
 }
 
 void JLCX86Generator::visitEAnd(EAnd *e_and)

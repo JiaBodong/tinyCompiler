@@ -11,7 +11,7 @@ About to run tests with these settings:
 [  3/123] testsuite/good/core031    ... FAILED
 [  4/123] testsuite/good/assignedargument ... OK
 [  5/123] testsuite/good/core030    ... OK
-[  6/123] testsuite/good/core027    ... FAILED
+[  6/123] testsuite/good/core027    ... OK
 [  7/123] testsuite/good/core008    ... OK
 [  8/123] testsuite/good/stack2     ... OK
 [  9/123] testsuite/good/core032    ... OK
@@ -22,16 +22,16 @@ About to run tests with these settings:
 [ 14/123] testsuite/good/intarith   ... OK
 [ 15/123] testsuite/good/core019    ... OK
 [ 16/123] testsuite/good/registers1 ... OK
-[ 17/123] testsuite/good/order_binop2 ... OK
+[ 17/123] testsuite/good/order_binop2 ... FAILED
 [ 18/123] testsuite/good/core023    ... OK
 [ 19/123] testsuite/good/core022    ... OK
-[ 20/123] testsuite/good/core004    ... FAILED
+[ 20/123] testsuite/good/core004    ... OK
 [ 21/123] testsuite/good/order_binop ... OK
 [ 22/123] testsuite/good/core013    ... FAILED
 [ 23/123] testsuite/good/order_fun  ... FAILED
 [ 24/123] testsuite/good/core012    ... FAILED
-[ 25/123] testsuite/good/core005    ... FAILED
-[ 26/123] testsuite/good/intarith2  ... FAILED
+[ 25/123] testsuite/good/core005    ... OK
+[ 26/123] testsuite/good/intarith2  ... OK
 [ 27/123] testsuite/good/core007    ... OK
 [ 28/123] testsuite/good/core028    ... OK
 [ 29/123] testsuite/good/core010    ... OK
@@ -40,14 +40,14 @@ About to run tests with these settings:
 [ 32/123] testsuite/good/core006    ... OK
 [ 33/123] testsuite/good/intarith3  ... FAILED
 [ 34/123] testsuite/good/core015    ... OK
-[ 35/123] testsuite/good/core002    ... FAILED
+[ 35/123] testsuite/good/core002    ... OK
 [ 36/123] testsuite/good/core014    ... OK
 [ 37/123] testsuite/good/shadowedfunction ... OK
 [ 38/123] testsuite/good/core016    ... OK
 [ 39/123] testsuite/good/core001    ... FAILED
 [ 40/123] testsuite/good/intarith4  ... FAILED
 [ 41/123] testsuite/good/intarith5  ... FAILED
-[ 42/123] testsuite/good/core017    ... FAILED //bool 
+[ 42/123] testsuite/good/core017    ... FAILED
 [ 43/123] testsuite/bad/bad021      ... OK
 [ 44/123] testsuite/bad/bad051      ... OK
 [ 45/123] testsuite/bad/bad019      ... OK
@@ -169,15 +169,6 @@ Some tests failed:
     Error: register  not found in register map
     OK
 
----------- !!! testsuite/good/core027.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: variable b not found in x86 block name map
-- compiler return code info:
-    compiler return code: -11, 0 expected
-
 ---------- !!! testsuite/good/registers2.jl failed !!! ----------
 
 - stderr expected:
@@ -252,12 +243,13 @@ Some tests failed:
     Error: register  not found in register map
     OK
 
----------- !!! testsuite/good/core004.jl failed !!! ----------
+---------- !!! testsuite/good/order_binop2.jl failed !!! ----------
 
 - stderr expected:
     OK
 - stderr actual:
-    Error: variable  not found in x86 block name map
+    Error: register  not found in register map
+    Error: register  not found in register map
     OK
 
 ---------- !!! testsuite/good/core013.jl failed !!! ----------
@@ -289,55 +281,14 @@ Some tests failed:
     Error: register  not found in register map
     OK
 
----------- !!! testsuite/good/core005.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: register  not found in register map
-    OK
-
----------- !!! testsuite/good/intarith3.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    Error: register  not found in register map
-    OK
-
----------- !!! testsuite/good/core002.jl failed !!! ----------
-
-- stdout expected:
-    foo
-- stdout actual:
-
-
----------- !!! testsuite/good/core016.jl failed !!! ----------
-
-- stdout expected:
-    0
-- stdout actual:
-    1
-
----------- !!! testsuite/good/core001.jl failed !!! ----------
-
-- stderr expected:
-    OK
-- stderr actual:
-    terminate called after throwing an instance of 'std::invalid_argument'
-      what():  stoi
-- compiler return code info:
-    compiler return code: -6, 0 expected
-
 ---------- !!! testsuite/good/intarith4.jl failed !!! ----------
 
-- stderr expected:
-    OK
-- stderr actual:
-    terminate called after throwing an instance of 'std::invalid_argument'
-      what():  stoi
-- compiler return code info:
-    compiler return code: -6, 0 expected
+- stdout expected:
+    5040
+    5040
+- stdout actual:
+    5040
+    1
 
 ---------- !!! testsuite/good/intarith5.jl failed !!! ----------
 
@@ -354,17 +305,20 @@ Some tests failed:
     OK
 - stderr actual:
     Error: variable 4 not found in x86 block name map
-    Error: register  not found in register map
-    Error: variable 2 not found in x86 block name map
     Error: variable 4.000000 not found in x86 block name map
 - compiler return code info:
     compiler return code: -11, 0 expected
 
 Some tests caused build failures:
----------- !!! testsuite/good/core015.jl failed !!! ----------
+---------- !!! testsuite/good/intarith3.jl failed !!! ----------
 
     nasm failed with:
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_ufz0ac0r.s:27: error: symbol `ev.LB2' not defined
-    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_ufz0ac0r.s:35: error: symbol `ev.LB5' not defined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_sys52o7c.s:35: error: label `main.LB4' inconsistently redefined
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_sys52o7c.s:30: info: label `main.LB4' originally defined here
+
+---------- !!! testsuite/good/core001.jl failed !!! ----------
+
+    nasm failed with:
+    /chalmers/users/bodong/CompilerProject/lab-group-22/submodules/project/tester/test_x86_l15t4y7c.s:173: error: expression syntax error
 
 /chalmers/users/bodong/CompilerProject/lab-group-22

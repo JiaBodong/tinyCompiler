@@ -105,12 +105,55 @@
 # }
 
 
-int main() { 
-    boolean b=false;
-    boolean a =true;
-    while(b&&a){}
-    while(false){}
-    return 0; 
+# int main() { 
+#     boolean b=false;
+#     boolean a =true;
+#     while(b&&a){}
+#     while(false){}
+#     return 0; 
+# }
+
+
+
+
+
+# int main(){
+#     boolean a = true;
+#     boolean b =!a;
+#     if(a==b){
+#         printInt(1);
+#     }
+#     else{
+#         printInt(0);
+#     }
+#     return 0;
+# }
+
+
+
+int main() {
+    int x = 56;
+    int y = -23;
+    printInt(x+y);
+    printInt(x-y);
+    printInt(x*y);
+    printInt(45/2);
+    printInt(78%3);
+    double z = -9.3;
+    double w = 5.1;
+    printBool(z+w > z-w);
+    printBool(z/w <= z*w);
+    return 0 ;
+}
+
+void printBool(boolean b) {
+  if (b) {
+    printString("true");
+    return;
+  } else {
+    printString("false");
+    return;
+ }
 }
 
 
