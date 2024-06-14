@@ -71,7 +71,9 @@ private:
   llvm::Value * llvm_temp_value_;
   std::string x86_temp_value;
   std::string x86_temp_value_type;
-  std::string x86_temp_FPregister;
+  std::string TEMP_REG;//for eadd,emul,erel
+
+  std::string x86_temp_FPregister;//reducdant, need to change
   bool isRelop = false;
   // for handle float equal
   std::string LfpReg;

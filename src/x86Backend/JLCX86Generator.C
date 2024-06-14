@@ -446,41 +446,19 @@ void JLCX86Generator::visitAss(Ass *ass)
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
 
-  } else if(x86_temp_value_type == "Var"){
-    //get the varInfo
-
-    auto subvarInfo = getVarInfoFromBlockMap(x86_temp_value);
-    //find the coorsponding reg of this var
-    //std::cout << "  mov dword [rbp" << stkptr << "], " << subvarInfo->register_name<< std::endl;
-
-    //push the inst to x86_code _inst
+  }else{
     std::stringstream ss;
     if(temp_type==DOUB){
-      ss <<  "  movss dword [rbp" << stkptr << "], " << subvarInfo->register_name;
+      ss << "  movss dword [rbp" << stkptr << "], " <<TEMP_REG;
+      updateRegisterAvailability(TEMP_REG,true);
     }else if(temp_type==INT){
-      ss <<  "  mov dword [rbp" << stkptr << "], " << subvarInfo->register_name;
-    }
-    
-    std::string inst =ss.str();
-    x86_function_map[globalContext.currentFrameName].push_back(inst);
-
-    //retore the avaibility of this reg
-    updateRegisterAvailability(subvarInfo->register_name, true);
-
-  } else if(x86_temp_value_type == "Fun"){
-    std::stringstream ss;
-    if(temp_type == DOUB){
-      
-      ss << "  movss dword [rbp" << stkptr << "], " << "xmm0";
-      //updateRegisterAvailability("eax", true);
-      updateRegisterAvailability("xmm0", true);
-    } else if(temp_type == INT){
-      ss << "  mov dword [rbp" << stkptr << "], " << "eax";
-      updateRegisterAvailability("eax", true);
+      ss << "  mov dword [rbp" << stkptr << "], " <<TEMP_REG;
+      updateRegisterAvailability(TEMP_REG,true);
     }
     std::string inst = ss.str();
     x86_function_map[globalContext.currentFrameName].push_back(inst);
   }
+  
   
   isALU=false;
 }
@@ -1551,7 +1529,7 @@ void JLCX86Generator::visitEVar(EVar *e_var)
       return;
     }
     auto reg = checkIntRegisterAvailability();
-
+    TEMP_REG = reg;
     if (reg =="")
     {//TODO:handle the case when there is no available register
       std::cerr << "ERROR: no available register for int type\n";
@@ -1574,7 +1552,7 @@ void JLCX86Generator::visitEVar(EVar *e_var)
   else if (temp_type == DOUB)
   {
     auto reg = checkDoubleRegisterAvailability();
-
+    TEMP_REG = reg;
     if (reg == "")
     {
       std::cerr << "ERROR: no available register for double type\n";
@@ -1596,6 +1574,8 @@ void JLCX86Generator::visitEVar(EVar *e_var)
     }
   }else if(temp_type ==BOOL){
     auto reg = checkIntRegisterAvailability();
+    TEMP_REG = reg;
+
     updateRegisterAvailability(reg, false);
     updateVarInfoRegisterName(e_var->ident_, reg);
     updateRegisterValue(var, reg);
@@ -1733,7 +1713,6 @@ void JLCX86Generator::visitEApp(EApp *e_app)
 
   function_call_map[globalContext.currentFrameName] = true;
   
-  // function_call_map[globalContext.currentFrameName] = true;
   /* Code For EApp Goes Here */
   std::vector<llvm::Value*> args;
   // iterate through the arguments, and collect the llvm values
@@ -1846,40 +1825,6 @@ void JLCX86Generator::visitEApp(EApp *e_app)
       }
       std::string inst = ss.str();
       x86_function_map[globalContext.currentFrameName].push_back(inst);
-    } else if(x86_temp_value_type == "Var"){
-      //get the varInfo
-      auto subvarInfo = getVarInfoFromBlockMap(x86_temp_value);
-      auto reg = popArgFromFunctionMap(temp_type);
-      //find the coorsponding reg of this var
-      //std::cout << "  mov " << reg << ", " << subvarInfo->register_name  << std::endl;
-      
-      updateRegisterAvailability(subvarInfo->register_name, true);
-      updateRegisterAvailability(reg, false);
-      //push the inst to x86_code_inst
-      std::stringstream ss;
-      if(temp_type == DOUB){
-        updateRegisterAvailability(reg, true);
-        if(e_app->ident_=="printDouble"){
-          ss << "  cvtss2sd " << reg << ", " << subvarInfo->register_name;
-        }else{
-          ss << "  movss " << reg  << ", " << subvarInfo->register_name ;
-        }
-      } else if(temp_type == INT){
-        ss << "  mov " << reg << ", " << subvarInfo->register_name ;
-      }
-      
-      std::string inst = ss.str();
-      x86_function_map[globalContext.currentFrameName].push_back(inst);
-      
-    } else if(x86_temp_value_type == "Fun"){//TODO
-        std::stringstream ss;
-        auto reg = popArgFromFunctionMap(INT);
-        updateRegisterAvailability(reg, false);
-        updateRegisterAvailability("eax", true);
-        ss << "  mov " << reg << ", " << "eax";
-        std::string inst = ss.str();
-        x86_function_map[globalContext.currentFrameName].push_back(inst);
-     
     } else if(x86_temp_value_type=="Str"){
       ;
     } else if(x86_temp_value_type=="Logic"){
@@ -1892,7 +1837,25 @@ void JLCX86Generator::visitEApp(EApp *e_app)
        ss << "  mov " << reg << ", " << "eax";
         std::string inst = ss.str();
         x86_function_map[globalContext.currentFrameName].push_back(inst);
-    } 
+    } else{
+            //push the inst to x86_code_inst
+      std::stringstream ss;
+      if(temp_type == DOUB){
+         auto reg = popArgFromFunctionMap(DOUB);
+        if(e_app->ident_=="printDouble"){
+          ss << "  cvtss2sd " << reg << ", " << TEMP_REG;
+        }else{
+          ss << "  movss " << reg  << ", " << TEMP_REG ;
+        }
+
+      } else if(temp_type == INT){
+        auto reg = popArgFromFunctionMap(INT);
+        ss << "  mov " << reg << ", " << TEMP_REG ;
+      }
+      
+      std::string inst = ss.str();
+      x86_function_map[globalContext.currentFrameName].push_back(inst);
+    }
   }
 
   restoreFunctionArgQueue();//restore args reg availability
@@ -1935,7 +1898,15 @@ void JLCX86Generator::visitEApp(EApp *e_app)
     temp_type = func.returnType;
   }
   isALU = false;
-  x86_temp_value_type = "Fun";  
+  x86_temp_value_type = "Fun";
+
+  if(temp_type == INT){
+    TEMP_REG = "eax";
+  }
+  else if(temp_type == DOUB){
+    TEMP_REG = "xmm0";
+  }  
+   
 }
 
 void JLCX86Generator::visitEString(EString *e_string)
@@ -2045,255 +2016,93 @@ void JLCX86Generator::visitEMul(EMul *e_mul)
   auto expr_1_llvm_value = llvm_temp_value_;
   auto expr_1_x86_temp_value = x86_temp_value;
   auto expr_1_x86_temp_value_type = x86_temp_value_type;
-
-  //handle addop is func
-  if(expr_1_x86_temp_value_type=="Fun"){
-    std::stringstream ss;
-    if(temp_type == INT)
-    {
-      //for x86 assembly generator
-      //allocate a register for the return value of the function
-   
-      auto reg = checkIntRegisterAvailability();
-      ss << "  mov " << reg << ", " << "eax";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      expr_1_x86_temp_value = reg;//set the temp_value = reg
-    
-      updateRegisterAvailability(reg, false);
-
-    } else if(temp_type == DOUB){
-      //for x86 assembly generator
-      //allocate a register for the return value of the function
-     
-      auto reg = checkDoubleRegisterAvailability();
-      ss << "  movaps " << reg << ", " << "xmm0";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      expr_1_x86_temp_value = reg;//set the temp_value = reg
-    
-      updateRegisterAvailability(reg, false);
-    }
-  }
-
-
-  
+  auto TEMP_REG1=TEMP_REG;
   if (e_mul->mulop_) e_mul->mulop_->accept(this);
   auto local_op = temp_op;
   if (e_mul->expr_2) e_mul->expr_2->accept(this);
   auto expr_2_llvm_value = llvm_temp_value_;
   auto expr_2_x86_temp_value = x86_temp_value;
   auto expr_2_x86_temp_value_type = x86_temp_value_type;
-  
+  auto TEMP_REG2=TEMP_REG;
 
   if(expr_1_llvm_value->getType()->isIntegerTy())
-    {
-
-      //for x86 assembly generator
-      if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
-        auto reg = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
-        updateRegisterAvailability(reg, true);
-        x86_function_map[globalContext.currentFrameName].pop_back();
- 
-        std::stringstream ss;
-        if(local_op==eMUL){ //mul dont have fixed reg, so we need to check the availability
-          reg = checkIntRegisterAvailability();
-          auto stkloc = getStackLocation(expr_2_x86_temp_value);
-          addVarInfoToBlockMap(expr_2_x86_temp_value, expr_2_llvm_value, stkloc, reg);
-          ss <<"  imul " << reg << ", " << "dword [rbp" << stkloc << "], "<< expr_1_x86_temp_value;
-        }
-        else if(local_op==eDIV){
-          ss <<"  mov eax, " << expr_1_x86_temp_value<<std::endl;
-          ss <<"  cdq\n";
-          auto stkloc = getStackLocation(expr_2_x86_temp_value);
-          addVarInfoToBlockMap(expr_2_x86_temp_value, expr_2_llvm_value, stkloc, "eax");//eax is the default register for div
-          ss <<"  idiv " << "dword [rbp" << stkloc << "]";
-        }else if(local_op==eMOD){
-          ss <<"  mov eax, " << expr_1_x86_temp_value<<std::endl;
-          ss <<"  cdq\n";
-          auto stkloc = getStackLocation(expr_2_x86_temp_value);
-          addVarInfoToBlockMap(expr_2_x86_temp_value, expr_2_llvm_value, stkloc, "edx");//edx is the default register for mod
-          ss <<"  idiv " << "dword [rbp" << stkloc << "]";
-        }
-          
-        
-        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-        x86_temp_value = expr_2_x86_temp_value;
-        x86_temp_value_type = "Var";//for the eapp, ass...
-        ALUtempReg = reg;
-      }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
-        auto reg1 = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
-        auto reg2 = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
-        updateRegisterAvailability(reg2,true);
-        x86_function_map[globalContext.currentFrameName].pop_back();
-        
-        std::stringstream ss;
-        if(local_op==eMUL){
-          auto stkloc = getStackLocation(expr_2_x86_temp_value);
-          ss << "  imul " << reg1 << ", " <<"dword [rbp" << stkloc << "]";
-
-          stkloc = getStackLocation(expr_1_x86_temp_value);
-          addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, reg1);
-        }
-        else if(local_op==eDIV){
-          auto stkloc2 = getStackLocation(expr_2_x86_temp_value);
-          
-          ss <<" cdq\n";
-          ss <<"  idiv "<<"dword [rbp" << stkloc2 << "]";
-          updateRegisterAvailability(reg1,true);
-          auto stkloc = getStackLocation(expr_1_x86_temp_value);
-          addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, "eax");
-        }else if(local_op==eMOD){
-          auto stkloc2 = getStackLocation(expr_2_x86_temp_value);
-          
-          ss <<" cdq\n";
-          ss <<"  idiv "<<"dword [rbp" << stkloc2 << "]";
-          updateRegisterAvailability(reg1,true);
-          auto stkloc = getStackLocation(expr_1_x86_temp_value);
-          addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, "edx");
-        }
-          
-        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-    
-        x86_temp_value = expr_1_x86_temp_value;
-        x86_temp_value_type="Var";
-        ALUtempReg = reg1;
-      } else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Imm"){
-        //update the reg info
-        auto reg = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
-        
-        
-        std::stringstream ss;
-        if(local_op==eMUL){
-          updateRegisterAvailability(reg, true);
-          x86_function_map[globalContext.currentFrameName].pop_back();
-          reg = checkIntRegisterAvailability();
-          auto stkloc = getStackLocation(expr_1_x86_temp_value);
-          addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, reg);
-          ss <<"  imul " << reg << ", " << "dword [rbp" << stkloc << "], " << expr_2_x86_temp_value;
-        }else if(local_op==eDIV){
-            auto reg2 = checkIntRegisterAvailability();
-            ss<<"  mov " << reg2 << ", " << expr_2_x86_temp_value<<std::endl;
-            ss<<"  cdq\n";
-            updateRegisterAvailability(reg, true);
-            updateRegisterAvailability(reg2, true);
-            auto stkloc = getStackLocation(expr_1_x86_temp_value);
-            addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, "eax");
-        }else if(local_op==eMOD){
-            auto reg2 = checkIntRegisterAvailability();
-            ss<<"  mov " << reg2 << ", " << expr_2_x86_temp_value<<std::endl;
-            ss<<"  cdq\n";
-            ss<<"  idiv " << reg2;
-            updateRegisterAvailability(reg, true);
-            updateRegisterAvailability(reg2, true);
-            auto stkloc = getStackLocation(expr_1_x86_temp_value);
-            addVarInfoToBlockMap(expr_1_x86_temp_value, expr_1_llvm_value, stkloc, "edx");
-        }
-        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-        x86_temp_value = expr_1_x86_temp_value;
-        x86_temp_value_type = "Var";//
-        ALUtempReg = reg;
-      } else if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Imm"){
-        
-        if(local_op==eMUL){
-          auto ival = std::stoi(expr_1_x86_temp_value)*std::stoi(expr_2_x86_temp_value);
-          x86_temp_value = std::to_string(ival);
-          x86_temp_value_type ="Imm";
-        }else if(local_op==eDIV){
-           auto ival = std::stoi(expr_1_x86_temp_value)/std::stoi(expr_2_x86_temp_value);
-          x86_temp_value = std::to_string(ival);
-          x86_temp_value_type ="Imm";
-        }else if(local_op==eMOD){
-           auto ival = std::stoi(expr_1_x86_temp_value)%std::stoi(expr_2_x86_temp_value);
-          x86_temp_value = std::to_string(ival);
-          x86_temp_value_type ="Imm";
-        }
-        
-      }
-        
-    }
-    else
-    {
-            //for x86 assembly generator
-      if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
-        auto reg = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
-        std::stringstream ss;
-        if(local_op==eMUL)
-          ss <<"  mulss " << reg<<", " << x86_temp_FPregister;
-        else
-          ss <<"  divss " << reg<<", " << x86_temp_FPregister;
-        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-        updateRegisterAvailability(x86_temp_FPregister,true);
-        x86_temp_value = expr_2_x86_temp_value;
-        x86_temp_value_type = "Var";//for the eapp, ass...
-        ALUtempReg = reg;
-      }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
-        auto reg1 = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
-        auto reg2 = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
-        std::stringstream ss;
-        if(local_op==eMUL)
-          ss << "  mulss " << reg1 << ", " << reg2;
-        else
-          ss << "  divss " << reg1 << ", " << reg2;
-        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-        updateRegisterAvailability(reg2, true);
-        x86_temp_value = expr_1_x86_temp_value;
-        x86_temp_value_type="Var";
-        ALUtempReg=reg1;
-      } else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Imm"){
-        auto reg = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
-        std::stringstream ss;
-        if(local_op==eMUL)
-          ss <<"  mulss " << reg << ", " << x86_temp_FPregister;
-        else
-          ss <<"  divss " << reg << ", " << x86_temp_FPregister;
-        x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-        updateRegisterAvailability(x86_temp_FPregister,true);
-        x86_temp_value = expr_1_x86_temp_value;
-        x86_temp_value_type = "Var";//for the eapp, ass...
-        ALUtempReg = reg;
-      } else{
-        ; //maybe not need
-      }
-      
-    }
-
-  switch (local_op)
   {
-  case eMUL:
-    // if value is int, then we use CreateMul
-    if(expr_1_llvm_value->getType()->isIntegerTy())
-    {
-      setLLVMTempValue( LLVM_builder_->CreateMul(
-          expr_1_llvm_value, expr_2_llvm_value, "mul"));
+    //for immediate value
+    if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type!="Imm"){
+      std::stringstream ss;
+      if(local_op==eMUL){
+        ss <<"  imul " << TEMP_REG2<<", " << expr_1_x86_temp_value;
+        TEMP_REG = TEMP_REG2;
+      } else if(local_op==eDIV){
+        ss <<"  mov eax, " << expr_1_x86_temp_value;
+        ss <<"  cdq";
+        ss <<"  idiv " << TEMP_REG2;
+        TEMP_REG = "eax";
+      } else if(local_op==eMOD){
+        ss <<"  mov eax, " << expr_1_x86_temp_value;
+        ss <<"  cdq";
+        ss <<"  idiv " << TEMP_REG2;
+        TEMP_REG = "edx";
+      }
+      x86_temp_value_type =expr_2_x86_temp_value_type;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+      
+    } else if(expr_1_x86_temp_value_type!="Imm"&&expr_2_x86_temp_value_type=="Imm"){
+      std::stringstream ss;
+      if(local_op==eMUL){
+        ss <<"  imul " << TEMP_REG1<<", " << expr_2_x86_temp_value;
+        TEMP_REG = TEMP_REG1;
+      } else if(local_op==eDIV){
+        ss <<"  mov eax, " << expr_1_x86_temp_value;
+        ss <<"  cdq";
+        ss <<"  idiv " << TEMP_REG1;
+        TEMP_REG = "eax";
+      } else if(local_op==eMOD){
+        ss <<"  mov eax, " << expr_1_x86_temp_value;
+        ss <<"  cdq";
+        ss <<"  idiv " << TEMP_REG1;
+        TEMP_REG = "edx";
+      }
+      x86_temp_value_type =expr_1_x86_temp_value_type;
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
+    } else if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Imm"){
+      if(local_op==eMUL){
+        auto ival = std::stoi(expr_1_x86_temp_value)*std::stoi(expr_2_x86_temp_value);
+        x86_temp_value = std::to_string(ival);
+        x86_temp_value_type ="Imm";
+      }else if(local_op==eDIV){
+        auto ival = std::stoi(expr_1_x86_temp_value)/std::stoi(expr_2_x86_temp_value);
+        x86_temp_value = std::to_string(ival);
+        x86_temp_value_type ="Imm";
+      }else if(local_op==eMOD){
+        auto ival = std::stoi(expr_1_x86_temp_value)%std::stoi(expr_2_x86_temp_value);
+        x86_temp_value = std::to_string(ival);
+        x86_temp_value_type ="Imm";
+      }
+    } else{
+      //TO DO , reg allocation: spill..
+      std::stringstream ss;
+      if(local_op==eMUL){
+        ss << "  imul " << TEMP_REG1 << ", " << TEMP_REG2;
+        x86_temp_value_type =expr_1_x86_temp_value_type;
+        TEMP_REG = TEMP_REG1;
+      } else if(local_op==eDIV){
+        ss << "  mov eax, " << TEMP_REG1;
+        ss << "  cdq";
+        ss << "  idiv " << TEMP_REG2;
+        x86_temp_value_type =expr_1_x86_temp_value_type;
+        TEMP_REG = "eax";
+      } else if(local_op==eMOD){
+        ss << "  mov eax, " << TEMP_REG1;
+        ss << "  cdq";
+        ss << "  idiv " << TEMP_REG2;
+        x86_temp_value_type =expr_1_x86_temp_value_type;
+        TEMP_REG = "edx";
+      }
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
-    else
-    {
-      setLLVMTempValue( LLVM_builder_->CreateFMul(
-          expr_1_llvm_value, expr_2_llvm_value, "mul"));
-    }
-    break;
-  case eDIV:
-    // if value is int, then we use CreateSDiv
-    if(expr_1_llvm_value->getType()->isIntegerTy())
-    {
-      setLLVMTempValue( LLVM_builder_->CreateSDiv(
-          expr_1_llvm_value, expr_2_llvm_value, "div"));
-    }
-    else
-    {
-      setLLVMTempValue( LLVM_builder_->CreateFDiv(
-          expr_1_llvm_value, expr_2_llvm_value, "div"));
-    }
-    break;
-  case eMOD:
-    // only for int
-    setLLVMTempValue( LLVM_builder_->CreateSRem(
-        expr_1_llvm_value, expr_2_llvm_value, "mod"));
-    break;
-  default:
-    ERRPR_HANDLE("unknown EMUL operation")
-    break;
   }
-  
+
 }
 
 void JLCX86Generator::visitEAdd(EAdd *e_add)
@@ -2304,214 +2113,105 @@ void JLCX86Generator::visitEAdd(EAdd *e_add)
   auto expr_1_llvm_value = llvm_temp_value_;
   auto expr_1_x86_temp_value = x86_temp_value;
   auto expr_1_x86_temp_value_type = x86_temp_value_type;
-  //handle addop is func
-  if(expr_1_x86_temp_value_type=="Fun"){
-    std::stringstream ss;
-    if(temp_type == INT)
-    {
-      //for x86 assembly generator
-      //allocate a register for the return value of the function
-      updateRegisterAvailability("eax", false);
-      auto reg = checkIntRegisterAvailability();
-      ss << "  mov " << reg << ", " << "eax";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      expr_1_x86_temp_value = reg;//set the temp_value = reg
-      updateRegisterAvailability("eax", true);
-      updateRegisterAvailability(reg, false);
-    } else if(temp_type == DOUB){
-      //for x86 assembly generator
-      //allocate a register for the return value of the function
-      updateRegisterAvailability("xmm0", false);
-      auto reg = checkDoubleRegisterAvailability();
-      ss << "  movaps " << reg << ", " << "xmm0";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      expr_1_x86_temp_value = reg;//set the temp_value = reg
-      updateRegisterAvailability("xmm0", true);
-      updateRegisterAvailability(reg, false);
-    }
-  }
-  
+  auto TEMP_REG1=TEMP_REG;
   if (e_add->addop_) e_add->addop_->accept(this);
   auto local_op = temp_op;
   if (e_add->expr_2) e_add->expr_2->accept(this);
   auto expr_2_llvm_value = llvm_temp_value_;
   auto expr_2_x86_temp_value = x86_temp_value;
   auto expr_2_x86_temp_value_type = x86_temp_value_type;
-  //handle addop is func
-  if(expr_2_x86_temp_value_type=="Fun"){
-    std::stringstream ss;
-    if(temp_type == INT)
-    {
-      //for x86 assembly generator
-      //allocate a register for the return value of the function
-      updateRegisterAvailability("eax", false);
-      auto reg = checkIntRegisterAvailability();
-      ss << "  mov " << reg << ", " << "eax";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      expr_2_x86_temp_value = reg;//set the temp_value = reg
-      updateRegisterAvailability("eax", true);
-      updateRegisterAvailability(reg, false);
-    } else if(temp_type == DOUB){
-      //for x86 assembly generator
-      //allocate a register for the return value of the function
-      updateRegisterAvailability("xmm0", false);
-      auto reg = checkDoubleRegisterAvailability();
-      ss << "  movaps " << reg << ", " << "xmm0";
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      expr_2_x86_temp_value = reg;//set the temp_value = reg
-      updateRegisterAvailability("xmm0", true);
-      updateRegisterAvailability(reg, false);
-    }
-  }
+  auto TEMP_REG2=TEMP_REG;
 
 
   if(expr_1_llvm_value->getType()->isIntegerTy())
   {
+    //for immediate value
+    if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type!="Imm"){
 
-    //for x86 assembly generator
-    if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
-      auto reg = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+      auto reg = TEMP_REG2;
       std::stringstream ss;
       if(local_op==eADD)
-        ss <<"  add " << reg << ", " << expr_1_x86_temp_value;
+        ss <<"  add " << reg<<", " << expr_1_x86_temp_value;
       else
-        ss <<"  sub " << reg << ", " << expr_1_x86_temp_value;
-      
+        ss <<"  sub " << reg<<", " << expr_1_x86_temp_value;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      updateVarInfoRegisterName(expr_2_x86_temp_value, reg);
-      x86_temp_value = expr_2_x86_temp_value;
-      x86_temp_value_type = "Var";//for the eapp, ass...
-      ALUtempReg=reg;
-    }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
-      auto reg1 = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
-      auto reg2 = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+      x86_temp_value_type =expr_2_x86_temp_value_type;
+      TEMP_REG = reg;
+    } else if(expr_1_x86_temp_value_type!="Imm"&&expr_2_x86_temp_value_type=="Imm"){
+      auto reg = TEMP_REG1;
       std::stringstream ss;
       if(local_op==eADD)
-        ss << "  add " << reg1 << ", " << reg2;
+        ss <<"  add " << reg<<", " << expr_2_x86_temp_value;
       else
-        ss << "  sub " << reg1 << ", " << reg2;
-
+        ss <<"  sub " << reg<<", " << expr_2_x86_temp_value;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      updateVarInfoRegisterName(expr_1_x86_temp_value, reg1);
-      updateRegisterAvailability(reg2, true);
-      x86_temp_value = expr_1_x86_temp_value;
-      x86_temp_value_type="Var";
-      ALUtempReg=reg1;
-    } else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Imm"){
-      auto reg = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
-      std::stringstream ss;
-      if(local_op==eADD)
-        ss <<"  add " << reg << ", " << expr_2_x86_temp_value;
-      else
-        ss <<"  sub " << reg << ", " << expr_2_x86_temp_value;
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      updateVarInfoRegisterName(expr_1_x86_temp_value, reg);
-      x86_temp_value = expr_1_x86_temp_value;
-      x86_temp_value_type = "Var";//for the eapp, ass...
-      ALUtempReg=reg;
+       x86_temp_value_type =expr_1_x86_temp_value_type;
+      TEMP_REG = reg;
     } else if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Imm"){
-      auto ival = std::stoi(expr_1_x86_temp_value)+std::stoi(expr_2_x86_temp_value);
-      x86_temp_value = std::to_string(ival);
-      x86_temp_value_type ="Imm";
-    } else{//multi funcs alu
+      if(local_op==eADD){
+        auto ival = std::stoi(expr_1_x86_temp_value)+std::stoi(expr_2_x86_temp_value);
+        x86_temp_value = std::to_string(ival);
+        x86_temp_value_type ="Imm";
+      }else if(local_op==eSUB){
+        auto ival = std::stoi(expr_1_x86_temp_value)-std::stoi(expr_2_x86_temp_value);
+        x86_temp_value = std::to_string(ival);
+        x86_temp_value_type ="Imm";
+      }
+    } else{
+      //TO DO , reg allocation: spill..
       std::stringstream ss;
       if(local_op==eADD){
-        ss <<"  add "<< expr_1_x86_temp_value<<", "<<expr_2_x86_temp_value<<std::endl;
-      }else{
-        ss <<"  sub "<< expr_1_x86_temp_value<<", "<<expr_2_x86_temp_value<<std::endl;
+        ss << "  add " << TEMP_REG1 << ", " << TEMP_REG2;
+        TEMP_REG = TEMP_REG1;
+        x86_temp_value_type =expr_1_x86_temp_value_type;
+      } else{
+        ss << "  sub " << TEMP_REG1 << ", " << TEMP_REG2;
+        TEMP_REG = TEMP_REG1;
+        x86_temp_value_type =expr_1_x86_temp_value_type;
       }
-      ss <<"  mov eax, "<<expr_1_x86_temp_value;
-      updateRegisterAvailability(expr_1_x86_temp_value,true);
-      updateRegisterAvailability(expr_2_x86_temp_value,true);
-      updateRegisterAvailability("eax",false);
-       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      x86_temp_value_type ="Fun";
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
-      
+
   }
   else
   {
-          //for x86 assembly generator
-    if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type=="Var"){
-      auto reg = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+    if(expr_1_x86_temp_value_type=="Imm"&&expr_2_x86_temp_value_type!="Imm"){
+      auto reg = TEMP_REG2;
       std::stringstream ss;
       if(local_op==eADD)
         ss <<"  addss " << reg<<", " << x86_temp_FPregister;
       else
         ss <<"  subss " << reg<<", " << x86_temp_FPregister;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      updateRegisterAvailability(x86_temp_FPregister,true);
-      x86_temp_value = expr_2_x86_temp_value;
-      x86_temp_value_type = "Var";//for the eapp, ass...
-      ALUtempReg=reg;
-    }else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Var"){
-      auto reg1 = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
-      auto reg2 = getVarInfoFromBlockMap(expr_2_x86_temp_value)->register_name;
+      x86_temp_value_type =expr_2_x86_temp_value_type;
+      TEMP_REG = reg;
+    } else if(expr_1_x86_temp_value_type!="Imm"&&expr_2_x86_temp_value_type=="Imm"){
+      auto reg = TEMP_REG1;
       std::stringstream ss;
       if(local_op==eADD)
-        ss << "  addss " << reg1 << ", " << reg2;
+        ss <<"  addss " << reg<<", " << x86_temp_FPregister;
       else
-        ss << "  subss " << reg1 << ", " << reg2;
+        ss <<"  subss " << reg<<", " << x86_temp_FPregister;
       x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      updateRegisterAvailability(reg2, true);
-      x86_temp_value = expr_1_x86_temp_value;
-      x86_temp_value_type="Var";
-      ALUtempReg=reg1;
-    } else if(expr_1_x86_temp_value_type=="Var"&&expr_2_x86_temp_value_type=="Imm"){
-      auto reg = getVarInfoFromBlockMap(expr_1_x86_temp_value)->register_name;
-      std::stringstream ss;
-      if(local_op==eADD)
-        ss <<"  addss " << reg << ", " << x86_temp_FPregister;
-      else
-        ss <<"  subss " << reg << ", " << x86_temp_FPregister;
-      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
-      updateRegisterAvailability(x86_temp_FPregister,true);
-      x86_temp_value = expr_1_x86_temp_value;
-      x86_temp_value_type = "Var";//for the eapp, ass...
-      ALUtempReg=reg;
+      x86_temp_value_type =expr_1_x86_temp_value_type;
+      TEMP_REG = reg;
     } else{
-      ; //maybe not need
+
+      std::stringstream ss;
+      if(local_op==eADD){
+        ss << "  addss " << TEMP_REG1 << ", " << TEMP_REG2;
+        x86_temp_value_type =expr_1_x86_temp_value_type;
+        TEMP_REG = TEMP_REG1;
+      } else{
+        ss << "  subss " << TEMP_REG1 << ", " << TEMP_REG2;
+        x86_temp_value_type =expr_1_x86_temp_value_type;
+        TEMP_REG = TEMP_REG1;
+      }
+      x86_function_map[globalContext.currentFrameName].push_back(ss.str());
     }
     
   }
 
-
-
-  switch (local_op)
-  {
-  case eADD:
-    // if value is int, then we use CreateAdd
-    if(expr_1_llvm_value->getType()->isIntegerTy())
-    {
-      setLLVMTempValue( LLVM_builder_->CreateAdd(
-          expr_1_llvm_value, expr_2_llvm_value, "add"));
-        
-    }
-    else
-    {
-      setLLVMTempValue( LLVM_builder_->CreateFAdd(
-          expr_1_llvm_value, expr_2_llvm_value, "add"));
-      
-    }
-    break;
-  case eSUB:
-    // if value is int, then we use CreateSub
-    if(expr_1_llvm_value->getType()->isIntegerTy())
-    {
-      setLLVMTempValue( LLVM_builder_->CreateSub(
-          expr_1_llvm_value, expr_2_llvm_value, "sub"));
-    }
-    else
-    {
-      setLLVMTempValue( LLVM_builder_->CreateFSub(
-          expr_1_llvm_value, expr_2_llvm_value, "sub"));
-    }
-    break;
-  default:
-    ERRPR_HANDLE("unknown EADD operation")
-    break;
-  }
-  
 }
 
 void JLCX86Generator::visitERel(ERel *e_rel)
