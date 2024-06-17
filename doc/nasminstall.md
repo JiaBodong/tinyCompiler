@@ -20,8 +20,9 @@ Instruction for source code install of nasm asm
 9. /you=path/nasm/bin/nasm -f elf64 ....  
     example: 
         /chalmers/users/bodong/nasm/bin/nasm -f elf64 test.asm -o test.o
-        ld test.o -o example
-        ./example
+        clang -no-pie -o pro test.o lib/runtimex64.o
+        
+        ./pro
 
 
 

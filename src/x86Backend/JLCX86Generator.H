@@ -254,10 +254,6 @@ std::map<std::string, RegisterInfo> register_map_32{
   {"r9d", {true, nullptr}},
   {"r10d", {true, nullptr}},
   {"r11d", {true, nullptr}},
-  {"r12d", {true, nullptr}},
-  {"r13d", {true, nullptr}},
-  {"r14d", {true, nullptr}},
-  {"r15d", {true, nullptr}},
 };
 
 // x86-64 gcc register info, 64 bit registers
@@ -310,8 +306,6 @@ std::map<std::string, RegisterInfo> register_map_8{
 };
 
   // for saving the block of the function
-
-
   // for saving the block of the value
   // @TODO: there are should be a better way to do this
   std::map<std::string,llvm::BasicBlock *> value_block_map_; 
@@ -412,19 +406,6 @@ std::map<std::string, RegisterInfo> register_map_8{
 
   void addVarToStackMap(std::string var_name, llvm::Value * var_value){
     block_stack_map_list.back()[getStackTop() - 4] = {var_name, var_value};
-  }
-
-  llvm::Value * getVarFromStackMap(std::string var_name){
-    for (int i = block_stack_map_list.size() - 1; i >= 0; i--){
-      for (auto it = block_stack_map_list[i].begin(); it != block_stack_map_list[i].end(); it++){
-        if (it->second.first == var_name){
-          return it->second.second;
-        }
-      }
-    }
-    // it should not reach here
-    std::cerr << "Error: variable " << var_name << " not found in llvm block stack map" << std::endl;
-    return nullptr;
   }
 
 
@@ -583,6 +564,7 @@ std::map<std::string, RegisterInfo> register_map_8{
 
   void addFuncDeclearation(Frame &frame);
 
+  std::string spillRegister(std::string register_name, type_enum type);
   
 
 public:
