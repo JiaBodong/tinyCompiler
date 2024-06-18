@@ -1,8 +1,34 @@
+/* Test boolean operators */
+
 int main () {
-int i = 0 ;
-while (i < 10) {
-if (i % 2 == 0) printInt(i) ;
-i++ ;
+  int x = 4;
+  if (3 <= x && 4 != 2 && true) {
+    printBool(true);
+  } else {
+    printString("apa");
+  }
+
+  printBool(true == true || dontCallMe(1));
+  printBool(4.0 < -50.0 && dontCallMe(2));
+
+  printBool(4 == x && true == !false && true);
+
+
+  return 0 ;
+
 }
-return 0 ;
+
+boolean dontCallMe(int x) {
+  printInt(x);
+  return true;
 }
+
+void printBool(boolean b) {
+  if (b) {
+    printString("true");
+  } else {
+    printString("false");
+ }
+ return;
+}
+

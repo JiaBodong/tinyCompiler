@@ -166,6 +166,17 @@ private:
   }
   
 
+  //store the temp stack location for register spilling
+  std::vector<int> register_spill_location;
+
+  //each element in vector + 1
+  void setTempStackSize(){
+    for(int i = 0; i < register_spill_location.size(); i++){
+      register_spill_location[i] += 16;
+    }
+
+  }
+
 
   // a queue to store function argument list register name
   std::queue<std::string> function_arg_queue_32;
@@ -382,10 +393,6 @@ std::map<std::string, RegisterInfo> register_map_8{
   }
 
   
-
-
-
-
   // mapping stack location to variable name and value.
   //  each stack correspond a local block(function). when a new block is created, a new stack is created.
   // for using of function call. each time a int/float is pushed to the stack, the stack pointer will be increased by 4/8
@@ -537,25 +544,6 @@ std::map<std::string, RegisterInfo> register_map_8{
     return "";
   }
 
-  //get availability from register name
-  bool getRegisterAvailability(std::string register_name){
-    if (register_map_32.find(register_name) != register_map_32.end()){
-      return register_map_32[register_name].available;
-    }
-    else if (register_map_64.find(register_name) != register_map_64.end()){
-      return register_map_64[register_name].available;
-    }
-    else if (register_map_128.find(register_name) != register_map_128.end()){
-      return register_map_128[register_name].available;
-    }else if (register_map_8.find(register_name) != register_map_8.end()){
-      return register_map_8[register_name].available;
-    }
-    else{
-      // it should not reach here
-      std::cerr << "Error: register " << register_name << " not found in register map" << std::endl;
-    }
-    return false;
-  }
   // type conversion
   llvm::Type *convertType(type_enum type);
   // add inner/external function to the head of the ll file
