@@ -72,7 +72,7 @@ private:
   std::string x86_temp_value;
   std::string x86_temp_value_type;
   std::string TEMP_REG;//for eadd,emul,erel
-
+  
   std::string x86_temp_FPregister;//reducdant, need to change
   bool isRelop = false;
   // for handle float equal
@@ -80,7 +80,7 @@ private:
   std::string RfpReg;
 
   bool condHasReturn = false;
-  
+
   void insertContentAtBeginning(const std::string& filename, const std::string& content) {
     // stringstream 
     std::ifstream infile(filename);
@@ -186,7 +186,7 @@ private:
 
   // pop the argument register name from the queue, if Int type, pop from 32 bit register queue, if Double type, pop from 128 bit register queue
   std::string popArgFromFunctionMap(type_enum type){
-    if (type == type_enum::INT){
+    if (type == type_enum::INT||type == type_enum::BOOL){
       if (!function_arg_queue_32.empty()){
         std::string arg_name = function_arg_queue_32.front();
         function_arg_queue_32.pop();
@@ -199,13 +199,7 @@ private:
         function_arg_queue_128.pop();
         return arg_name;
       }
-    } else if (type == type_enum::BOOL){
-      if (!function_arg_queue_8.empty()){
-        std::string arg_name = function_arg_queue_8.front();
-        function_arg_queue_8.pop();
-        return arg_name;
-      }
-    }
+    } 
     
     return "";
   }
@@ -243,7 +237,7 @@ private:
         function_arg_queue_128.push(arg);
     }
 
-    arg_list = {"al", "bl", "cl", "dl"};
+    arg_list = {"al", "bl", "cl", "dl", "sil", "dil", "r8b", "r9b", "r10b", "r11b"};
     for (const auto& arg : arg_list) {
         function_arg_queue_8.push(arg);
     }
@@ -259,12 +253,15 @@ std::map<std::string, RegisterInfo> register_map_32{
   {"ecx", {true, nullptr}},
   {"edx", {true, nullptr}},
   {"esi", {true, nullptr}},
-  {"edi", {true, nullptr}},
-  {"eip", {true, nullptr}},
+  {"edi", {true, nullptr}}, 
   {"r8d", {true, nullptr}},
   {"r9d", {true, nullptr}},
   {"r10d", {true, nullptr}},
   {"r11d", {true, nullptr}},
+  {"r12d", {true, nullptr}},
+  {"r13d", {true, nullptr}},
+  {"r14d", {true, nullptr}},
+  {"r15d", {true, nullptr}},
 };
 
 // x86-64 gcc register info, 64 bit registers
@@ -313,7 +310,12 @@ std::map<std::string, RegisterInfo> register_map_8{
   {"bl", {true, nullptr}},
   {"cl", {true, nullptr}},
   {"dl", {true, nullptr}},
-
+  {"sil", {true, nullptr}},
+  {"dil", {true, nullptr}},
+  {"r8b", {true, nullptr}},
+  {"r9b", {true, nullptr}},
+  {"r10b", {true, nullptr}},
+  {"r11b", {true, nullptr}},
 };
 
   // for saving the block of the function
@@ -472,6 +474,17 @@ std::map<std::string, RegisterInfo> register_map_8{
     return "";
   }
 
+  std::string checkBoolRegisterAvailability(){
+    for (auto it = register_map_8.begin(); it != register_map_8.end(); it++){
+      if (it->second.available){
+        return it->first;
+      }
+    }
+
+    return "";
+  }
+
+
   //update the register availability in register_map
   void updateRegisterAvailability(std::string register_name, bool available){
     if (register_map_32.find(register_name) != register_map_32.end()){
@@ -485,10 +498,11 @@ std::map<std::string, RegisterInfo> register_map_8{
     }
     else if (register_map_8.find(register_name) != register_map_8.end()){
       register_map_8[register_name].available = available;
+
     }
     else{
       // it should not reach here
-      std::cerr << "Error: register " << register_name << " not found in register map" << std::endl;
+      ;
     }
   }
 
