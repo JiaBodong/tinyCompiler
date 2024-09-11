@@ -252,19 +252,19 @@ void JLCX86Generator::visitFnDef(FnDef *fn_def)
 
     for (auto & arg : func.args)
     {
-      auto arg_iter = llvm_func->arg_begin();// get the value* of the argument
+      //auto arg_iter = llvm_func->arg_begin();// get the value* of the argument
       for (size_t i = 0; i < func.args.size(); i++)
       {
-        if (arg.first == std::string(arg_iter->getName()))
-        {  
-          auto alloca = LLVM_builder_->CreateAlloca(convertType(arg.second), nullptr, arg.first);
-          LLVM_builder_->CreateStore(arg_iter, alloca);
-          addVarToBlockMap(arg.first, alloca);
+        // if (arg.first == std::string(arg_iter->getName()))
+        // {  
+          //auto alloca = LLVM_builder_->CreateAlloca(convertType(arg.second), nullptr, arg.first);
+          //LLVM_builder_->CreateStore(arg_iter, alloca);
+          addVarToBlockMap(arg.first, nullptr);
             // set x86 information
-          addVarToStackMap(arg.first, alloca);
+          addVarToStackMap(arg.first, nullptr);
           int stkptr = getStackTop();
           
-          addVarInfoToBlockMap(arg.first, alloca, stkptr,"");
+          addVarInfoToBlockMap(arg.first, nullptr, stkptr,"");
           
           auto reg = popArgFromFunctionMap(arg.second);
           if(reg==""){
@@ -299,8 +299,8 @@ void JLCX86Generator::visitFnDef(FnDef *fn_def)
           //restore the register availability
           updateRegisterAvailability(reg, true);
           break;
-        }
-        arg_iter++;
+        //}
+        //arg_iter++;
       }
     }
       // after init args to stack, restore the function arg map
@@ -351,7 +351,7 @@ void JLCX86Generator::visitFnDef(FnDef *fn_def)
     // if the block is not terminated, we need to add a return statement
     if (func.returnType == VOID)
     {
-      LLVM_builder_->CreateRetVoid();
+      //LLVM_builder_->CreateRetVoid();
       x86_function_map[globalContext.currentFrameName].push_back("  nop");
       x86_function_map[globalContext.currentFrameName].push_back("  leave");
       x86_function_map[globalContext.currentFrameName].push_back("  ret");
@@ -747,10 +747,7 @@ void JLCX86Generator::visitCond(Cond *cond)
   x86_function_map[globalContext.currentFrameName].push_back(ss.str());
 
   NoBstmt = 0;
-  auto expr_llvm_value = llvm_temp_value_;
 
-  LLVM_builder_->CreateCondBr(expr_llvm_value, cond_true_block, cond_end_block);
-  LLVM_builder_->SetInsertPoint(cond_true_block);
 
   auto func = globalContext.currentFrame();
   func.newBlock(); // just logic block, no need to create a label
@@ -770,14 +767,7 @@ void JLCX86Generator::visitCond(Cond *cond)
   func.releaseBlock(); // release the logic block
   removeBlockVarMap(); // release the logic block
   removeBlockVarInfoMap(); // release the logic block
-  // if the block is not terminated, we need to jump to the end block
-  if (LLVM_builder_->GetInsertBlock()->getTerminator() == nullptr)
-  {
-    LLVM_builder_->CreateBr(cond_end_block); 
-    DEBUG_PRINT("Branch:" + std::string(LLVM_builder_->GetInsertBlock()->getName()) 
-      +" is not terminated by return" );
-  }
-  LLVM_builder_->SetInsertPoint(cond_end_block); 
+
   NoBstmt = -2;
   isBstmt = 1;
 }
@@ -842,9 +832,6 @@ void JLCX86Generator::visitCondElse(CondElse *cond_else)
 
   NoBstmt = 1;
 
-  auto expr_llvm_value = llvm_temp_value_;
-  LLVM_builder_->CreateCondBr(expr_llvm_value, cond_true_block, cond_else_block);
-  LLVM_builder_->SetInsertPoint(cond_true_block);
 
   auto func = globalContext.currentFrame();
   func.newBlock(); // just logic block, no need to create a label
@@ -922,9 +909,7 @@ void JLCX86Generator::visitWhile(While *while_)
   ss<<BStmtBlkLabel<<":";
   x86_function_map[globalContext.currentFrameName].push_back(ss.str());
 
-  // jump to the cond block
-  LLVM_builder_->CreateBr(cond_block);
-  LLVM_builder_->SetInsertPoint(cond_block);
+
   if (while_->expr_) while_->expr_->accept(this);
   auto TEMP_REG0 = TEMP_REG;
   std::stringstream ss2;
@@ -941,10 +926,7 @@ void JLCX86Generator::visitWhile(While *while_)
   
   x86_function_map[globalContext.currentFrameName].push_back(ss2.str());
 
-  auto expr_llvm_value = llvm_temp_value_;
-  // jump to the loop block or end block
-  LLVM_builder_->CreateCondBr(expr_llvm_value, loop_block, end_block);
-  LLVM_builder_->SetInsertPoint(loop_block);
+
   // create a new block for the loop
   auto func = globalContext.currentFrame();
   func.newBlock(); // just logic block, no need to create a label
@@ -967,8 +949,7 @@ void JLCX86Generator::visitWhile(While *while_)
   func.releaseBlock(); // release the logic block
   removeBlockVarMap(); // release the logic block
   removeBlockVarInfoMap(); // release the logic block
-  // end block
-  LLVM_builder_->SetInsertPoint(end_block); 
+
 
   NoBstmt = -2;
   isBstmt = 1;
@@ -1279,7 +1260,7 @@ void JLCX86Generator::visitEVar(EVar *e_var)
       //std::cout << "  mov " << reg << ", dword [rbp" << stkloc << "]" << std::endl;
       updateRegisterAvailability(reg, false);
       updateVarInfoRegisterName(e_var->ident_, reg);
-      updateRegisterValue(var, reg);
+      
 
       //push the inst to x86_code_inst
       std::stringstream ss;
@@ -1302,7 +1283,6 @@ void JLCX86Generator::visitEVar(EVar *e_var)
       
       updateRegisterAvailability(reg, false);
       updateVarInfoRegisterName(e_var->ident_, reg);
-      updateRegisterValue(var, reg);
 
       //push the inst to x86_code_inst
       std::stringstream ss;
@@ -1317,7 +1297,6 @@ void JLCX86Generator::visitEVar(EVar *e_var)
 
     updateRegisterAvailability(reg, false);
     updateVarInfoRegisterName(e_var->ident_, reg);
-    updateRegisterValue(var, reg);
 
     //push the inst to x86_code_inst
     std::stringstream ss;
@@ -1340,10 +1319,7 @@ void JLCX86Generator::visitEArrayNew(EArrayNew *e_array_new)
     std::cerr << "ERROR: can just declare a array of [] int type\n";
     exit(1);
   }
-  llvm::Value* var = llvm_temp_value_;
-  
-  //setLLVMTempValue( LLVM_builder_->CreateLoad(convertType(INT), var, "tmp"));
-  setLLVMTempValue( var);
+
   if (e_array_new->type_) e_array_new->type_->accept(this);
   if(temp_type == VOID){
     std::cerr << "ERROR: cannot declare a array variable with void type\n";
@@ -1462,7 +1438,7 @@ void JLCX86Generator::visitEApp(EApp *e_app)
   for (auto & expr : *(e_app->listexpr_))
   {
     expr->accept(this);
-    args.push_back(llvm_temp_value_);
+    //args.push_back(llvm_temp_value_);
 
     //for x86 func call
     DEBUG_PRINT("x86 func call")
@@ -1658,32 +1634,7 @@ void JLCX86Generator::visitEString(EString *e_string)
   static std::map<std::string, int> string_id_map;
   static std::map<int, llvm::GlobalVariable*> global_sid_var_map;
   
-  int id = -1;
-  if (string_id_map.find(e_string->string_) == string_id_map.end())
-  {
-    string_id_map[e_string->string_] = global_string_id;
-    global_string_id++;
-  }
-  id = string_id_map[e_string->string_];
-  if (global_sid_var_map.find(id) == global_sid_var_map.end())
-  {
-    DEBUG_PRINT("Add string to global context: " 
-      + e_string->string_ + " id: " + std::to_string(id));
-
-    auto global_var = new llvm::GlobalVariable(
-      *LLVM_module_, 
-      llvm::ArrayType::get(llvm::Type::getInt8Ty(*LLVM_Context_), e_string->string_.size() + 1),
-      true,
-      llvm::GlobalValue::PrivateLinkage,
-      llvm::ConstantDataArray::getString(*LLVM_Context_, e_string->string_),
-      "str" + std::to_string(id)
-    );
-    global_sid_var_map[id] = global_var;
-  }
-
-  setLLVMTempValue( global_sid_var_map[id]);
-
-
+  
   //for x86 assembly generator
   std::string StrNum;
   std::string StrIdentifier;
@@ -1717,7 +1668,6 @@ void JLCX86Generator::visitNeg(Neg *neg)
   // if value is int, then we use CreateNeg
   if(temp_type == INT)
   {
-    setLLVMTempValue( LLVM_builder_->CreateNeg(llvm_temp_value_));
     if(x86_temp_value_type=="Imm"){
     x86_temp_value = "-" + x86_temp_value;
     }
@@ -1731,7 +1681,6 @@ void JLCX86Generator::visitNeg(Neg *neg)
   }
   else
   {
-    setLLVMTempValue( LLVM_builder_->CreateFNeg(llvm_temp_value_));
     auto reg = checkDoubleRegisterAvailability();
     if(x86_temp_value_type=="Imm"){
       std::stringstream ss;
@@ -1767,8 +1716,6 @@ void JLCX86Generator::visitNot(Not *not_)
     TEMP_REG = TEMP_REG0;
   }
   
-  // llvm not
-  setLLVMTempValue(LLVM_builder_->CreateNot(llvm_temp_value_));
 
 }
 
@@ -2109,7 +2056,7 @@ void JLCX86Generator::visitERel(ERel *e_rel)
   std::stringstream ss;
 
   // if value is int, then we use CreateICmpSLT
-  if(expr_1_llvm_value->getType()->isIntegerTy())//bool is involved
+  if(temp_type == INT || temp_type ==BOOL)//bool is involved
   {
     
     //for x86 assembly generator
@@ -2175,92 +2122,48 @@ void JLCX86Generator::visitERel(ERel *e_rel)
   switch (local_op)
   {
   case eLT:
-    // if value is int, then we use CreateICmpSLT
-    if(expr_1_llvm_value->getType()->isIntegerTy())
-    {
-      setLLVMTempValue( LLVM_builder_->CreateICmpSLT(
-          expr_1_llvm_value, expr_2_llvm_value, "lt"));
-    }
-    else
-    {
-      setLLVMTempValue( LLVM_builder_->CreateFCmpOLT(
-          expr_1_llvm_value, expr_2_llvm_value, "lt"));
-    }
+    
     temp_op = eLT;
-    if(expr_1_llvm_value->getType()->isIntegerTy())
+    if(temp_type == INT || temp_type ==BOOL)
       x86_function_map[globalContext.currentFrameName].push_back("  setl " + reg);
     else
       x86_function_map[globalContext.currentFrameName].push_back("  setb " + reg);
     
     break;
   case eLE: 
-    // if value is int, then we use CreateICmpSLE
-    if(expr_1_llvm_value->getType()->isIntegerTy())
-    {
-      setLLVMTempValue( LLVM_builder_->CreateICmpSLE(
-          expr_1_llvm_value, expr_2_llvm_value, "le"));
-      
-    }
-    else
-    {
-      setLLVMTempValue( LLVM_builder_->CreateFCmpOLE(
-          expr_1_llvm_value, expr_2_llvm_value, "le"));
-    }
+
     temp_op = eLE;
-    if(expr_1_llvm_value->getType()->isIntegerTy())
+    if(temp_type == INT || temp_type ==BOOL)
       x86_function_map[globalContext.currentFrameName].push_back("  setle " + reg);
     else
       x86_function_map[globalContext.currentFrameName].push_back("  setbe " + reg);
     
     break;
   case eGT:
-    // if value is int, then we use CreateICmpSGT
-    if(expr_1_llvm_value->getType()->isIntegerTy())
-    {
-      setLLVMTempValue( LLVM_builder_->CreateICmpSGT(
-          expr_1_llvm_value, expr_2_llvm_value, "gt"));
-    }
-    else
-    {
-      setLLVMTempValue( LLVM_builder_->CreateFCmpOGT(
-          expr_1_llvm_value, expr_2_llvm_value, "gt"));
-    }
+    
+    
     temp_op = eGT;
-    if(expr_1_llvm_value->getType()->isIntegerTy())
+    if(temp_type == INT || temp_type ==BOOL)
       x86_function_map[globalContext.currentFrameName].push_back("  setg "+ reg);
     else
       x86_function_map[globalContext.currentFrameName].push_back("  seta "+ reg);
     break;
   case eGE:
-    // if value is int, then we use CreateICmpSGE
-    if(expr_1_llvm_value->getType()->isIntegerTy())
-    {
-      setLLVMTempValue( LLVM_builder_->CreateICmpSGE(
-          expr_1_llvm_value, expr_2_llvm_value, "ge"));
-    }
-    else
-    {
-      setLLVMTempValue( LLVM_builder_->CreateFCmpOGE(
-          expr_1_llvm_value, expr_2_llvm_value, "ge"));
-    }
+ 
     temp_op = eGE;
-    if(expr_1_llvm_value->getType()->isIntegerTy())
+    if(temp_type == INT || temp_type ==BOOL)
       x86_function_map[globalContext.currentFrameName].push_back("  setge " + reg);
     else
       x86_function_map[globalContext.currentFrameName].push_back("  setae " + reg);
     break;
   case eEQ:
-    // if value is int, then we use CreateICmpEQ
-    if(expr_1_llvm_value->getType()->isIntegerTy())
+    
+    if(temp_type == INT || temp_type == BOOL)
     {
-      setLLVMTempValue( LLVM_builder_->CreateICmpEQ(
-          expr_1_llvm_value, expr_2_llvm_value, "eq"));
           x86_function_map[globalContext.currentFrameName].push_back("  sete " + reg);
     }
     else
     {
-      setLLVMTempValue( LLVM_builder_->CreateFCmpOEQ(
-          expr_1_llvm_value, expr_2_llvm_value, "eq"));
           x86_function_map[globalContext.currentFrameName].push_back("  subss " + LfpReg + ", " + RfpReg);
           x86_function_map[globalContext.currentFrameName].push_back("  ucomiss " + LfpReg + ", dword [epsilon]");
           x86_function_map[globalContext.currentFrameName].push_back("  setbe " + reg);
@@ -2269,17 +2172,7 @@ void JLCX86Generator::visitERel(ERel *e_rel)
    
     break;
   case eNE:
-    // if value is int, then we use CreateICmpNE
-    if(expr_1_llvm_value->getType()->isIntegerTy())
-    {
-      setLLVMTempValue( LLVM_builder_->CreateICmpNE(
-          expr_1_llvm_value, expr_2_llvm_value, "ne"));
-    }
-    else
-    {
-      setLLVMTempValue( LLVM_builder_->CreateFCmpONE(
-          expr_1_llvm_value, expr_2_llvm_value, "ne"));
-    }
+
     temp_op = eNE;
     x86_function_map[globalContext.currentFrameName].push_back("  setne " + reg);
     break;
@@ -2311,12 +2204,8 @@ void JLCX86Generator::visitEAnd(EAnd *e_and)
     updateBoolBlk();
   }
   if (e_and->expr_1) e_and->expr_1->accept(this);
-  
-  auto expr_1_llvm_value = llvm_temp_value_;
+
   auto TEMP_REG1=TEMP_REG;
-  
-  LLVM_builder_->CreateCondBr(expr_1_llvm_value, and_true_block, and_end_block);
-  LLVM_builder_->SetInsertPoint(and_true_block);
 
   if(x86_temp_value_type=="Imm"){
     std::stringstream ss;
@@ -2410,12 +2299,9 @@ void JLCX86Generator::visitEOr(EOr *e_or)
     updateBoolBlk();
   }
   if (e_or->expr_1) e_or->expr_1->accept(this);
-  auto expr_1_llvm_value = llvm_temp_value_;
+
   auto TEMP_REG1=TEMP_REG;
 
-  
-  LLVM_builder_->CreateCondBr(expr_1_llvm_value, or_end_block, or_false_block);
-  LLVM_builder_->SetInsertPoint(or_false_block);
   
   if(x86_temp_value_type=="Imm"){
      std::stringstream ss;

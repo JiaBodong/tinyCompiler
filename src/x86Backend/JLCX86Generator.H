@@ -43,7 +43,7 @@ public:
   Context globalContext;
   type_enum temp_type;
   op_enum temp_op;
-  bool isALU = false;
+ 
   JLCX86Generator(): LLVM_Context_(std::make_unique<llvm::LLVMContext>()),
                       LLVM_module_(std::make_unique<llvm::Module>("JLC_llvm", *LLVM_Context_)),
                       LLVM_builder_(std::make_unique<llvm::IRBuilder<>>(*LLVM_Context_))
@@ -536,27 +536,7 @@ std::map<std::string, RegisterInfo> register_map_8{
     }
   }
 
-  //get the register from to the value*
-  std::string getRegisterFromValue(llvm::Value * value){
-    for (auto it = register_map_32.begin(); it != register_map_32.end(); it++){
-      if (it->second.value == value){
-        return it->first;
-      }
-    }
-    for (auto it = register_map_64.begin(); it != register_map_64.end(); it++){
-      if (it->second.value == value){
-        return it->first;
-      }
-    }
-    for (auto it = register_map_128.begin(); it != register_map_128.end(); it++){
-      if (it->second.value == value){
-        return it->first;
-      }
-    }
-    // it should not reach here
-    std::cerr << "Error: value not found in register map" << std::endl;
-    return "";
-  }
+
 
   // type conversion
   llvm::Type *convertType(type_enum type);

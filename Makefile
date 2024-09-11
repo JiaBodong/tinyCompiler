@@ -13,9 +13,10 @@ ifdef DEBUG
 	CCFLAGS += -DDEBUG
 endif
 
+
 # llvm config
 LLVM_CC_CONFIG = `llvm-config --cxxflags` -fexceptions
-LLVM_LD_CONFIG = `llvm-config --ldflags --libs --system-libs`
+LLVM_LD_CONFIG = `llvm-config --ldflags --libs` /lib/x86_64-linux-gnu/libtinfo.so.6
 
 
 BUILD_DIR := build
