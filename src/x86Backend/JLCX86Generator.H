@@ -318,26 +318,6 @@ std::map<std::string, RegisterInfo> register_map_8{
   {"r11b", {true, nullptr}},
 };
 
-  // for saving the block of the function
-  // for saving the block of the value
-  // @TODO: there are should be a better way to do this
-  std::map<std::string,llvm::BasicBlock *> value_block_map_; 
-
-  void setLLVMTempValue(llvm::Value * value){
-    llvm_temp_value_ = value;
-    // add the block of the value to the map
-    value_block_map_[std::string(value->getName())] = LLVM_builder_->GetInsertBlock();
-  }
-
-  llvm::BasicBlock * getBlockOfValue(llvm::Value* &value){
-    if (value_block_map_.find(std::string(value->getName())) != value_block_map_.end()){
-      return value_block_map_[std::string(value->getName())];
-    }
-    // should not reach here
-    std::cerr << "Error: block of value not found" << std::endl;
-    exit(1);
-    return nullptr;
-  }
 
   // for saving the variable in the block, the last element is the current block
   // mapping from original variable name to llvm variable 
